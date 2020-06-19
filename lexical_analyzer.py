@@ -1,75 +1,24 @@
 # Library to take input as command line argument
 import sys
 
-class Token():
-    """
-        Token class is responsible for creating tokens
-    """
+# Module to import some helper functions
+from global_helpers import error, is_alpha, is_alnum, is_digit
 
-    def __init__(self, type, val):
-        """
-            Class initializer
+# Module to import Token class
+from token_class import Token
 
-            Params
-            ======
-            type     (string) = type of token as string
-            typedig  (int)    = type of token as integer
-            val      (string) = value stored at token
-        """
-
-        self.type = type
-        self.typedig = self.token2dig(type)
-        self.val = val
-
-    def __str__(self):
-        """
-            Returns
-            =======
-            The string representation of token class, which can be used to print the tokens
-        """
-
-        return "Token(%s, %s)" % (self.type, self.val)
-
-    def token2dig(self, str_type):
-        """
-            Params
-            ======
-            str_type (string) = String representation of token type
-
-            Returns
-            =======
-            The integer representation of the string token
-        """
-
-        dic = {"number": 1, "string": 2, "print": 3}
-        return dic.get(str_type, 0)
-
-def is_digit(char):
+def is_keyword(value):
     """
         Params
         ======
-        char (string) = Single character mostly part of a longer string
+        value (string) = The string to be checked for keyword
 
         Returns
         =======
-        Checks whether the character is number or not, since '.' is not considered a digit by the
-        standard isdigit function
+        Whether the value passed is a keyword or not
     """
 
-    if char in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']:
-        return True
-    return False
-
-def error(msg):
-    """
-        Params
-        ======
-        msg (string) = The message to be shown as error message
-    """
-
-    # Prints the error to screen in red color and then exits tokenizer
-    print('\033[91mError: ' + msg)
-    sys.exit()
+    return value in ['print']
 
 def numeric_val(source_code, i):
     """
@@ -128,6 +77,30 @@ def string_val(source_code, i):
 
     return Token("string", string_constant), i
 
+def keyword_identifier(source_code, i):
+    """
+        Params
+        ======
+        source_code (string) = The string containing simc source code
+        i           (int)    = The current index in the source code
+
+        Returns
+        =======
+        The token generated for the keyword or identifier and the current position in source code
+    """
+
+    value = ""
+
+    # Loop until we get a non-digit character
+    while(is_alnum(source_code[i])):
+        value += source_code[i]
+        i += 1
+
+    if is_keyword(value):
+        return Token(value, ""), i
+
+    return Token("id", value), i
+
 def lexical_analyzer():
     """
         Returns
@@ -160,6 +133,15 @@ def lexical_analyzer():
         elif source_code[i] == '\"':
             token, i = string_val(source_code, i)
             tokens.append(token)
+        elif is_alnum(source_code[i]):
+            token, i = keyword_identifier(source_code, i)
+            tokens.append(token)
+        elif source_code[i] == '(':
+            tokens.append(Token("left_paren", ""))
+            i += 1
+        elif source_code[i] == ')':
+            tokens.append(Token("right_paren", ""))
+            i += 1
         else:
             i += 1
 
