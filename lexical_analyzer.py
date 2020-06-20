@@ -1,4 +1,4 @@
-# Library to take input as command line argument
+# Standard library to take input as command line argument
 import sys
 
 # Module to import some helper functions
@@ -75,7 +75,7 @@ def string_val(source_code, i):
     # Skip the " character so that it does not loop back to this function incorrectly
     i += 1
 
-    return Token("string", string_constant), i
+    return Token("string", "\"" + string_constant + "\""), i
 
 def keyword_identifier(source_code, i):
     """
@@ -101,16 +101,13 @@ def keyword_identifier(source_code, i):
 
     return Token("id", value), i
 
-def lexical_analyzer():
+def lexical_analyze(filename):
     """
         Returns
         ========
         A list of tokens of the source code, if the code is lexically correct, otherwise
         presents user with an error
     """
-
-    # Get filename input as a command line argument
-    filename = sys.argv[1]
 
     # Check if file extension is .simc or not
     if('.' not in filename or filename.split('.')[-1] != 'simc'):
@@ -120,6 +117,7 @@ def lexical_analyzer():
     source_code = open(filename, 'r').read()
     source_code += '\0'
 
+    # List of tokens
     tokens = []
 
     # Loop through the source code character by character
@@ -130,28 +128,25 @@ def lexical_analyzer():
         if is_digit(source_code[i]):
             token, i = numeric_val(source_code, i)
             tokens.append(token)
+        # If quote appears the value is a string token
         elif source_code[i] == '\"':
             token, i = string_val(source_code, i)
             tokens.append(token)
+        # If alphabet or number appears then it might be either a keyword or an identifier
         elif is_alnum(source_code[i]):
             token, i = keyword_identifier(source_code, i)
             tokens.append(token)
+        # Identifying left paren token
         elif source_code[i] == '(':
             tokens.append(Token("left_paren", ""))
             i += 1
+        # Identifying right paren token
         elif source_code[i] == ')':
             tokens.append(Token("right_paren", ""))
             i += 1
+        # Otherwise increment the index
         else:
             i += 1
 
+    # Return the generated tokens
     return tokens
-
-# Main
-if __name__ == '__main__':
-    # Call the lexical analyzer
-    tokens = lexical_analyzer()
-
-    # Print all the tokens
-    for token in tokens:
-        print(token)

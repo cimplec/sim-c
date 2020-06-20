@@ -10,6 +10,11 @@ class Token():
             Params
             ======
             type     (string) = type of token as string
+            val      (string) = value stored at token
+
+            Values
+            ======
+            type     (string) = type of token as string
             typedig  (int)    = type of token as integer
             val      (string) = value stored at token
         """
@@ -22,7 +27,7 @@ class Token():
         """
             Returns
             =======
-            The string representation of token class, which can be used to print the tokens
+            The string representation of Token object, which can be used to print the tokens
         """
 
         return "Token(%s, %s)" % (self.type, self.val)

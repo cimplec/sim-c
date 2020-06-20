@@ -1,4 +1,2 @@
-3.14159
-"hello world"
-hello_world1
 print("Hello World")
+print("3.14159")
