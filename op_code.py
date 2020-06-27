@@ -3,7 +3,7 @@ class OpCode():
         OpCode class is responsible for creating opcodes
     """
 
-    def __init__(self, opcode, val):
+    def __init__(self, opcode, val, dtype=None):
         """
             Params
             ======
@@ -20,6 +20,7 @@ class OpCode():
         self.type = opcode
         self.typedig = self.opcode2dig(type)
         self.val = val
+        self.dtype = dtype
 
     def __str__(self):
         """
@@ -28,7 +29,7 @@ class OpCode():
             The string representation of OpCode object, which can be used to print the opcodes
         """
 
-        return "OpCode(%s, %s)" % (self.opcode, self.val)
+        return "OpCode(%s, %s, %s)" % (self.type, self.val, self.dtype)
 
     def opcode2dig(self, str_type):
         """

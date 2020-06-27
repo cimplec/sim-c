@@ -43,6 +43,12 @@ def compile(opcodes, c_filename):
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
             ccode += "\tprintf(%s);\n" % opcode.val
+        elif opcode.type == "var_assign":
+            val = opcode.val.split('---')
+            if(opcode.dtype == 'string'):
+                opcode.dtype = 'char'
+                val[0] += '[]'
+            ccode += "\t" + opcode.dtype + " " + val[0] + " = " + val[1] + ";\n"
 
     # Add return 0 to the end of code
     ccode += "\n\treturn 0;\n}"

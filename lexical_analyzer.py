@@ -18,9 +18,9 @@ def is_keyword(value):
         Whether the value passed is a keyword or not
     """
 
-    return value in ['print']
+    return value in ['print', 'var']
 
-def numeric_val(source_code, i):
+def numeric_val(source_code, i, table):
     """
         Params
         ======
@@ -44,9 +44,20 @@ def numeric_val(source_code, i):
     if(numeric_constant.count('.') > 1):
         error('Invalid numeric constant, cannot have more than one decimal point in a number!')
 
-    return Token("number", numeric_constant), i
+    length = len(numeric_constant.split('.')[1]) if '.' in numeric_constant else 0
 
-def string_val(source_code, i):
+    type = 'int'
+    if(length != 0):
+        if(length <= 7):
+            type = 'float'
+        elif(length >= 7):
+            type = 'double'
+
+    id = table.entry(numeric_constant, type, 'constant')
+
+    return Token("number", id), i
+
+def string_val(source_code, i, table):
     """
         Params
         ======
@@ -75,9 +86,17 @@ def string_val(source_code, i):
     # Skip the " character so that it does not loop back to this function incorrectly
     i += 1
 
-    return Token("string", "\"" + string_constant + "\""), i
+    type = 'char'
+    if(len(string_constant) > 1):
+        type = 'string'
 
-def keyword_identifier(source_code, i):
+    string_constant = '\"' + string_constant + '\"' if type == 'string' else '\'' + string_constant + '\''
+
+    id = table.entry(string_constant, type, 'constant')
+
+    return Token("string", id), i
+
+def keyword_identifier(source_code, i, table):
     """
         Params
         ======
@@ -99,9 +118,15 @@ def keyword_identifier(source_code, i):
     if is_keyword(value):
         return Token(value, ""), i
 
-    return Token("id", value), i
+    # Check if identifier is in symbol table
+    id = table.get_by_symbol(value)
 
-def lexical_analyze(filename):
+    if(id == -1):
+        id = table.entry(value, 'var', 'variable')
+
+    return Token("id", id), i
+
+def lexical_analyze(filename, table):
     """
         Returns
         ========
@@ -126,15 +151,15 @@ def lexical_analyze(filename):
         # If a digit appears, call numeric_val function and add the numeric token to list,
         # if it was correct
         if is_digit(source_code[i]):
-            token, i = numeric_val(source_code, i)
+            token, i = numeric_val(source_code, i, table)
             tokens.append(token)
         # If quote appears the value is a string token
         elif source_code[i] == '\"':
-            token, i = string_val(source_code, i)
+            token, i = string_val(source_code, i, table)
             tokens.append(token)
         # If alphabet or number appears then it might be either a keyword or an identifier
         elif is_alnum(source_code[i]):
-            token, i = keyword_identifier(source_code, i)
+            token, i = keyword_identifier(source_code, i, table)
             tokens.append(token)
         # Identifying left paren token
         elif source_code[i] == '(':
@@ -143,6 +168,10 @@ def lexical_analyze(filename):
         # Identifying right paren token
         elif source_code[i] == ')':
             tokens.append(Token("right_paren", ""))
+            i += 1
+        # Identifying assignment token
+        elif source_code[i] == '=':
+            tokens.append(Token("assignment", ""))
             i += 1
         # Otherwise increment the index
         else:

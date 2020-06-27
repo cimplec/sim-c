@@ -21,7 +21,7 @@ def check_if(given_type, should_be_types, msg):
     if(given_type not in should_be_types):
         error(msg)
 
-def print_statement(tokens, i):
+def print_statement(tokens, i, table):
     """
         Params
         ======
@@ -45,15 +45,40 @@ def print_statement(tokens, i):
     check_if(tokens[i].type, "left_paren", "Expected ( after print statement")
 
     # Check if string/number follows ( in print statement
-    check_if(tokens[i+1].type, ["number", "string"], "Expected expression inside print statement")
+    check_if(tokens[i+1].type, ["number", "string", "id"], "Expected expression inside print statement")
 
     # Check if print statement has closing )
     check_if(tokens[i+2].type, "right_paren", "Expected ) after expression in print statement")
 
-    # Return the opcode and i+3 (the token after print statement)
-    return OpCode("print", tokens[i+1].val), i+3
+    value, type, typedata = table.get_by_id(tokens[i+1].val)
 
-def parse(tokens):
+    op_value = ""
+    if(type == 'string'):
+        op_value = value if typedata == 'constant' else '\"%s\", ' + value
+    elif(type == 'char'):
+        op_value = '\"%c\", ' + value
+    elif(type == 'int'):
+        op_value = '\"%d\", ' + str(value)
+    elif(type == 'float'):
+        op_value = '\"%f\", ' + str(value)
+    elif(type == 'double'):
+        op_value = '\"%lf\", ' + str(value)
+
+    # Return the opcode and i+3 (the token after print statement)
+    return OpCode("print", op_value), i+3
+
+def var_statement(tokens, i, table):
+    check_if(tokens[i].type, "id", "Expected id after var keyword")
+
+    if(tokens[i+1].type == 'assignment'):
+        if(tokens[i+2].type in ['number', 'string']):
+            value, type, typedata = table.get_by_id(tokens[i+2].val)
+
+            table.symbol_table[tokens[i].val][1] = type
+
+            return OpCode("var_assign", table.symbol_table[tokens[i].val][0] + '---' + value, type), i+3
+
+def parse(tokens, table):
     """
         Params
         ======
@@ -72,11 +97,16 @@ def parse(tokens):
     op_codes = []
 
     # Loop through all the tokens
-    for i in range(len(tokens)):
+    i = 0
+    while(i <= len(tokens) - 1):
         # If token is of type print then generate print opcode
         if tokens[i].type == "print":
-            print_opcode, i = print_statement(tokens, i+1)
+            print_opcode, i = print_statement(tokens, i+1, table)
             op_codes.append(print_opcode)
+        # If token is of type var then generate var opcode
+        elif tokens[i].type == "var":
+            var_opcode, i = var_statement(tokens, i+1, table)
+            op_codes.append(var_opcode)
         # Otherwise increment the index
         else:
             i += 1
