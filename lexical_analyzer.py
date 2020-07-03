@@ -173,6 +173,20 @@ def lexical_analyze(filename, table):
         elif source_code[i] == '=':
             tokens.append(Token("assignment", ""))
             i += 1
+        # identifying plus token
+        elif source_code[i] == '+':
+            tokens.append(Token("plus", ""))
+            i += 1
+        # Identifying minus token
+        elif source_code[i] == '-':
+            tokens.append(Token("minus", ""))
+            i += 1
+        elif source_code[i] == '*':
+            tokens.append(Token("multiply", ""))
+            i += 1
+        elif source_code[i] == '/':
+            tokens.append(Token("divide", ""))
+            i += 1
         # Otherwise increment the index
         else:
             i += 1

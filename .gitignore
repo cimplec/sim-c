@@ -2,3 +2,6 @@ __pycache__
 .DS_Store
 *.c
 *.simc
+*.pyc
+a.out
+a.exe
