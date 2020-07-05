@@ -48,7 +48,13 @@ def compile(opcodes, c_filename):
             if(opcode.dtype == 'string'):
                 opcode.dtype = 'char'
                 val[0] += '[]'
-            ccode += "\t" + opcode.dtype + " " + val[0] + " = " + val[1] + ";\n"
+            ccode += "\t" + opcode.dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
+        elif opcode.type == "var_no_assign":
+            opcode.dtype = str(opcode.dtype) if opcode.dtype is not None else "not_known"
+            ccode += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
+        elif opcode.type == "assign":
+            val = opcode.val.split('---')
+            ccode += "\t" + val[0] + " = " + val[1] + ";\n"
 
     # Add return 0 to the end of code
     ccode += "\n\treturn 0;\n}"

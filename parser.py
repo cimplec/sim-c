@@ -34,11 +34,11 @@ def check_if_expression(tokens, i, table, msg):
     op_value = ""
     type_to_prec = {'int': 0, 'float': 1, 'double': 2}
     op_type = -1
-    if(tokens[i].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide']):
+    if(tokens[i].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
         is_expression = True
-        while(tokens[i].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide']):
+        while(tokens[i].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
 
-            if(tokens[i].type in ['number', 'string']):
+            if(tokens[i].type in ['number', 'string', 'id']):
                 value, type, typedata = table.get_by_id(tokens[i].val)
 
                 if(type == 'string'):
@@ -110,13 +110,100 @@ def print_statement(tokens, i, table):
 def var_statement(tokens, i, table):
     check_if(tokens[i].type, "id", "Expected id after var keyword")
 
-    if(tokens[i+1].type == 'assignment'):
-        if(tokens[i+2].type in ['number', 'string']):
-            value, type, typedata = table.get_by_id(tokens[i+2].val)
+    if(i+1 < len(tokens) and tokens[i+1].type == 'assignment'):
+        if(tokens[i+2].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
+            op_value = ""
+            op_type = -1
+            id_idx = i
+            j = i + 2
+            type_to_prec = {'int': 0, 'float': 1, 'double': 2}
+            prec_to_type = {0: 'int', 1: 'float', 2: 'double'}
+            while(j < len(tokens) and tokens[j].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
+                if(tokens[j].type in ['number', 'string', 'id']):
+                    value, type, typedata = table.get_by_id(tokens[j].val)
+                    print(tokens[j])
 
-            table.symbol_table[tokens[i].val][1] = type
+                    if(type == 'string'):
+                        op_value += value
+                    elif(type == 'char'):
+                        op_value += value
+                    elif(type == 'int'):
+                        op_value += str(value)
+                        op_type = type_to_prec['int'] if type_to_prec['int'] > op_type else op_type
+                    elif(type == 'float'):
+                        op_value += str(value)
+                        op_type = type_to_prec['float'] if type_to_prec['float'] > op_type else op_type
+                    elif(type == 'double'):
+                        op_value += str(value)
+                        op_type = type_to_prec['double'] if type_to_prec['double'] > op_type else op_type
+                    elif(type == 'var'):
+                        op_value += str(value)
+                else:
+                    if(tokens[j].type == 'plus'):
+                        op_value += ' + '
+                    elif(tokens[j].type == 'minus'):
+                        op_value += ' - '
+                    elif(tokens[j].type == 'multiply'):
+                        op_value += ' * '
+                    elif(tokens[j].type == 'divide'):
+                        op_value += ' / '
 
-            return OpCode("var_assign", table.symbol_table[tokens[i].val][0] + '---' + value, type), i+3
+                j += 1
+
+            table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
+
+            return OpCode("var_assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, prec_to_type[op_type]), j-1
+        else:
+            error("Required expression after assignment operator")
+    else:
+        value, type, typedata = table.get_by_id(tokens[i].val)
+        return OpCode("var_no_assign", value), i+1
+
+def assign_statement(tokens, i, table):
+
+    check_if(tokens[i+1].type, "assignment", "Expected assignment operator after identifier")
+
+    if(tokens[i+2].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
+        op_value = ""
+        op_type = -1
+        id_idx = i
+        j = i + 2
+        type_to_prec = {'int': 0, 'float': 1, 'double': 2}
+        prec_to_type = {0: 'int', 1: 'float', 2: 'double'}
+        while(j < len(tokens) and tokens[j].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
+            if(tokens[j].type in ['number', 'string', 'id']):
+                value, type, typedata = table.get_by_id(tokens[j].val)
+
+                if(type == 'string'):
+                    op_value += value
+                elif(type == 'char'):
+                    op_value += value
+                elif(type == 'int'):
+                    op_value += str(value)
+                    op_type = type_to_prec['int'] if type_to_prec['int'] > op_type else op_type
+                elif(type == 'float'):
+                    op_value += str(value)
+                    op_type = type_to_prec['float'] if type_to_prec['float'] > op_type else op_type
+                elif(type == 'double'):
+                    op_value += str(value)
+                    op_type = type_to_prec['double'] if type_to_prec['double'] > op_type else op_type
+                elif(type == 'var'):
+                    op_value += str(value)
+            else:
+                if(tokens[j].type == 'plus'):
+                    op_value += ' + '
+                elif(tokens[j].type == 'minus'):
+                    op_value += ' - '
+                elif(tokens[j].type == 'multiply'):
+                    op_value += ' * '
+                elif(tokens[j].type == 'divide'):
+                    op_value += ' / '
+
+            j += 1
+
+        table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
+
+        return OpCode("assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, ""), j-1
 
 def parse(tokens, table):
     """
@@ -147,6 +234,10 @@ def parse(tokens, table):
         elif tokens[i].type == "var":
             var_opcode, i = var_statement(tokens, i+1, table)
             op_codes.append(var_opcode)
+        # If token is of type id then generate assign opcode
+        elif tokens[i].type == "id":
+            assign_opcode, i = assign_statement(tokens, i, table)
+            op_codes.append(assign_opcode)
         # Otherwise increment the index
         else:
             i += 1
