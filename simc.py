@@ -30,4 +30,4 @@ if __name__ == "__main__":
     op_codes = parse(tokens, table)
 
     # Compile to C code
-    compile(op_codes, c_filename)
+    compile(op_codes, c_filename, table)

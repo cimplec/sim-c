@@ -9,28 +9,33 @@ from token_class import Token
 
 def is_keyword(value):
     """
+        Checks if string is keyword or not
+
         Params
         ======
         value (string) = The string to be checked for keyword
 
         Returns
         =======
-        Whether the value passed is a keyword or not
+        bool: Whether the value passed is a keyword or not
     """
 
     return value in ['print', 'var']
 
 def numeric_val(source_code, i, table):
     """
+        Processes numeric values in the source code
+
         Params
         ======
-        source_code (string) = The string containing simc source code
-        i           (int)    = The current index in the source code
+        source_code (string)      = The string containing simc source code
+        i           (int)         = The current index in the source code
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
 
         Returns
         =======
-        The token generated for the numeric constant and the current position in source code,
-        this is done only if there is no error in the numeric constant
+        Token, int: The token generated for the numeric constant and the current position in source code,
+                    this is done only if there is no error in the numeric constant
     """
 
     numeric_constant = ""
@@ -44,8 +49,10 @@ def numeric_val(source_code, i, table):
     if(numeric_constant.count('.') > 1):
         error('Invalid numeric constant, cannot have more than one decimal point in a number!')
 
+    # Check the length after . to distinguish between float and double
     length = len(numeric_constant.split('.')[1]) if '.' in numeric_constant else 0
 
+    # Determine type of numeric value
     type = 'int'
     if(length != 0):
         if(length <= 7):
@@ -53,21 +60,26 @@ def numeric_val(source_code, i, table):
         elif(length >= 7):
             type = 'double'
 
+    # Make entry in symbol table
     id = table.entry(numeric_constant, type, 'constant')
 
+    # Return number token and current index in source code
     return Token("number", id), i
 
 def string_val(source_code, i, table):
     """
+        Processes string values in the source code
+
         Params
         ======
         source_code (string) = The string containing simc source code
         i           (int)    = The current index in the source code
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
 
         Returns
         =======
-        The token generated for the string constant and the current position in source code,
-        this is done only if there is no error in the string constant
+        Token, int: The token generated for the string constant and the current position in source code,
+                    this is done only if there is no error in the string constant
     """
 
     string_constant = ""
@@ -86,26 +98,33 @@ def string_val(source_code, i, table):
     # Skip the " character so that it does not loop back to this function incorrectly
     i += 1
 
+    # Determine the type of data
     type = 'char'
     if(len(string_constant) > 1):
         type = 'string'
 
+    # Put appropriate quote
     string_constant = '\"' + string_constant + '\"' if type == 'string' else '\'' + string_constant + '\''
 
+    # Make entry in symbol table
     id = table.entry(string_constant, type, 'constant')
 
+    # Return string token and current index in source code
     return Token("string", id), i
 
 def keyword_identifier(source_code, i, table):
     """
+        Process keywords and identifiers in source code
+
         Params
         ======
         source_code (string) = The string containing simc source code
         i           (int)    = The current index in the source code
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
 
         Returns
         =======
-        The token generated for the keyword or identifier and the current position in source code
+        Token, int: The token generated for the keyword or identifier and the current position in source code
     """
 
     value = ""
@@ -115,23 +134,33 @@ def keyword_identifier(source_code, i, table):
         value += source_code[i]
         i += 1
 
+    # Check if value is keyword or not
     if is_keyword(value):
         return Token(value, ""), i
 
     # Check if identifier is in symbol table
     id = table.get_by_symbol(value)
 
+    # If identifier is not in symbol table then give a placeholder datatype var
     if(id == -1):
         id = table.entry(value, 'var', 'variable')
 
+    # Return id token and current index in source code
     return Token("id", id), i
 
 def lexical_analyze(filename, table):
     """
+        Generate tokens from source code
+
+        Params
+        ======
+        filename    (string)      = The string containing simc source code filename
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
         Returns
         ========
-        A list of tokens of the source code, if the code is lexically correct, otherwise
-        presents user with an error
+        list: A list of tokens of the source code, if the code is lexically correct, otherwise
+              presents user with an error
     """
 
     # Check if file extension is .simc or not
@@ -173,7 +202,7 @@ def lexical_analyze(filename, table):
         elif source_code[i] == '=':
             tokens.append(Token("assignment", ""))
             i += 1
-        # identifying plus token
+        # Identifying plus token
         elif source_code[i] == '+':
             tokens.append(Token("plus", ""))
             i += 1
@@ -181,11 +210,17 @@ def lexical_analyze(filename, table):
         elif source_code[i] == '-':
             tokens.append(Token("minus", ""))
             i += 1
+        # Identifying multiply token
         elif source_code[i] == '*':
             tokens.append(Token("multiply", ""))
             i += 1
+        # Identifying divide token
         elif source_code[i] == '/':
             tokens.append(Token("divide", ""))
+            i += 1
+        # Identifying newline token
+        elif source_code[i] == '\n':
+            tokens.append(Token("newline", ""))
             i += 1
         # Otherwise increment the index
         else:

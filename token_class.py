@@ -27,7 +27,7 @@ class Token():
         """
             Returns
             =======
-            The string representation of Token object, which can be used to print the tokens
+            string: The string representation of Token object, which can be used to print the tokens
         """
 
         return "Token(%s, %s)" % (self.type, self.val)
@@ -40,8 +40,10 @@ class Token():
 
             Returns
             =======
-            The integer representation of the string token
+            int: The integer representation of the string token
         """
 
-        dic = {"number": 1, "string": 2, "print": 3, "identifier": 4, "left_paren": 5, "right_paren": 6}
+        dic = {"number": 1, "string": 2, "print": 3, "identifier": 4, "left_paren": 5, "right_paren": 6,
+               "var": 7, "assignment": 8, "plus": 9, "minus": 10, "multiply": 11, "divide": 12, "newline": 13}
+
         return dic.get(str_type, 0)

@@ -6,6 +6,8 @@ from op_code import OpCode
 
 def check_if(given_type, should_be_types, msg):
     """
+        Check if type matches what it should be otherwise throw an error and exit
+
         Params
         ======
         given_type      (string)      = Type of token to be checked
@@ -21,203 +23,223 @@ def check_if(given_type, should_be_types, msg):
     if(given_type not in should_be_types):
         error(msg)
 
-def check_if_expression(tokens, i, table, msg):
+def expression(tokens, i, table, msg):
     """
+        Parse and expression from tokens
+
         Params
         ======
-        given_type      (string)      = Type of token to be checked
-        msg             (string)      = Error message to print in case some case fails
+        tokens      (list)        = List of tokens
+        i           (string/list) = Current index in list of tokens
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+        msg         (string)      = Error message to print in case some case fails
+
+        Returns
+        =======
+        string, string, int: The expression, datatype of the expression and the current index in source
+                             code after parsing
     """
 
-    # If the given_type is not part of should_be_types then throw error and exit
-    is_expression = False
+    # Initial values
     op_value = ""
-    type_to_prec = {'int': 0, 'float': 1, 'double': 2}
     op_type = -1
-    if(tokens[i].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
-        is_expression = True
-        while(tokens[i].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
 
-            if(tokens[i].type in ['number', 'string', 'id']):
-                value, type, typedata = table.get_by_id(tokens[i].val)
+    # Mapping for precedence checking (double > float > int)
+    type_to_prec = {'int': 3, 'float': 4, 'double': 5}
 
-                if(type == 'string'):
-                    op_value += value if typedata == 'constant' else '\"%s\", ' + value
-                elif(type == 'char'):
-                    op_value += '\"%c\", ' + value
-                elif(type == 'int'):
-                    op_value += str(value)
-                    op_type = type_to_prec['int'] if type_to_prec['int'] > op_type else op_type
-                elif(type == 'float'):
-                    op_value += str(value)
-                    op_type = type_to_prec['float'] if type_to_prec['float'] > op_type else op_type
-                elif(type == 'double'):
-                    op_value += str(value)
-                    op_type = type_to_prec['double'] if type_to_prec['double'] > op_type else op_type
-            else:
-                if(tokens[i].type == 'plus'):
-                    op_value += ' + '
-                elif(tokens[i].type == 'minus'):
-                    op_value += ' - '
-                elif(tokens[i].type == 'multiply'):
-                    op_value += ' * '
-                elif(tokens[i].type == 'divide'):
-                    op_value += ' / '
+    # Loop until expression is not parsed completely
+    while(tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide']):
+        # If token is identifier or constant
+        if(tokens[i].type in ['number', 'string', 'id']):
+            # Fetch information from symbol table
+            value, type, typedata = table.get_by_id(tokens[i].val)
 
-            i += 1
+            if(type == 'string'):
+                op_value += value
+                op_type = 0 if typedata == 'constant' else 1
+            elif(type == 'char'):
+                op_value += value
+                op_type = 2
+            elif(type == 'int'):
+                op_value += str(value)
+                op_type = type_to_prec['int'] if type_to_prec['int'] > op_type else op_type
+            elif(type == 'float'):
+                op_value += str(value)
+                op_type = type_to_prec['float'] if type_to_prec['float'] > op_type else op_type
+            elif(type == 'double'):
+                op_value += str(value)
+                op_type = type_to_prec['double'] if type_to_prec['double'] > op_type else op_type
+            elif(type == 'var'):
+                error("Cannot find the type of %s" % value)
+        else:
+            if(tokens[i].type == 'plus'):
+                op_value += ' + '
+            elif(tokens[i].type == 'minus'):
+                op_value += ' - '
+            elif(tokens[i].type == 'multiply'):
+                op_value += ' * '
+            elif(tokens[i].type == 'divide'):
+                op_value += ' / '
 
-    if(op_type != -1):
-        prec_to_type = {0: '\"%d\", ', 1: '\"%f\", ', 2: '\"%lf\", '}
-        op_value = prec_to_type[op_type] + op_value
+        i += 1
 
-    if(not is_expression):
+    # If expression is empty then throw an error
+    if(op_value == ""):
         error(msg)
 
-    return is_expression, i, op_value
+    # Return the expression, type of expression, and current index in source codes
+    return op_value, op_type, i
 
 def print_statement(tokens, i, table):
     """
+        Parse print statement
+
         Params
         ======
         tokens      (list) = List of tokens
         i           (int)  = Current index in token
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
 
         Returns
         =======
-        The opcode for the current code and the index after parsing print statement
+        OpCode, int: The opcode for the print code and the index after parsing print statement
 
         Grammar
         =======
         print_statement -> print(expr)
-        expr            -> string | number
+        expr            -> string | number | id | operator
         string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
         quote           -> "
         number          -> [0-9]+
+        id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+        operator        -> + | - | * | /
     """
 
     # Check if ( follows print statement
     check_if(tokens[i].type, "left_paren", "Expected ( after print statement")
 
-    # Check if string/number follows ( in print statement
-    is_expression, i, op_value = check_if_expression(tokens, i+1, table, "Expected expression inside print statement")
+    # Check if expression follows ( in print statement
+    op_value, op_type, i = expression(tokens, i+1, table, "Expected expression inside print statement")
+
+    # Map datatype to appropriate format specifiers
+    prec_to_type = {0: "", 1: "\"%s\", ", 2: "\"%c\", ", 3: "\"%d\", ", 4: "\"%f\", ", 5: "\"%lf\", "}
+    op_value = prec_to_type[op_type] + op_value
 
     # Check if print statement has closing )
     check_if(tokens[i].type, "right_paren", "Expected ) after expression in print statement")
 
-    # Return the opcode and i+3 (the token after print statement)
-    return OpCode("print", op_value), i+3
+    # Return the opcode and i+1 (the token after print statement)
+    return OpCode("print", op_value), i+1
 
 def var_statement(tokens, i, table):
+    """
+        Parse variable declaration [/initialization] statement
+
+        Params
+        ======
+        tokens      (list) = List of tokens
+        i           (int)  = Current index in token
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
+        Returns
+        =======
+        OpCode, int: The opcode for the var_assign/var_no_assign code and the index after parsing print statement
+
+        Grammar
+        =======
+        var_statement   -> var id [= expr]?
+        expr            -> string | number | id | operator
+        string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+        quote           -> "
+        number          -> [0-9]+
+        id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+        operator        -> + | - | * | /
+    """
+
+    # Check if identifier is present after var
     check_if(tokens[i].type, "id", "Expected id after var keyword")
 
+    # Check if variable is also initialized
     if(i+1 < len(tokens) and tokens[i+1].type == 'assignment'):
-        if(tokens[i+2].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
-            op_value = ""
-            op_type = -1
-            id_idx = i
-            j = i + 2
-            type_to_prec = {'int': 0, 'float': 1, 'double': 2}
-            prec_to_type = {0: 'int', 1: 'float', 2: 'double'}
-            while(j < len(tokens) and tokens[j].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
-                if(tokens[j].type in ['number', 'string', 'id']):
-                    value, type, typedata = table.get_by_id(tokens[j].val)
-                    print(tokens[j])
+        # Store the index of identifier
+        id_idx = i
 
-                    if(type == 'string'):
-                        op_value += value
-                    elif(type == 'char'):
-                        op_value += value
-                    elif(type == 'int'):
-                        op_value += str(value)
-                        op_type = type_to_prec['int'] if type_to_prec['int'] > op_type else op_type
-                    elif(type == 'float'):
-                        op_value += str(value)
-                        op_type = type_to_prec['float'] if type_to_prec['float'] > op_type else op_type
-                    elif(type == 'double'):
-                        op_value += str(value)
-                        op_type = type_to_prec['double'] if type_to_prec['double'] > op_type else op_type
-                    elif(type == 'var'):
-                        op_value += str(value)
-                else:
-                    if(tokens[j].type == 'plus'):
-                        op_value += ' + '
-                    elif(tokens[j].type == 'minus'):
-                        op_value += ' - '
-                    elif(tokens[j].type == 'multiply'):
-                        op_value += ' * '
-                    elif(tokens[j].type == 'divide'):
-                        op_value += ' / '
+        # Check if expression follows = in var statement
+        op_value, op_type, i = expression(tokens, i+2, table, "Required expression after assignment operator")
 
-                j += 1
+        # Map datatype to appropriate datatype in C
+        prec_to_type = {0: "string", 1: "string", 2: "char", 3: "int", 4: "float", 5: "double"}
 
-            table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
+        # Modify datatype of the identifier
+        table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
 
-            return OpCode("var_assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, prec_to_type[op_type]), j-1
-        else:
-            error("Required expression after assignment operator")
+        # Return the opcode and i (the token after var statement)
+        return OpCode("var_assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, prec_to_type[op_type]), i
     else:
-        value, type, typedata = table.get_by_id(tokens[i].val)
+        # Get the value from symbol table by id
+        value, _, _ = table.get_by_id(tokens[i].val)
+
+        # Return the opcode and i+1 (the token after var statement)
         return OpCode("var_no_assign", value), i+1
 
 def assign_statement(tokens, i, table):
+    """
+        Parse assignment statement
 
-    check_if(tokens[i+1].type, "assignment", "Expected assignment operator after identifier")
+        Params
+        ======
+        tokens      (list) = List of tokens
+        i           (int)  = Current index in token
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
 
-    if(tokens[i+2].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
-        op_value = ""
-        op_type = -1
-        id_idx = i
-        j = i + 2
-        type_to_prec = {'int': 0, 'float': 1, 'double': 2}
-        prec_to_type = {0: 'int', 1: 'float', 2: 'double'}
-        while(j < len(tokens) and tokens[j].type in ['number', 'string', 'plus', 'minus', 'multiply', 'divide', 'id']):
-            if(tokens[j].type in ['number', 'string', 'id']):
-                value, type, typedata = table.get_by_id(tokens[j].val)
+        Returns
+        =======
+        OpCode, int: The opcode for the assign code and the index after parsing print statement
 
-                if(type == 'string'):
-                    op_value += value
-                elif(type == 'char'):
-                    op_value += value
-                elif(type == 'int'):
-                    op_value += str(value)
-                    op_type = type_to_prec['int'] if type_to_prec['int'] > op_type else op_type
-                elif(type == 'float'):
-                    op_value += str(value)
-                    op_type = type_to_prec['float'] if type_to_prec['float'] > op_type else op_type
-                elif(type == 'double'):
-                    op_value += str(value)
-                    op_type = type_to_prec['double'] if type_to_prec['double'] > op_type else op_type
-                elif(type == 'var'):
-                    op_value += str(value)
-            else:
-                if(tokens[j].type == 'plus'):
-                    op_value += ' + '
-                elif(tokens[j].type == 'minus'):
-                    op_value += ' - '
-                elif(tokens[j].type == 'multiply'):
-                    op_value += ' * '
-                elif(tokens[j].type == 'divide'):
-                    op_value += ' / '
+        Grammar
+        =======
+        var_statement   -> var id [= expr]?
+        expr            -> string | number | id | operator
+        string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+        quote           -> "
+        number          -> [0-9]+
+        id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+        operator        -> + | - | * | /
+    """
 
-            j += 1
+    # Check if assignment operator follows identifier name
+    check_if(tokens[i].type, "assignment", "Expected assignment operator after identifier")
 
-        table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
+    # Store the index of identifier
+    id_idx = i-1
 
-        return OpCode("assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, ""), j-1
+    # Check if expression follows = in assign statement
+    op_value, op_type, i = expression(tokens, i+1, table, "Required expression after assignment operator")
+
+    #  Map datatype to appropriate datatype in C
+    prec_to_type = {0: "string", 1: "string", 2: "char", 3: "int", 4: "float", 5: "double"}
+
+    # Modify datatype of the identifier
+    table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
+
+    # Return the opcode and i (the token after assign statement)
+    return OpCode("assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, ""), i
 
 def parse(tokens, table):
     """
+        Parse tokens and generate opcodes
+
         Params
         ======
         tokens (list) = List of tokens
 
         Returns
         =======
-        The list of opcodes
+        list: The list of opcodes
 
         Grammar
         =======
-        statement -> print_statement
+        statement -> print_statement | var_statement | assign_statement
     """
 
     # List of opcodes
@@ -236,7 +258,7 @@ def parse(tokens, table):
             op_codes.append(var_opcode)
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
-            assign_opcode, i = assign_statement(tokens, i, table)
+            assign_opcode, i = assign_statement(tokens, i+1, table)
             op_codes.append(assign_opcode)
         # Otherwise increment the index
         else:

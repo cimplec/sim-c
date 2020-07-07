@@ -3,13 +3,15 @@ from op_code import OpCode
 
 def check_include(opcodes):
     """
+        Checks if any opcode requires standard libraries to be included
+
         Params
         ======
         opcodes (list) = List of opcodes
 
         Returns
         =======
-        The string representation of unique include files
+        string: The string representation of unique include files
     """
 
     # List of includes
@@ -24,12 +26,15 @@ def check_include(opcodes):
     # Return string representation of unique elements of includes list separated by newline characters
     return "\n".join(list(set(includes)))
 
-def compile(opcodes, c_filename):
+def compile(opcodes, c_filename, table):
     """
+        Compiles opcodes produced by parser into C code
+
         Params
         ======
-        opcodes    (list)   = List of opcodes
-        c_filename (string) = Name of C file to write C code into
+        opcodes    (list)        = List of opcodes
+        c_filename (string)      = Name of C file to write C code into
+        table      (SymbolTable) = Symbol table constructed during lexical analysis and parsing
     """
 
     # Check for includes
@@ -43,17 +48,37 @@ def compile(opcodes, c_filename):
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
             ccode += "\tprintf(%s);\n" % opcode.val
+        # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":
+            # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split('---')
-            if(opcode.dtype == 'string'):
-                opcode.dtype = 'char'
+
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+
+            # If it is of string type then change it to char <identifier>[]
+            if(dtype == 'string'):
+                dtype = 'char'
                 val[0] += '[]'
-            ccode += "\t" + opcode.dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
+
+            ccode += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
+        # If opcode is of type var_no_assign then generate a declaration statement
         elif opcode.type == "var_no_assign":
-            opcode.dtype = str(opcode.dtype) if opcode.dtype is not None else "not_known"
-            ccode += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
-        elif opcode.type == "assign":
+            # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split('---')
+
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+
+            # Check if dtype could be inferred or not
+            opcode.dtype = str(dtype) if dtype is not None else "not_known"
+
+            ccode += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
+        # If opcode is of type assign then generate an assignment statement
+        elif opcode.type == "assign":
+            # val contains - <identifier>---<expression>, split that into a list
+            val = opcode.val.split('---')
+
             ccode += "\t" + val[0] + " = " + val[1] + ";\n"
 
     # Add return 0 to the end of code
