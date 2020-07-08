@@ -417,6 +417,7 @@ def parse(tokens, table):
         elif tokens[i].type == "END_MAIN":
             op_codes.append(OpCode("END_MAIN", "", ""))
             i += 1
+        # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
             while_opcode, i = while_statement(tokens, i+1, table)
             op_codes.append(while_opcode)
