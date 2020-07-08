@@ -45,6 +45,6 @@ class Token():
 
         dic = {"number": 1, "string": 2, "print": 3, "identifier": 4, "left_paren": 5, "right_paren": 6,
                "var": 7, "assignment": 8, "plus": 9, "minus": 10, "multiply": 11, "divide": 12, "newline": 13,
-               "fun": 14, "return": 15}
+               "fun": 14, "return": 15, "equal": 16, "not_equal": 17, "greater_than": 18, "less_than": 19, "greater_than_equal": 20, "less_than_equal": 21}
 
         return dic.get(str_type, 0)

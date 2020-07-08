@@ -230,6 +230,30 @@ def lexical_analyze(filename, table):
         elif source_code[i] == ',':
             tokens.append(Token("comma", ""))
             i += 1
+        # Identifying equal token
+        elif source_code[i] == '==':
+            tokens.append(Token("equal", ""))
+            i += 1
+        # Identifying not_equal token
+        elif source_code[i] == '!=':
+            tokens.append(Token("not_equal", ""))
+            i += 1
+        # Identifying greater_than token
+        elif source_code[i] == '>':
+            tokens.append(Token("greater_than", ""))
+            i += 1
+        # Identifying less_than token
+        elif source_code[i] == '<':
+            tokens.append(Token("less_than", ""))
+            i += 1
+        # Identifying greater_than_equal token
+        elif source_code[i] == '>=':
+            tokens.append(Token("greater_than_equal", ""))
+            i += 1
+        # Identifying less_than_equal token
+        elif source_code[i] == '<=':
+            tokens.append(Token("less_than_equal", ""))
+            i += 1
         # Otherwise increment the index
         else:
             i += 1
