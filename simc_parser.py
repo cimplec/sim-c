@@ -298,16 +298,28 @@ def function_definition_statement(tokens, i, table):
 
 def for_loop(tokens, i, table):
     """
-    Parse for loop
+    Parse  for for_loop
 
     Params
     ======
+    tokens      (list) = List of tokens
+    i           (int)  = Current index in token
+    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
 
     Returns
     =======
+    OpCode, int: The opcode for the for loop code and the index after parsing print statement
 
     Grammar
     =======
+    for_loop -> for id in params to params
+    params                          -> expr
+    expr                            -> string | number | id 
+    string                          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+    quote                           -> "
+    number                          -> [0-9]+
+    id                              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+    
     """
 
     # Check if identifier follows for keyword
@@ -324,6 +336,9 @@ def for_loop(tokens, i, table):
 
     # Check if number follows in keyword
     check_if(tokens[i+4].type, "number", "Expected ending value")
+
+    # Return the opcode and i+1 (the token after for loop statement)
+    return OpCode("for", op_value), i+1
 
 def parse(tokens, table):
     """
