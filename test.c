@@ -8,6 +8,7 @@ not_known hola() {
 	printf("Hello World");
 }
 	float a = 3.14159;
+	int ab = 20;
 
 int main() {
 	printf("Hello World");

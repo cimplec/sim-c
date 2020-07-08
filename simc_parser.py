@@ -312,11 +312,7 @@ def for_loop(tokens, i, table):
 
     Grammar
     =======
-    for_loop -> for id in params to params
-    params                          -> expr
-    expr                            -> string | number | id 
-    string                          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
-    quote                           -> "
+    for_loop -> for id in number to number
     number                          -> [0-9]+
     id                              -> [a-zA-Z_]?[a-zA-Z0-9_]*
     
@@ -337,8 +333,13 @@ def for_loop(tokens, i, table):
     # Check if number follows in keyword
     check_if(tokens[i+4].type, "number", "Expected ending value")
 
+    #Get required values
+    var_name, _, _ = table.get_by_id(tokens[i].val)
+    starting_val, _, _ = table.get_by_id(tokens[i+2].val)
+    ending_val, _, _ = table.get_by_id(tokens[i+3].val)
+
     # Return the opcode and i+1 (the token after for loop statement)
-    return OpCode("for", op_value), i+1
+    return OpCode("for", var_name + '---' + starting_val + '---' + ending_val), i+1
 
 def parse(tokens, table):
     """

@@ -1,15 +1,1 @@
-fun sum(a, b) {
-  print(1 + 2)
-}
-
-fun hola() {
-  print("Hello World")
-}
-
-MAIN
-
-print("Hello World")
-
-END_MAIN
-
-var a = 3.14159
+for x in 1 to 20
