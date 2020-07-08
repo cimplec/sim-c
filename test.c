@@ -1,13 +1,8 @@
 #include <stdio.h>
 
-not_known sum(float a, not_known b) {
-	printf("%d", 1 + 2);
+void sum(not_known a, not_known b) {
+	char* ret = "Hello";
 }
-
-not_known hola() {
-	printf("Hello World");
-}
-	float a = 3.14159;
 
 int main() {
 	printf("Hello World");
