@@ -26,6 +26,31 @@ def check_include(opcodes):
     # Return string representation of unique elements of includes list separated by newline characters
     return "\n".join(list(set(includes)))
 
+def compile_func_main_code(outside_code, ccode, outside_main, code):
+    """
+        Check which code should go in main and which outside of main
+
+        Params
+        ======
+        outside_code (string)        = Code to be put outside main function
+        ccode        (string)        = Code to be put inside main function
+        outside_main (bool)          = Decides where the code should go (true - outside, false - inside)
+        code         (string)        = Compiled code
+
+        Returns
+        =======
+        string, string: The outside and main C code strings
+    """
+
+    # If outside_main is true then code goes outside main
+    if(outside_main):
+        outside_code += code
+    else:
+        ccode += code
+
+    # Return code strings
+    return outside_code, ccode
+
 def compile(opcodes, c_filename, table):
     """
         Compiles opcodes produced by parser into C code
@@ -38,18 +63,27 @@ def compile(opcodes, c_filename, table):
     """
 
     # Check for includes
-    ccode = check_include(opcodes) + "\n"
+    compiled_code = check_include(opcodes) + "\n"
 
     # Put the code in main function
-    ccode += "\nint main() {\n"
+    ccode = ""
+
+    # Function code is compiled into separate list
+    outside_code = ""
+
+    # Check if function body has started or not
+    outside_main = True
 
     # Loop through all opcodes
     for opcode in opcodes:
+        code = ""
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
-            ccode += "\tprintf(%s);\n" % opcode.val
+            code = "\tprintf(%s);\n" % opcode.val
         # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":
+            code = ""
+
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split('---')
 
@@ -61,7 +95,7 @@ def compile(opcodes, c_filename, table):
                 dtype = 'char'
                 val[0] += '[]'
 
-            ccode += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
+            code += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
         # If opcode is of type var_no_assign then generate a declaration statement
         elif opcode.type == "var_no_assign":
             # val contains - <identifier>---<expression>, split that into a list
@@ -73,17 +107,60 @@ def compile(opcodes, c_filename, table):
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
 
-            ccode += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
+            code += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
         # If opcode is of type assign then generate an assignment statement
         elif opcode.type == "assign":
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split('---')
 
-            ccode += "\t" + val[0] + " = " + val[1] + ";\n"
+            code += "\t" + val[0] + " = " + val[1] + ";\n"
+        # If opcode is of type func_decl then generate function declaration statement
+        elif opcode.type == "func_decl":
+            # val contains - <identifier>---<params>, split that into list
+            val = opcode.val.split('---')
+
+            # Check if function has params
+            params = val[1].split('&&&') if len(val[1]) > 0 else []
+
+            # Get the return type of the function
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            dtype = dtype if dtype is not "var" else "not_known"
+
+            # Append the function return type and name to code
+            code += "\n" + dtype + " " + val[0] + "("
+
+            # Compile the params
+            has_param = False
+            for i in range(len(params)):
+                if(len(params[i]) > 0):
+                    has_param = True
+                    _, dtype, _ = table.get_by_id(table.get_by_symbol(params[i]))
+                    dtype = dtype if dtype is not "var" else "not_known"
+                    code += dtype + " " + params[i] + ", "
+            if(has_param):
+                code = code[:-2]
+
+            # Finally add opening brace to start the function body
+            code += ") {\n"
+        # If opcode is of type scope_over then generate closing brace statement
+        elif opcode.type == "scope_over":
+            code += "}\n"
+        # If opcode is of type scope_over then generate closing brace statement
+        elif opcode.type == "MAIN":
+            code += "\nint main() {\n"
+            outside_main = False
+        # If opcode is of type scope_over then generate closing brace statement
+        elif opcode.type == "END_MAIN":
+            code += "\n\treturn 0;\n}"
+            outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
+            outside_main = True
+            continue
+
+        outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
 
     # Add return 0 to the end of code
-    ccode += "\n\treturn 0;\n}"
+    compiled_code += outside_code + ccode
 
     # Write generated code into C file
     with open(c_filename, "w") as file:
-        file.write(ccode)
+        file.write(compiled_code)

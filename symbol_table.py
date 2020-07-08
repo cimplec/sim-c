@@ -48,7 +48,7 @@ class SymbolTable():
             list: [value, type, typedata], typedata = constant/variable
         """
 
-        return self.symbol_table[id]
+        return self.symbol_table.get(id, [None, None, None])
 
     def get_by_symbol(self, value):
         """

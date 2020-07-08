@@ -8,7 +8,7 @@ from symbol_table import SymbolTable
 from lexical_analyzer import lexical_analyze
 
 # Module for using parser
-from parser import parse
+from simc_parser import parse
 
 # Module for using compiler
 from compiler import compile
@@ -25,6 +25,9 @@ if __name__ == "__main__":
 
     # Get tokens from lexical_analyzer
     tokens = lexical_analyze(filename, table)
+
+    for token in tokens:
+        print(token)
 
     # Get opcodes from parser
     op_codes = parse(tokens, table)

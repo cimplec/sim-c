@@ -20,7 +20,7 @@ def is_keyword(value):
         bool: Whether the value passed is a keyword or not
     """
 
-    return value in ['print', 'var']
+    return value in ['fun', 'MAIN', 'print', 'return', 'var', 'END_MAIN']
 
 def numeric_val(source_code, i, table):
     """
@@ -198,6 +198,14 @@ def lexical_analyze(filename, table):
         elif source_code[i] == ')':
             tokens.append(Token("right_paren", ""))
             i += 1
+        # Identifying left brace token
+        elif source_code[i] == '{':
+            tokens.append(Token("left_brace", ""))
+            i += 1
+        # Identifying right brace token
+        elif source_code[i] == '}':
+            tokens.append(Token("right_brace", ""))
+            i += 1
         # Identifying assignment token
         elif source_code[i] == '=':
             tokens.append(Token("assignment", ""))
@@ -218,9 +226,9 @@ def lexical_analyze(filename, table):
         elif source_code[i] == '/':
             tokens.append(Token("divide", ""))
             i += 1
-        # Identifying newline token
-        elif source_code[i] == '\n':
-            tokens.append(Token("newline", ""))
+        # Identifying comma token
+        elif source_code[i] == ',':
+            tokens.append(Token("comma", ""))
             i += 1
         # Otherwise increment the index
         else:

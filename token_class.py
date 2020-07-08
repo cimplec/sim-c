@@ -44,6 +44,7 @@ class Token():
         """
 
         dic = {"number": 1, "string": 2, "print": 3, "identifier": 4, "left_paren": 5, "right_paren": 6,
-               "var": 7, "assignment": 8, "plus": 9, "minus": 10, "multiply": 11, "divide": 12, "newline": 13}
+               "var": 7, "assignment": 8, "plus": 9, "minus": 10, "multiply": 11, "divide": 12, "newline": 13,
+               "fun": 14, "return": 15}
 
         return dic.get(str_type, 0)
