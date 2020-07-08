@@ -10,7 +10,12 @@ not_known hola() {
 	float a = 3.14159;
 
 int main() {
+	float a = 2;
 	printf("Hello World");
+	while(a < 3) {
+	printf("hello world");
+	a = a + 1;
+}
 
 	return 0;
 }

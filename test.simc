@@ -7,9 +7,11 @@ fun hola() {
 }
 
 MAIN
-
+var a = 2
 print("Hello World")
+while(a<3){
+  print("hello world")
+  a = a + 1
+}
 
 END_MAIN
-
-var a = 3.14159
