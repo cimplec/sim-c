@@ -296,6 +296,35 @@ def function_definition_statement(tokens, i, table):
 
     return OpCode("func_decl", func_name + '---' + "&&&".join(op_value_list), ""), ret_idx
 
+def for_loop(tokens, i, table):
+    """
+    Parse for loop
+
+    Params
+    ======
+
+    Returns
+    =======
+
+    Grammar
+    =======
+    """
+
+    # Check if identifier follows for keyword
+    check_if(tokens[i].type, "id", "Expected variable name")
+
+    # Check if in follows identifier
+    check_if(tokens[i+1].type, "in", "Expected in keyword")
+
+    # Check if number follows in keyword
+    check_if(tokens[i+2].type, "number", "Expected starting value")
+
+    # Check if to keyword follows number
+    check_if(tokens[i+3].type, "to", "Expected to keyword")
+
+    # Check if number follows in keyword
+    check_if(tokens[i+4].type, "number", "Expected ending value")
+
 def parse(tokens, table):
     """
         Parse tokens and generate opcodes
