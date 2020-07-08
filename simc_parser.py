@@ -161,7 +161,7 @@ def var_statement(tokens, i, table):
 
         Returns
         =======
-        OpCode, int: The opcode for the var_assign/var_no_assign code and the index after parsing print statement
+        OpCode, int: The opcode for the var_assign/var_no_assign code and the index after parsing var statement
 
         Grammar
         =======
@@ -212,7 +212,7 @@ def assign_statement(tokens, i, table):
 
         Returns
         =======
-        OpCode, int: The opcode for the assign code and the index after parsing print statement
+        OpCode, int: The opcode for the assign code and the index after parsing assign statement
 
         Grammar
         =======
@@ -255,7 +255,7 @@ def function_definition_statement(tokens, i, table):
 
         Returns
         =======
-        OpCode, int: The opcode for the assign code and the index after parsing print statement
+        OpCode, int: The opcode for the assign code and the index after parsing function definition statement
 
         Grammar
         =======
@@ -320,11 +320,12 @@ def while_statement(tokens, i, table):
 
         Returns
         =======
-        OpCode, int: The opcode for the assign code and the index after parsing print statement
+        OpCode, int: The opcode for the assign code and the index after parsing while statement
 
         Grammar
         =======
-        var_statement   -> var id [= expr]?
+        while_statement -> while(condition) { body }
+        condition       -> expr
         expr            -> string | number | id | operator
         string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
         quote           -> "
