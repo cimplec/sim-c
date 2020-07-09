@@ -19,8 +19,7 @@ def is_keyword(value):
         =======
         bool: Whether the value passed is a keyword or not
     """
-
-    return value in ['fun', 'MAIN', 'print', 'return', 'var', 'while', 'if', 'END_MAIN']
+    return value in ['fun', 'MAIN', 'print', 'return', 'var', 'END_MAIN', 'for', 'in', 'to', 'by', 'while', 'if']
 
 def numeric_val(source_code, i, table):
     """

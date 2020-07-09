@@ -178,6 +178,10 @@ def compile(opcodes, c_filename, table):
             outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
             outside_main = True
             continue
+        # If opcode is of type for
+        elif opcode.type == "for":
+            val = opcode.val.split('&&&')
+            code += "\tfor( int " + val[0] + " = " + val[1] + " ; " + val[0] + " " + val[4] + " " + val[2] + " ; " + val[0] + val[3] + "=" + val[5] +"){\n"
         # If opcode is of type while then generate while loop statement
         elif opcode.type == "while":
             code = "\twhile(%s) {\n" % opcode.val

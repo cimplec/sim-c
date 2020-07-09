@@ -489,6 +489,69 @@ def if_statement(tokens, i, table):
 
     return OpCode("if", op_value), ret_idx
 
+def for_loop(tokens, i, table):
+    """
+    Parse  for for_loop
+
+    Params
+    ======
+    tokens      (list) = List of tokens
+    i           (int)  = Current index in token
+    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
+    Returns
+    =======
+    OpCode, int: The opcode for the for loop code and the index after parsing print statement
+
+    Grammar
+    =======
+    for_loop    -> for id in number to number by operator number
+    number      -> [0-9]+
+    id          -> [a-zA-Z_]?[a-zA-Z0-9_]*
+    operator    -> + | - | * | /
+    
+    """
+
+    # Check if identifier follows for keyword
+    check_if(tokens[i].type, "id", "Expected variable name")
+
+    # Check if in follows identifier
+    check_if(tokens[i+1].type, "in", "Expected in keyword")
+
+    # Check if number follows in keyword
+    check_if(tokens[i+2].type, "number", "Expected starting value")
+
+    # Check if to keyword follows number
+    check_if(tokens[i+3].type, "to", "Expected to keyword")
+
+    # Check if number follows in keyword
+    check_if(tokens[i+4].type, "number", "Expected ending value")
+
+    # Check if by keyword follows number
+    check_if(tokens[i+5].type, "by", "Expected by keyword")
+
+    word_to_op = {"plus": "+", "minus": "-", "multiply": "*", "divide": "/"}
+
+    # Check if number follows operator
+    check_if(tokens[i+7].type, "number", "Expected value for change")
+
+    #Get required values
+    var_name, _, _ = table.get_by_id(tokens[i].val)
+    table.symbol_table[tokens[i].val][1] = "int"
+    starting_val, _, _ = table.get_by_id(tokens[i+2].val)
+    ending_val, _, _ = table.get_by_id(tokens[i+4].val)
+    operator_type = word_to_op[tokens[i+6].type]
+    change_val, _, _ = table.get_by_id(tokens[i+7].val)
+
+    # To determine the > or < sign
+    if starting_val > ending_val:
+        sign_needed = ">"
+    else:
+        sign_needed = "<"
+
+    # Return the opcode and i+1 (the token after for loop statement)
+    return OpCode("for", str(var_name) + '&&&' + str(starting_val) + '&&&' + str(ending_val) + '&&&' + str(operator_type) + '&&&' + sign_needed + '&&&' + str(change_val)), i+1
+
 def parse(tokens, table):
     """
         Parse tokens and generate opcodes
@@ -548,6 +611,10 @@ def parse(tokens, table):
         elif tokens[i].type == "END_MAIN":
             op_codes.append(OpCode("END_MAIN", "", ""))
             i += 1
+        # If token is of type for then generate for code
+        elif tokens[i].type == "for":
+            for_opcode, i = for_loop(tokens, i+1, table)
+            op_codes.append(for_opcode)
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
             while_opcode, i = while_statement(tokens, i+1, table)
