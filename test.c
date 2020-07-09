@@ -1,17 +1,2 @@
-#include <stdio.h>
 
-not_known sum(float a, not_known b) {
-	printf("%d", 1 + 2);
-}
-
-not_known hola() {
-	printf("Hello World");
-}
-	float a = 3.14159;
-	int ab = 20;
-
-int main() {
-	printf("Hello World");
-
-	return 0;
-}
+	for(x = 2 ; x < 10 ; x++){

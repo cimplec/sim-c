@@ -336,10 +336,10 @@ def for_loop(tokens, i, table):
     #Get required values
     var_name, _, _ = table.get_by_id(tokens[i].val)
     starting_val, _, _ = table.get_by_id(tokens[i+2].val)
-    ending_val, _, _ = table.get_by_id(tokens[i+3].val)
+    ending_val, _, _ = table.get_by_id(tokens[i+4].val)
 
     # Return the opcode and i+1 (the token after for loop statement)
-    return OpCode("for", var_name + '---' + starting_val + '---' + ending_val), i+1
+    return OpCode("for", str(var_name) + '---' + str(starting_val) + '---' + str(ending_val)), i+1
 
 def parse(tokens, table):
     """
@@ -392,6 +392,9 @@ def parse(tokens, table):
         elif tokens[i].type == "END_MAIN":
             op_codes.append(OpCode("END_MAIN", "", ""))
             i += 1
+        elif tokens[i].type == "for":
+            for_opcode, i = for_loop(tokens, i+1, table)
+            op_codes.append(for_opcode)
         # Otherwise increment the index
         else:
             i += 1

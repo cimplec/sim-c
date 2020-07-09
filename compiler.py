@@ -156,9 +156,9 @@ def compile(opcodes, c_filename, table):
             outside_main = True
             continue
         # If opcode is of type for
-        val = opcode.val.split('---')
-
-        code += "\t" + val[0] + " in " + val[1] + " to " + val[2] + ";\n"
+        elif opcode.type == "for":
+            val = opcode.val.split('---')
+            code += "\tfor(" + str(val[0]) + " = " + str(val[1]) + " ; " + str(val[0]) + " < " + str(val[2]) + " ; " + str(val[0]) + "++)" + "{\n"
 
         outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
 
