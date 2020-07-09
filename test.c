@@ -1,9 +1,17 @@
-#include <stdio.h>
+
+
+void sum(int a, int b, int c, int d) {
+	char* ret = "Hello";
+}
+
+char* someting() {
+
+	return "Something something";
+}
 
 int main() {
-	for(x = 0 ; x < 10 ; x+=2){
-	printf("%d", x);
-}
+	sum(1, 2, 3, 4);
+	something();
 
 	return 0;
 }

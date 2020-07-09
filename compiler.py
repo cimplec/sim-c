@@ -46,6 +46,8 @@ def compile_func_main_code(outside_code, ccode, outside_main, code):
     if(outside_main):
         outside_code += code
     else:
+        if code == "}\n":
+            code = "\t" + code
         ccode += code
 
     # Return code strings
@@ -92,8 +94,7 @@ def compile(opcodes, c_filename, table):
 
             # If it is of string type then change it to char <identifier>[]
             if(dtype == 'string'):
-                dtype = 'char'
-                val[0] += '[]'
+                dtype = 'char*'
 
             code += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
         # If opcode is of type var_no_assign then generate a declaration statement
@@ -124,12 +125,12 @@ def compile(opcodes, c_filename, table):
 
             # Get the return type of the function
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
-            dtype = dtype if dtype is not "var" else "not_known"
+            dtype = dtype if dtype is not "var" else "void"
 
             # Append the function return type and name to code
             code += "\n" + dtype + " " + val[0] + "("
 
-            # Compile the params
+            # Compile the formal params
             has_param = False
             for i in range(len(params)):
                 if(len(params[i]) > 0):
@@ -142,6 +143,28 @@ def compile(opcodes, c_filename, table):
 
             # Finally add opening brace to start the function body
             code += ") {\n"
+        # If the opcode is of type func_call then generate function calling statement
+        elif opcode.type == "func_call":
+            # val contains - <identifier>---<params>, split that into list
+            val = opcode.val.split('---')
+
+            # Check if function has params
+            params = val[1].split('&&&') if len(val[1]) > 0 else []
+
+            # Compile function name
+            code = "\t" + val[0] + "("
+
+            # Compile the actual params
+            has_param = False
+            for param in params:
+                if(len(params[i]) > 0):
+                    has_param = True
+                    code += param + ", "
+            if(has_param):
+                code = code[:-2]
+
+            # Finally add opening brace to start the function body
+            code += ");\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
             code += "}\n"
@@ -159,6 +182,15 @@ def compile(opcodes, c_filename, table):
         elif opcode.type == "for":
             val = opcode.val.split('&&&')
             code += "\tfor( int " + val[0] + " = " + val[1] + " ; " + val[0] + " " + val[4] + " " + val[2] + " ; " + val[0] + val[3] + "=" + val[5] +"){\n"
+        # If opcode is of type while then generate while loop statement
+        elif opcode.type == "while":
+            code = "\twhile(%s) {\n" % opcode.val
+        # If opcode is of type if then generate if statement
+        elif opcode.type == "if":
+            code = "\tif(%s) {\n" % opcode.val
+        # If opcode is of type return then generate return statement
+        elif opcode.type == "return":
+            code += "\n\treturn " + opcode.val + ";\n"
 
         outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
 

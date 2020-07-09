@@ -19,8 +19,7 @@ def is_keyword(value):
         =======
         bool: Whether the value passed is a keyword or not
     """
-
-    return value in ['fun', 'MAIN', 'print', 'return', 'var', 'END_MAIN', 'for', 'in', 'to', 'by']
+    return value in ['fun', 'MAIN', 'print', 'return', 'var', 'END_MAIN', 'for', 'in', 'to', 'by', 'while', 'if']
 
 def numeric_val(source_code, i, table):
     """
@@ -182,54 +181,94 @@ def lexical_analyze(filename, table):
         if is_digit(source_code[i]):
             token, i = numeric_val(source_code, i, table)
             tokens.append(token)
+
         # If quote appears the value is a string token
         elif source_code[i] == '\"':
             token, i = string_val(source_code, i, table)
             tokens.append(token)
+
         # If alphabet or number appears then it might be either a keyword or an identifier
         elif is_alnum(source_code[i]):
             token, i = keyword_identifier(source_code, i, table)
             tokens.append(token)
+
         # Identifying left paren token
         elif source_code[i] == '(':
             tokens.append(Token("left_paren", ""))
             i += 1
+
         # Identifying right paren token
         elif source_code[i] == ')':
             tokens.append(Token("right_paren", ""))
             i += 1
+
         # Identifying left brace token
         elif source_code[i] == '{':
             tokens.append(Token("left_brace", ""))
             i += 1
+
         # Identifying right brace token
         elif source_code[i] == '}':
             tokens.append(Token("right_brace", ""))
             i += 1
-        # Identifying assignment token
+
+        # Identifying assignment token or equivalence token
         elif source_code[i] == '=':
-            tokens.append(Token("assignment", ""))
-            i += 1
+            if source_code[i+1] != '=':
+                tokens.append(Token("assignment", ""))
+                i += 1
+            else:
+                tokens.append(Token("equal", ""))
+                i += 2
+
         # Identifying plus token
         elif source_code[i] == '+':
             tokens.append(Token("plus", ""))
             i += 1
+
         # Identifying minus token
         elif source_code[i] == '-':
             tokens.append(Token("minus", ""))
             i += 1
+
         # Identifying multiply token
         elif source_code[i] == '*':
             tokens.append(Token("multiply", ""))
             i += 1
+
         # Identifying divide token
         elif source_code[i] == '/':
             tokens.append(Token("divide", ""))
             i += 1
+
         # Identifying comma token
         elif source_code[i] == ',':
             tokens.append(Token("comma", ""))
             i += 1
+        
+        # Identifying not_equal token
+        elif source_code[i] == '!' and source_code[i+1] == '=':
+            tokens.append(Token("not_equal", ""))
+            i += 2
+
+        # Identifying greater_than or greater_than_equal token
+        elif source_code[i] == '>':
+            if source_code[i+1] != '=':
+                tokens.append(Token("greater_than", ""))
+                i += 1
+            else :
+                tokens.append(Token("greater_than_equal", ""))
+                i += 2
+
+        # Identifying less_than or less_than_equal token
+        elif source_code[i] == '<':
+            if source_code[i+1] != '=':
+                tokens.append(Token("less_than", ""))
+                i += 1
+            else:
+                tokens.append(Token("less_than_equal", ""))
+                i += 2
+                
         # Otherwise increment the index
         else:
             i += 1

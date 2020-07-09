@@ -50,5 +50,5 @@ class OpCode():
             int: The integer representation of the string opcode
         """
 
-        dic = {"print": 1, "var_assign": 2, "var_no_assign": 3, "assign": 4, "func_decl": 5}
+        dic = {"print": 1, "var_assign": 2, "var_no_assign": 3, "assign": 4, "func_decl": 5, "while": 6, "if": 7}
         return dic.get(str_type, 0)
