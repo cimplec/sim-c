@@ -1,19 +1,17 @@
-#include <stdio.h>
 
-void sum(int a, not_known b) {
+
+void sum(int a, int b, int c, int d) {
 	char* ret = "Hello";
 }
 
+char* someting() {
+
+	return "Something something";
+}
+
 int main() {
-	int a = 2;
-	printf("Hello World");
-	while(a < 3) {
-	printf("hello world");
-	a = a + 1;
-	}
-	if(a == 2) {
-	printf("number is equal to 2");
-	}
+	sum(1, 2, 3, 4);
+	something();
 
 	return 0;
 }
