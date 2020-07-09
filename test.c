@@ -1,2 +1,9 @@
+#include <stdio.h>
 
-	for(x = 10 ; x > 0 ; x-=2){
+int main() {
+	for(x = 0 ; x < 10 ; x+=2){
+	printf("%d", x);
+}
+
+	return 0;
+}
