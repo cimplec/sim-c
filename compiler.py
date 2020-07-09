@@ -154,6 +154,9 @@ def compile(opcodes, c_filename, table):
             outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
             outside_main = True
             continue
+        # If opcode is of type while then generate while loop statement
+        elif opcode.type == "while":
+            code = "\twhile(%s) {\n" % opcode.val
         # If opcode is of type return then generate return statement
         elif opcode.type == "return":
             code += "\n\treturn " + opcode.val + ";\n"

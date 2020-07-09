@@ -50,7 +50,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
     type_to_prec = {'int': 3, 'float': 4, 'double': 5}
 
     # Loop until expression is not parsed completely
-    while(i < len(tokens) and tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma']):
+    while(i < len(tokens) and tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal']):
         # If token is identifier or constant
         if(tokens[i].type in ['number', 'string', 'id']):
             # Fetch information from symbol table
@@ -86,6 +86,18 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 op_value += ' / '
             elif(tokens[i].type == 'comma'):
                 op_value += ', '
+            elif(tokens[i].type == 'equal'):
+                op_value += ' == '
+            elif(tokens[i].type == 'not_equal'):
+                op_value += ' != '
+            elif(tokens[i].type == 'greater_than'):
+                op_value += ' > '
+            elif(tokens[i].type == 'less_than'):
+                op_value += ' < '
+            elif(tokens[i].type == 'greater_than_equal'):
+                op_value += ' >= '
+            elif(tokens[i].type == 'less_than_equal'):
+                op_value += ' <= '
 
         i += 1
 
@@ -149,7 +161,7 @@ def var_statement(tokens, i, table):
 
         Returns
         =======
-        OpCode, int: The opcode for the var_assign/var_no_assign code and the index after parsing print statement
+        OpCode, int: The opcode for the var_assign/var_no_assign code and the index after parsing var statement
 
         Grammar
         =======
@@ -200,7 +212,7 @@ def assign_statement(tokens, i, table):
 
         Returns
         =======
-        OpCode, int: The opcode for the assign code and the index after parsing print statement
+        OpCode, int: The opcode for the assign code and the index after parsing assign statement
 
         Grammar
         =======
@@ -243,7 +255,7 @@ def function_definition_statement(tokens, i, table):
 
         Returns
         =======
-        OpCode, int: The opcode for the assign code and the index after parsing print statement
+        OpCode, int: The opcode for the assign code and the index after parsing function definition statement
 
         Grammar
         =======
@@ -272,7 +284,7 @@ def function_definition_statement(tokens, i, table):
     op_value_list = op_value.replace(" ", "").split(",")
 
     # Check if ) follows expression in function
-    check_if(tokens[i].type, "right_paren", "Expected ) after function parmams list")
+    check_if(tokens[i].type, "right_paren", "Expected ) after function params list")
 
     # Check if { follows ) in function
     check_if(tokens[i+1].type, "left_brace", "Expected { before function body")
@@ -295,6 +307,64 @@ def function_definition_statement(tokens, i, table):
         error("Expected } after function body")
 
     return OpCode("func_decl", func_name + '---' + "&&&".join(op_value_list), ""), ret_idx, func_name
+
+def while_statement(tokens, i, table):
+    """
+        Parse while statement
+
+        Params
+        ======
+        tokens      (list) = List of tokens
+        i           (int)  = Current index in token
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
+        Returns
+        =======
+        OpCode, int: The opcode for the assign code and the index after parsing while statement
+
+        Grammar
+        =======
+        while_statement -> while(condition) { body }
+        condition       -> expr
+        expr            -> string | number | id | operator
+        string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+        quote           -> "
+        number          -> [0-9]+
+        id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+        operator        -> + | - | * | /
+    """
+    #Check if ( follows while statement
+    check_if(tokens[i].type, "left_paren", "Expected ( after while statement")
+
+    #check if expression follows ( in while statement
+    op_value, op_type, i = expression(tokens, i+1, table, "Expected expression inside while statement")
+    op_value_list = op_value.replace(" ", "").split(",")
+
+    # check if ) follows expression in function
+    check_if(tokens[i].type, "right_paren",
+             "Expected ) after expression in while statement")
+
+    #Check if { follows ) in while statement
+    check_if(tokens[i+1].type, "left_brace", "Expected { before while loop body")
+
+    # Loop until } is reached
+    i += 2
+    ret_idx = i
+    found_right_brace = False
+    while(i < len(tokens) and tokens[i].type != "right_brace"):
+        if(found_right_brace):
+            found_right_brace = True
+        i += 1
+
+    # If right brace found at end
+    if(i != len(tokens) and tokens[i].type == "right_brace"):
+        found_right_brace = True
+
+    # If right brace is not found then produce error
+    if(not found_right_brace):
+        error("Expected } after while loop body")
+    
+    return OpCode("while", op_value), ret_idx
 
 def parse(tokens, table):
     """
@@ -350,6 +420,10 @@ def parse(tokens, table):
         elif tokens[i].type == "END_MAIN":
             op_codes.append(OpCode("END_MAIN", "", ""))
             i += 1
+        # If token is of type while then generate while opcode
+        elif tokens[i].type == "while":
+            while_opcode, i = while_statement(tokens, i+1, table)
+            op_codes.append(while_opcode)
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             op_value, op_type, i = expression(tokens, i+1, table, "Expected expression after return")
