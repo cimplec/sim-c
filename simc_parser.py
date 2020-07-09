@@ -400,8 +400,7 @@ def while_statement(tokens, i, table):
     check_if(tokens[i].type, "left_paren", "Expected ( after while statement")
 
     #check if expression follows ( in while statement
-    op_value, op_type, i = expression(tokens, i+1, table, "Expected expression inside while statement")
-    op_value_list = op_value.replace(" ", "").split(",")
+    op_value, _, i = expression(tokens, i+1, table, "Expected expression inside while statement")
 
     # check if ) follows expression in while statement
     check_if(tokens[i].type, "right_paren",
@@ -509,7 +508,7 @@ def for_loop(tokens, i, table):
     number      -> [0-9]+
     id          -> [a-zA-Z_]?[a-zA-Z0-9_]*
     operator    -> + | - | * | /
-    
+
     """
 
     # Check if identifier follows for keyword
