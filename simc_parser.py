@@ -312,9 +312,10 @@ def for_loop(tokens, i, table):
 
     Grammar
     =======
-    for_loop -> for id in number to number
-    number                          -> [0-9]+
-    id                              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+    for_loop    -> for id in number to number by operator number
+    number      -> [0-9]+
+    id          -> [a-zA-Z_]?[a-zA-Z0-9_]*
+    operator    -> + | - | * | /
     
     """
 
@@ -333,13 +334,30 @@ def for_loop(tokens, i, table):
     # Check if number follows in keyword
     check_if(tokens[i+4].type, "number", "Expected ending value")
 
+    # Check if by keyword follows number
+    check_if(tokens[i+5].type, "by", "Expected by keyword")
+
+    word_to_op = {"plus": "+", "minus": "-", "multiply": "*", "divide": "/"}
+
+    # Check if number follows operator
+    check_if(tokens[i+7].type, "number", "Expected value for change")
+
     #Get required values
     var_name, _, _ = table.get_by_id(tokens[i].val)
+    table.symbol_table[tokens[i].val][1] = "int"
     starting_val, _, _ = table.get_by_id(tokens[i+2].val)
     ending_val, _, _ = table.get_by_id(tokens[i+4].val)
+    operator_type = word_to_op[tokens[i+6].type]
+    change_val, _, _ = table.get_by_id(tokens[i+7].val)
+
+    # To determine the > or < sign
+    if starting_val > ending_val:
+        sign_needed = ">"
+    else:
+        sign_needed = "<"
 
     # Return the opcode and i+1 (the token after for loop statement)
-    return OpCode("for", str(var_name) + '---' + str(starting_val) + '---' + str(ending_val)), i+1
+    return OpCode("for", str(var_name) + '&&&' + str(starting_val) + '&&&' + str(ending_val) + '&&&' + str(operator_type) + '&&&' + sign_needed + '&&&' + str(change_val)), i+1
 
 def parse(tokens, table):
     """
