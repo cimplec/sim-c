@@ -130,7 +130,7 @@ def compile(opcodes, c_filename, table):
             # Append the function return type and name to code
             code += "\n" + dtype + " " + val[0] + "("
 
-            # Compile the params
+            # Compile the formal params
             has_param = False
             for i in range(len(params)):
                 if(len(params[i]) > 0):
@@ -143,6 +143,28 @@ def compile(opcodes, c_filename, table):
 
             # Finally add opening brace to start the function body
             code += ") {\n"
+        # If the opcode is of type func_call then generate function calling statement
+        elif opcode.type == "func_call":
+            # val contains - <identifier>---<params>, split that into list
+            val = opcode.val.split('---')
+
+            # Check if function has params
+            params = val[1].split('&&&') if len(val[1]) > 0 else []
+
+            # Compile function name
+            code = "\t" + val[0] + "("
+
+            # Compile the actual params
+            has_param = False
+            for param in params:
+                if(len(params[i]) > 0):
+                    has_param = True
+                    code += param + ", "
+            if(has_param):
+                code = code[:-2]
+
+            # Finally add opening brace to start the function body
+            code += ");\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
             code += "}\n"

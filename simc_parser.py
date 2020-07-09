@@ -255,12 +255,13 @@ def function_definition_statement(tokens, i, table):
 
         Returns
         =======
-        OpCode, int: The opcode for the assign code and the index after parsing function definition statement
+        OpCode, int, string: The opcode for the assign code, the index, and the name of the functionafter
+                             parsing function calling statement
 
         Grammar
         =======
-        function_definition_statement   -> fun id([params,]) { body }
-        params                          -> expr
+        function_definition_statement   -> fun id([formal_params,]*) { body }
+        formal_params                   -> expr
         body                            -> statement
         expr                            -> string | number | id | operator
         string                          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
@@ -273,8 +274,11 @@ def function_definition_statement(tokens, i, table):
     # Check if identifier follows fun
     check_if(tokens[i].type, "id", "Expected function name")
 
+    # Store the id of function name in symbol table
+    func_idx = tokens[i].val
+
     # Get function name
-    func_name, _, _ = table.get_by_id(tokens[i].val)
+    func_name, _, _ = table.get_by_id(func_idx)
 
     # Check if ( follows id in function
     check_if(tokens[i+1].type, "left_paren", "Expected ( after function name")
@@ -306,7 +310,66 @@ def function_definition_statement(tokens, i, table):
     if(not found_right_brace):
         error("Expected } after function body")
 
+    # Add the identifier types to function's typedata
+    table.symbol_table[func_idx][2] = "function---" + "---".join(op_value_list) if len(op_value_list) > 0 and len(op_value_list[0]) > 0 else "function"
+
     return OpCode("func_decl", func_name + '---' + "&&&".join(op_value_list), ""), ret_idx, func_name
+
+def function_call_statement(tokens, i, table):
+    """
+        Parse function calling statement
+
+        Params
+        ======
+        tokens      (list) = List of tokens
+        i           (int)  = Current index in token
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
+        Returns
+        =======
+        OpCode, int: The opcode for the assign code and the index after parsing function calling statement
+
+        Grammar
+        =======
+        function_call_statement   -> id([actual_params,]*)
+        actual_params             -> expr
+        body                      -> statement
+        expr                      -> string | number | id | operator
+        string                    -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+        quote                     -> "
+        number                    -> [0-9]+
+        id                        -> [a-zA-Z_]?[a-zA-Z0-9_]*
+        operator                  -> + | - | * | /
+    """
+
+    # Get information about the function from symbol table
+    func_name, _, metadata = table.get_by_id(tokens[i].val)
+
+    # Extract params from functions metadata (typedata), these are stored as <id>---[<param 1>, . . . , <param n>]
+    params = metadata.split('---')[1:] if '---' in metadata else []
+
+    # Parse the params
+    op_value, op_type, i = expression(tokens, i+2, table, "", True, True)
+    op_value_list = op_value.replace(" ", "").split(",")
+    op_value_list = op_value_list if len(op_value_list) > 0 and len(op_value_list[0]) > 0 else []
+
+    # Check if number of actual and formal parameters match
+    if(len(params) != len(op_value_list)):
+        error("Expected %d parameters but got %d parameters in function %s" %
+                (len(params), len(op_value_list), func_name))
+
+    # Check if ) follows params in function calling
+    check_if(tokens[i].type, "right_paren", "Expected ) after params in function calling")
+
+    # Assign datatype to formal parameters
+    for j in range(len(params)):
+        # Fetch the datatype of corresponding actual parameter from symbol table
+        _, dtype, _ = table.get_by_id(table.get_by_symbol(op_value_list[j]))
+
+        # Set the datatype of the formal parameter
+        table.symbol_table[table.get_by_symbol(params[j])][1] = dtype
+
+    return OpCode("func_call", func_name + "---" + "&&&".join(op_value_list), ""), i+1
 
 def while_statement(tokens, i, table):
     """
@@ -363,7 +426,7 @@ def while_statement(tokens, i, table):
     # If right brace is not found then produce error
     if(not found_right_brace):
         error("Expected } after while loop body")
-    
+
     return OpCode("while", op_value), ret_idx
 
 def parse(tokens, table):
@@ -402,8 +465,13 @@ def parse(tokens, table):
             op_codes.append(var_opcode)
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
-            assign_opcode, i = assign_statement(tokens, i+1, table)
-            op_codes.append(assign_opcode)
+            # If ( follows id then it is function calling else variable assignment
+            if(tokens[i+1].type == "left_paren"):
+                fun_opcode, i = function_call_statement(tokens, i, table)
+                op_codes.append(fun_opcode)
+            else:
+                assign_opcode, i = assign_statement(tokens, i+1, table)
+                op_codes.append(assign_opcode)
         # If token is of type fun then generate function opcode
         elif tokens[i].type == "fun":
             fun_opcode, i, func_name = function_definition_statement(tokens, i+1, table)
@@ -435,6 +503,9 @@ def parse(tokens, table):
 
                 # Change return type of function
                 table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[op_type]
+
+                # Set func_name to an empty string after processing
+                func_name = ""
             op_codes.append(OpCode("return", op_value, ""))
         # Otherwise increment the index
         else:

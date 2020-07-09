@@ -1,13 +1,12 @@
-fun sum(a, b) {
+fun sum(a, b, c, d) {
   var ret = "Hello"
 }
 
-MAIN
-var a = 2
-print("Hello World")
-while(a<3) {
-  print("hello world")
-  a = a + 1
+fun someting() {
+  return "Something something"
 }
 
+MAIN
+  sum(1, 2, 3, 4)
+  something()
 END_MAIN
