@@ -403,7 +403,7 @@ def while_statement(tokens, i, table):
     op_value, op_type, i = expression(tokens, i+1, table, "Expected expression inside while statement")
     op_value_list = op_value.replace(" ", "").split(",")
 
-    # check if ) follows expression in function
+    # check if ) follows expression in while statement
     check_if(tokens[i].type, "right_paren",
              "Expected ) after expression in while statement")
 
@@ -428,6 +428,66 @@ def while_statement(tokens, i, table):
         error("Expected } after while loop body")
 
     return OpCode("while", op_value), ret_idx
+
+
+def if_statement(tokens, i, table):
+    """
+        Parse if statement
+
+        Params
+        ======
+        tokens      (list) = List of tokens
+        i           (int)  = Current index in token
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
+        Returns
+        =======
+        OpCode, int: The opcode for the assign code and the index after parsing if statement
+
+        Grammar
+        =======
+        if_statement -> if(condition) { body }
+        condition       -> expr
+        expr            -> string | number | id | operator
+        string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+        quote           -> "
+        number          -> [0-9]+
+        id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+        operator        -> + | - | * | /
+    """
+    #Check if ( follows if statement
+    check_if(tokens[i].type, "left_paren", "Expected ( after if statement")
+
+    #check if expression follows ( in if statement
+    op_value, op_type, i = expression(
+        tokens, i+1, table, "Expected expression inside if statement")
+    op_value_list = op_value.replace(" ", "").split(",")
+    # check if ) follows expression in if statement
+    check_if(tokens[i].type, "right_paren",
+             "Expected ) after expression in if statement")
+
+    #Check if { follows ) in if statement
+    check_if(tokens[i+1].type, "left_brace",
+             "Expected { before if body")
+
+    # Loop until } is reached
+    i += 2
+    ret_idx = i
+    found_right_brace = False
+    while(i < len(tokens) and tokens[i].type != "right_brace"):
+        if(found_right_brace):
+            found_right_brace = True
+        i += 1
+
+    # If right brace found at end
+    if(i != len(tokens) and tokens[i].type == "right_brace"):
+        found_right_brace = True
+
+    # If right brace is not found then produce error
+    if(not found_right_brace):
+        error("Expected } after if body")
+
+    return OpCode("if", op_value), ret_idx
 
 def parse(tokens, table):
     """
@@ -492,6 +552,10 @@ def parse(tokens, table):
         elif tokens[i].type == "while":
             while_opcode, i = while_statement(tokens, i+1, table)
             op_codes.append(while_opcode)
+        # If token is of type if then generate if opcode
+        elif tokens[i].type == "if":
+            if_opcode, i = if_statement(tokens, i+1, table)
+            op_codes.append(if_opcode)
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             op_value, op_type, i = expression(tokens, i+1, table, "Expected expression after return")
