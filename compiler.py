@@ -46,6 +46,8 @@ def compile_func_main_code(outside_code, ccode, outside_main, code):
     if(outside_main):
         outside_code += code
     else:
+        if code == "}\n":
+            code = "\t" + code
         ccode += code
 
     # Return code strings

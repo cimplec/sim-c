@@ -5,7 +5,7 @@ fun sum(a, b) {
 MAIN
 var a = 2
 print("Hello World")
-while(a<3){
+while(a<3) {
   print("hello world")
   a = a + 1
 }
