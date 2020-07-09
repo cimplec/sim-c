@@ -92,8 +92,7 @@ def compile(opcodes, c_filename, table):
 
             # If it is of string type then change it to char <identifier>[]
             if(dtype == 'string'):
-                dtype = 'char'
-                val[0] += '[]'
+                dtype = 'char*'
 
             code += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
         # If opcode is of type var_no_assign then generate a declaration statement
@@ -124,7 +123,7 @@ def compile(opcodes, c_filename, table):
 
             # Get the return type of the function
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
-            dtype = dtype if dtype is not "var" else "not_known"
+            dtype = dtype if dtype is not "var" else "void"
 
             # Append the function return type and name to code
             code += "\n" + dtype + " " + val[0] + "("
@@ -158,6 +157,9 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type while then generate while loop statement
         elif opcode.type == "while":
             code = "\twhile(%s) {\n" % opcode.val
+        # If opcode is of type return then generate return statement
+        elif opcode.type == "return":
+            code += "\n\treturn " + opcode.val + ";\n"
 
         outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
 

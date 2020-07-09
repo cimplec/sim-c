@@ -1,9 +1,5 @@
 fun sum(a, b) {
-  print(1 + 2)
-}
-
-fun hola() {
-  print("Hello World")
+  var ret = "Hello"
 }
 
 MAIN

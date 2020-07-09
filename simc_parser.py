@@ -294,7 +294,7 @@ def function_definition_statement(tokens, i, table):
     ret_idx = i
     found_right_brace = False
     while(i < len(tokens) and tokens[i].type != "right_brace"):
-        if(found_right_brace):
+        if(tokens[i].type == "right_brace"):
             found_right_brace = True
         i += 1
 
@@ -306,7 +306,7 @@ def function_definition_statement(tokens, i, table):
     if(not found_right_brace):
         error("Expected } after function body")
 
-    return OpCode("func_decl", func_name + '---' + "&&&".join(op_value_list), ""), ret_idx
+    return OpCode("func_decl", func_name + '---' + "&&&".join(op_value_list), ""), ret_idx, func_name
 
 def while_statement(tokens, i, table):
     """
@@ -386,6 +386,9 @@ def parse(tokens, table):
     # List of opcodes
     op_codes = []
 
+    # Current function's name
+    func_name = ""
+
     # Loop through all the tokens
     i = 0
     while(i <= len(tokens) - 1):
@@ -403,7 +406,7 @@ def parse(tokens, table):
             op_codes.append(assign_opcode)
         # If token is of type fun then generate function opcode
         elif tokens[i].type == "fun":
-            fun_opcode, i = function_definition_statement(tokens, i+1, table)
+            fun_opcode, i, func_name = function_definition_statement(tokens, i+1, table)
             op_codes.append(fun_opcode)
         # If token is of type right_brace then generate scope_over opcode
         elif tokens[i].type == "right_brace":
@@ -421,6 +424,18 @@ def parse(tokens, table):
         elif tokens[i].type == "while":
             while_opcode, i = while_statement(tokens, i+1, table)
             op_codes.append(while_opcode)
+        # If token is of type return then generate return opcode
+        elif tokens[i].type == "return":
+            op_value, op_type, i = expression(tokens, i+1, table, "Expected expression after return")
+            if(func_name == ""):
+                error("Return statement outside any function")
+            else:
+                #  Map datatype to appropriate datatype in C
+                prec_to_type = {0: "char*", 1: "char*", 2: "char", 3: "int", 4: "float", 5: "double"}
+
+                # Change return type of function
+                table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[op_type]
+            op_codes.append(OpCode("return", op_value, ""))
         # Otherwise increment the index
         else:
             i += 1
