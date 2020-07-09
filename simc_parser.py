@@ -48,7 +48,7 @@ def expression(tokens, i, table, msg):
     type_to_prec = {'int': 3, 'float': 4, 'double': 5}
 
     # Loop until expression is not parsed completely
-    while(tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide']):
+    while(tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'input', 'left_paren', 'right_paren', 'comma']):
         # If token is identifier or constant
         if(tokens[i].type in ['number', 'string', 'id']):
             # Fetch information from symbol table
@@ -80,6 +80,9 @@ def expression(tokens, i, table, msg):
                 op_value += ' * '
             elif(tokens[i].type == 'divide'):
                 op_value += ' / '
+            elif(tokens[i].type == 'input'):
+                op_value += ' scanf '
+
 
         i += 1
 
@@ -164,6 +167,8 @@ def var_statement(tokens, i, table):
         # Store the index of identifier
         id_idx = i
 
+
+
         # Check if expression follows = in var statement
         op_value, op_type, i = expression(tokens, i+2, table, "Required expression after assignment operator")
 
@@ -172,9 +177,21 @@ def var_statement(tokens, i, table):
 
         # Modify datatype of the identifier
         table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
-
-        # Return the opcode and i (the token after var statement)
-        return OpCode("var_assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, prec_to_type[op_type]), i
+        #Check if the statement is of the type input
+        if ' scanf ' in op_value:
+            i1 = op_value.index('"')+1
+            i2 = op_value.index('"',i1)
+            msg = op_value[i1:i2]
+            if('\'' in op_value[i2+1:]):
+                i1 = op_value.index('\'',i2+1)+1
+                i2 = op_value.index('\'',i1)
+                dtype = op_value[i1:i2]
+            else:
+                dtype = 's'
+            return OpCode("var_assign", table.symbol_table[tokens[id_idx].val][0] + '---' + msg + '---' + dtype, prec_to_type[op_type]),i
+        else:
+            # Return the opcode and i (the token after var statement
+            return OpCode("var_assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, prec_to_type[op_type]), i
     else:
         # Get the value from symbol table by id
         value, _, _ = table.get_by_id(tokens[i].val)
@@ -221,7 +238,18 @@ def assign_statement(tokens, i, table):
 
     # Modify datatype of the identifier
     table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
-
+    #Check if the statement is of the type input
+    if ' scanf ' in op_value:
+        i1 = op_value.index('"')+1
+        i2 = op_value.index('"',i1)
+        msg = op_value[i1:i2]
+        if('\'' in op_value[i2+1:]):
+            i1 = op_value.index('\'',i2+1)+1
+            i2 = op_value.index('\'',i1)
+            dtype = op_value[i1:i2]
+        else:
+            dtype = 's'
+        return OpCode("assign", table.symbol_table[tokens[id_idx].val][0] + '---' + msg + '---' + dtype, prec_to_type[op_type]),i
     # Return the opcode and i (the token after assign statement)
     return OpCode("assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, ""), i
 

@@ -1,1 +1,4 @@
-var a = 1.618
+var a
+a = input("YOLO", "i")
+var b = input("Golo")
+var c = input("Holo", "d")

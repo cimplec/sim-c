@@ -20,7 +20,7 @@ def is_keyword(value):
         bool: Whether the value passed is a keyword or not
     """
 
-    return value in ['print', 'var']
+    return value in ['print', 'var', 'input']
 
 def numeric_val(source_code, i, table):
     """
@@ -218,6 +218,10 @@ def lexical_analyze(filename, table):
         elif source_code[i] == '/':
             tokens.append(Token("divide", ""))
             i += 1
+        #Identifying the comma tokens
+        elif source_code[i] == ",":
+            tokens.append(Token("comma", ""))
+            i+=1
         # Identifying newline token
         elif source_code[i] == '\n':
             tokens.append(Token("newline", ""))

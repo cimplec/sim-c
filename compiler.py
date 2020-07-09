@@ -58,10 +58,30 @@ def compile(opcodes, c_filename, table):
 
             # If it is of string type then change it to char <identifier>[]
             if(dtype == 'string'):
-                dtype = 'char'
-                val[0] += '[]'
+                if(len(val)<3):
+                    dtype = 'char'
+                    val[0] += '[]'
 
-            ccode += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
+
+            #Helper Dictionaries
+            get_data_type = {'i':"int", 's':"char*", 'f':"float", 'd':"double"}
+            get_placeholder = {'i' : 'd', 's' : 's', 'f' : 'f', 'd' : 'lf'}
+
+            #Check if the statement is of type input or not
+            if (len(val)<3):
+                ccode += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
+            else:
+                #If the statement is of type input -
+                dtype = get_data_type[val[2]]
+                placeholder = get_placeholder[val[2]]
+                ccode += "\t" + dtype +" "+ str(val[0])+ ";\n"
+                ccode += "\t" + 'printf("' + str(val[1]) + '");\n'
+                ccode += "\t" + 'scanf("%'+placeholder
+                if ('*' in dtype ):
+                    ccode += '", '+str(val[0])+');\n'
+                else :
+                    ccode += '", &'+str(val[0])+');\n'
+
         # If opcode is of type var_no_assign then generate a declaration statement
         elif opcode.type == "var_no_assign":
             # val contains - <identifier>---<expression>, split that into a list
@@ -74,12 +94,27 @@ def compile(opcodes, c_filename, table):
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
 
             ccode += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
+
         # If opcode is of type assign then generate an assignment statement
         elif opcode.type == "assign":
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split('---')
 
-            ccode += "\t" + val[0] + " = " + val[1] + ";\n"
+            #Helper Dictionaries
+            get_data_type = {'i':"int", 's':"char *", 'f':"float", 'd':"double"}
+            get_placeholder = {'i' : 'd', 's' : 's', 'f' : 'f', 'd' : 'lf'}
+
+
+            #Check if the statement is of type input or not
+            if (len(val)<3):
+                ccode += "\t" + val[0] + " = " + val[1] + ";\n"
+            else:
+                #If the statement is of type input -
+                dtype = get_data_type[val[2]]
+                placeholder = get_placeholder[val[2]]
+                ccode += "\t" + 'printf("' + str(val[1]) + '");\n'
+                ccode += "\t" + 'scanf("%'+placeholder+'", &'+str(val[0])+');\n'
+
 
     # Add return 0 to the end of code
     ccode += "\n\treturn 0;\n}"
