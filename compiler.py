@@ -159,6 +159,9 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type while then generate while loop statement
         elif opcode.type == "while":
             code = "\twhile(%s) {\n" % opcode.val
+        # If opcode is of type if then generate if statement
+        elif opcode.type == "if":
+            code = "\tif(%s) {\n" % opcode.val
         # If opcode is of type return then generate return statement
         elif opcode.type == "return":
             code += "\n\treturn " + opcode.val + ";\n"
