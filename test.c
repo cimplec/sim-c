@@ -11,6 +11,9 @@ int main() {
 	printf("hello world");
 	a = a + 1;
 	}
+	if(a == 2) {
+	printf("number is equal to 2");
+	}
 
 	return 0;
 }
