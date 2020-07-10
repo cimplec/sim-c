@@ -225,6 +225,12 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type if then generate if statement
         elif opcode.type == "if":
             code = "\tif(%s) {\n" % opcode.val
+        # If opcode is of type else_if then generate else if statement
+        elif opcode.type == "else_if":
+            code = "\telse if(%s) {\n" % opcode.val
+        # If opcode is of type else then generate else statement
+        elif opcode.type == "else":
+            code = "\telse {\n"
         # If opcode is of type return then generate return statement
         elif opcode.type == "return":
             code += "\n\treturn " + opcode.val + ";\n"

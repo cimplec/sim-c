@@ -702,6 +702,20 @@ def parse(tokens, table):
         elif tokens[i].type == "if":
             if_opcode, i = if_statement(tokens, i+1, table)
             op_codes.append(if_opcode)
+        # If token is of type else then check whether it is else if or else
+        elif tokens[i].type == "else":
+            # If the next token is if, then it is else if
+            if(tokens[i+1].type == "if"):
+                print("Hello")
+                if_opcode, i = if_statement(tokens, i+2, table)
+                if_opcode.type = "else_if"
+                op_codes.append(if_opcode)
+            # Otherwise it is else
+            elif(tokens[i+1].type == "left_brace"):
+                print("World")
+                op_codes.append(OpCode("else", "", ""))
+                i += 2
+            print(i, tokens[i])
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             op_value, op_type, i = expression(tokens, i+1, table, "Expected expression after return")
