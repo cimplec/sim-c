@@ -6,4 +6,4 @@ Let's make C famous again.
 
 ## Licence
 
-sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENCE](./LICENSE)
+sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICENSE)
