@@ -63,7 +63,7 @@ def compile(opcodes, c_filename, table):
         c_filename (string)      = Name of C file to write C code into
         table      (SymbolTable) = Symbol table constructed during lexical analysis and parsing
     """
-
+    
     # Check for includes
     compiled_code = check_include(opcodes) + "\n"
 
@@ -240,6 +240,10 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type continue then generate continue statement
         elif opcode.type == "continue":
             code += "\tcontinue;\n"
+        # If opcode is of type do_while then generate do while loop statement
+        elif opcode.type == "do_while":
+            do_scope = True
+            code = "\tdo { \n " 
 
         outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
 

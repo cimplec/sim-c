@@ -1,16 +1,7 @@
 MAIN
-  var a = 1
-  var b = 2
-  if(a == 1 or b == 2) {
-    print("One")
-  }
-  else if(a == 2 and b == 1) {
-    print("Two")
-  }
-  else {
-    print("Otherwise")
-  }
-  var name = "sim-c"
-  var age = 0
-  print("Hello {name}, you are {age} years old")
+  var a = 2
+  do {
+    print(a)
+    a++
+  } while(a<5)
 END_MAIN

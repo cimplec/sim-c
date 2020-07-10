@@ -662,6 +662,67 @@ def unary_statement(tokens, i, table):
     # Return the opcode and i (the token after unary statement)
     return OpCode("unary", op_value), i
 
+def do_while_statement (tokens, i, table):
+    """
+        Parse do while statement
+
+        Params
+        ======
+        tokens      (list) = List of tokens
+        i           (int)  = Current index in token
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
+        Returns
+        =======
+        OpCode, int: The opcode for the assign code and the index after parsing do while statement
+
+        Grammar
+        =======
+        do_while_statement  -> do { body } while ( condition )
+        condition           -> expr
+        expr                -> string | number | id | operator
+        string              -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+        quote               -> "
+        number              -> [0-9]+
+        id                  -> [a-zA-Z_]?[a-zA-Z0-9_]*
+        operator            -> + | - | * | /
+    """
+    #Check if { follows do statement
+    check_if(tokens[i].type, "left_brace", "Expected { after do statement")
+
+    # Loop until } is reached
+    i += 2
+    ret_idx = i
+    found_right_brace = False
+    while(i < len(tokens) and tokens[i].type != "right_brace"):
+        if(found_right_brace):
+            found_right_brace = True
+        i += 1
+
+    # If right brace found at end
+    if(i != len(tokens) and tokens[i].type == "right_brace"):
+        found_right_brace = True
+
+    # If right brace is not found then produce error
+    if(not found_right_brace):
+        error("Expected } after do statement body")
+    
+    #Check if while follows do statement
+    check_if(tokens[i+1].type, "while", "Expected while statement after do body")
+
+    #Check if ( follows while statement
+    check_if(tokens[i+2].type, "left_paren", "Expected ( after while statement")
+    
+    #check if expression follows ( in while statement
+    op_value, _, i = expression(
+        tokens, i+3, table, "Expected expression inside while statement")
+
+    # check if ) follows expression in while statement
+    check_if(tokens[i].type, "right_paren",
+             "Expected ) after expression in while statement")
+
+    return OpCode("do_while", op_value), ret_idx
+
 def parse(tokens, table):
     """
         Parse tokens and generate opcodes
@@ -687,6 +748,10 @@ def parse(tokens, table):
 
     # Loop through all the tokens
     i = 0
+
+    #boolean determining while or do_while loop
+    do = False
+
     while(i <= len(tokens) - 1):
         # If token is of type print then generate print opcode
         if tokens[i].type == "print":
@@ -730,8 +795,11 @@ def parse(tokens, table):
             op_codes.append(for_opcode)
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
-            while_opcode, i = while_statement(tokens, i+1, table)
-            op_codes.append(while_opcode)
+            if (do == False):
+                while_opcode, i = while_statement(tokens, i+1, table)
+                op_codes.append(while_opcode)
+            else:
+                break
         # If token is of type if then generate if opcode
         elif tokens[i].type == "if":
             if_opcode, i = if_statement(tokens, i+1, table)
@@ -740,7 +808,6 @@ def parse(tokens, table):
         elif tokens[i].type == "else":
             # If the next token is if, then it is else if
             if(tokens[i+1].type == "if"):
-                print("Hello")
                 if_opcode, i = if_statement(tokens, i+2, table)
                 if_opcode.type = "else_if"
                 op_codes.append(if_opcode)
@@ -773,6 +840,11 @@ def parse(tokens, table):
         elif tokens[i].type == "continue":
             op_codes.append(OpCode("continue", "", ""))
             i += 1
+        # If token is of type do then generate do_while opcode
+        elif tokens[i].type == "do":
+            do = True
+            do_while_opcode, i = do_while_statement(tokens, i+1, table)
+            op_codes.append(do_while_opcode)
         # Otherwise increment the index
         else:
             i += 1
