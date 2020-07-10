@@ -50,7 +50,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
     type_to_prec = {'int': 3, 'float': 4, 'double': 5}
 
     # Loop until expression is not parsed completely
-    while(i < len(tokens) and tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal', 'modulus', 'increment', 'decrement', 'plus_equal', 'minus_equal', 'multiply_equal', 'divide_equal', 'modulus_equal']):
+    while(i < len(tokens) and tokens[i].type in ['number', 'input', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal', 'modulus', 'increment', 'decrement', 'plus_equal', 'minus_equal', 'multiply_equal', 'divide_equal', 'modulus_equal']):
         # If token is identifier or constant
         if(tokens[i].type in ['number', 'string', 'id']):
             # Fetch information from symbol table
@@ -100,6 +100,8 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 op_value += ' >= '
             elif(tokens[i].type == 'less_than_equal'):
                 op_value += ' <= '
+            elif(tokens[i].type == 'input'):
+                op_value += ' scanf '
             elif(tokens[i].type == 'modulus'):
                 op_value += ' % '
             elif(tokens[i].type == 'increment'):
@@ -123,6 +125,31 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
     # If expression is empty then throw an error
     if(op_value == "" and not accept_empty_expression):
         error(msg)
+
+    #Check if statement is of type input
+    if ' scanf ' in op_value:
+
+        #Check if there exists a prompt message
+        if('"' in op_value):
+            i1 = op_value.index('"')+1
+            i2 = op_value.index('"',i1)
+            #Extracting the prompt
+            p_msg = op_value[i1:i2]
+            #Checking if dtype is mentioned
+            if('\'' in op_value[i2+1:]):
+                i1 = op_value.index('\'',i2+1)+1
+                i2 = op_value.index('\'',i1)
+                dtype = op_value[i1:i2]
+            else:
+                #default dtype is string
+                dtype = 's'
+        else:
+            p_msg = ""
+            dtype = 's'
+        dtype_to_prec = {'i': 3, 'f': 4, 'd': 5, 's': 1}
+        op_value = str(p_msg)+'---'+str(dtype)
+        op_type = dtype_to_prec[dtype]
+
 
     # Return the expression, type of expression, and current index in source codes
     return op_value, op_type, i
