@@ -509,7 +509,7 @@ def if_statement(tokens, i, table):
 
 def for_loop(tokens, i, table):
     """
-    Parse  for for_loop
+    Parse for for_loop
 
     Params
     ======
@@ -519,7 +519,7 @@ def for_loop(tokens, i, table):
 
     Returns
     =======
-    OpCode, int: The opcode for the for loop code and the index after parsing print statement
+    OpCode, int: The opcode for the for loop code and the index after parsing for loop
 
     Grammar
     =======
@@ -690,6 +690,14 @@ def parse(tokens, table):
                 # Set func_name to an empty string after processing
                 func_name = ""
             op_codes.append(OpCode("return", op_value, ""))
+        # If token is of type break then generate break opcode
+        elif tokens[i].type == "break":
+            op_codes.append(OpCode("break", "", ""))
+            i += 1
+        # If token is of type continue then generate continue opcode
+        elif tokens[i].type == "continue":
+            op_codes.append(OpCode("continue", "", ""))
+            i += 1
         # Otherwise increment the index
         else:
             i += 1

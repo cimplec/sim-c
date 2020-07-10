@@ -197,6 +197,12 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type return then generate return statement
         elif opcode.type == "return":
             code += "\n\treturn " + opcode.val + ";\n"
+        # If opcode is of type break then generate break statement
+        elif opcode.type == "break":
+            code += "\tbreak;\n"
+        # If opcode is of type continue then generate continue statement
+        elif opcode.type == "continue":
+            code += "\tcontinue;\n"
 
         outside_code, ccode = compile_func_main_code(outside_code, ccode, outside_main, code)
 
