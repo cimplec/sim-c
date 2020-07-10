@@ -10,4 +10,7 @@ MAIN
   else {
     print("Otherwise")
   }
+  var name = "sim-c"
+  var age = 0
+  print("Hello {name}, you are {age} years old")
 END_MAIN

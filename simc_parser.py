@@ -57,6 +57,36 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
             value, type, typedata = table.get_by_id(tokens[i].val)
 
             if(type == 'string'):
+                # If { in string then it is a f-string
+                if("{" in value):
+                    vars = []
+                    temp_var = ""
+                    enter = False
+
+                    # Collect the variable names
+                    for char in value:
+                        if(char == "{"):
+                            enter = True
+                        elif(char == "}"):
+                            vars.append(temp_var[1:])
+                            temp_var = ""
+                            enter = False
+
+                        if(enter):
+                            temp_var += char
+
+                    # Determine the type of variables and append the name of variables at the end
+                    type_to_fs = {"char": "%c", "string": "%s", "int": "%d", "float": "%f", "double": "%lf"}
+                    for var in vars:
+                        _, type, _ = table.get_by_id(table.get_by_symbol(var))
+                        if(type == "var"):
+                            error("Unknown variable %s" % var)
+                        value = value.replace(var, type_to_fs[type])
+                        value += ", " + var
+
+                    # Replace all {} in string
+                    value = value.replace("{", "").replace("}", "")
+                    
                 op_value += value
                 op_type = 0 if typedata == 'constant' else 1
             elif(type == 'char'):

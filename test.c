@@ -12,6 +12,9 @@ int main() {
 	else {
 	printf("Otherwise");
 	}
+	char* name = "sim-C";
+	int age = 0;
+	printf("Hello %s, you are %d years old", name, age);
 
 	return 0;
 }
