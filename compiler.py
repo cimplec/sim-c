@@ -145,6 +145,13 @@ def compile(opcodes, c_filename, table):
                 code += "\t" + 'printf("' + str(val[1]) + '");\n'
                 code += "\t" + 'scanf("%'+placeholder+'", &'+str(val[0])+');\n'
 
+            code += "\t" + val[0] + val[1] + ";\n"
+        # If opcode is of type unary then generate an uanry statement
+        elif opcode.type == "unary":
+            # val contains - <identifier>---<expression>, split that into a list
+            val = opcode.val.split('---')
+
+            code += "\t" + opcode.val + ";\n"
         # If opcode is of type func_decl then generate function declaration statement
         elif opcode.type == "func_decl":
             # val contains - <identifier>---<params>, split that into list
