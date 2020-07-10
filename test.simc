@@ -10,4 +10,13 @@ fun someting() {
 MAIN
   sum(1, 2, 3, 4)
   something()
+  var a=2
+  var b = a%2
+  a+=2
+  a-=2
+  b++
+  b--
+  a*=2
+  a/=2
+  a%=2
 END_MAIN

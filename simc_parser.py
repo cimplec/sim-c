@@ -50,7 +50,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
     type_to_prec = {'int': 3, 'float': 4, 'double': 5}
 
     # Loop until expression is not parsed completely
-    while(i < len(tokens) and tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal']):
+    while(i < len(tokens) and tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal', 'modulus', 'increment', 'decrement', 'plus_equal', 'minus_equal', 'multiply_equal', 'divide_equal', 'modulus_equal']):
         # If token is identifier or constant
         if(tokens[i].type in ['number', 'string', 'id']):
             # Fetch information from symbol table
@@ -98,8 +98,25 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 op_value += ' >= '
             elif(tokens[i].type == 'less_than_equal'):
                 op_value += ' <= '
+            elif(tokens[i].type == 'modulus'):
+                op_value += ' % '
+            elif(tokens[i].type == 'increment'):
+                op_value += ' ++ '
+            elif(tokens[i].type == 'decrement'):
+                op_value += ' -- '
+            elif(tokens[i].type == 'plus_equal'):
+                op_value += ' += '
+            elif(tokens[i].type == 'minus_equal'):
+                op_value += ' -= '
+            elif(tokens[i].type == 'multiply_equal'):
+                op_value += ' *= '
+            elif(tokens[i].type == 'divide_equal'):
+                op_value += ' /= '
+            elif(tokens[i].type == 'modulus_equal'):
+                op_value += ' %= '
 
         i += 1
+        
 
     # If expression is empty then throw an error
     if(op_value == "" and not accept_empty_expression):
