@@ -1,4 +1,15 @@
-var a
-a = input("YOLO", "i")
+
 var b = input("Golo")
 var c = input("Holo", "d")
+var a
+a = input("TOLO", "i")
+var e
+e = input("SDSD", "d")
+var f = input()
+var g
+g = input()
+var h
+h = input("das")
+
+var i
+i = "YOLO"

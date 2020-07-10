@@ -92,6 +92,8 @@ def compile(opcodes, c_filename, table):
 
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
+            if opcode.dtype == 'string':
+                opcode.dtype = 'char *'
 
             ccode += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
 
@@ -103,7 +105,6 @@ def compile(opcodes, c_filename, table):
             #Helper Dictionaries
             get_data_type = {'i':"int", 's':"char *", 'f':"float", 'd':"double"}
             get_placeholder = {'i' : 'd', 's' : 's', 'f' : 'f', 'd' : 'lf'}
-
 
             #Check if the statement is of type input or not
             if (len(val)<3):
