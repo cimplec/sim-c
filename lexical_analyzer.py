@@ -19,7 +19,7 @@ def is_keyword(value):
         =======
         bool: Whether the value passed is a keyword or not
     """
-    return value in ['fun', 'MAIN', 'print', 'return', 'var', 'END_MAIN', 'for', 'in', 'to', 'by', 'while', 'if', 'break', 'continue']
+    return value in ['fun', 'MAIN', 'print', 'return', 'var', 'END_MAIN', 'for', 'in', 'to', 'by', 'while', 'if', 'break', 'continue', 'input']
 
 def numeric_val(source_code, i, table):
     """
@@ -245,7 +245,7 @@ def lexical_analyze(filename, table):
         elif source_code[i] == ',':
             tokens.append(Token("comma", ""))
             i += 1
-        
+
         # Identifying not_equal token
         elif source_code[i] == '!' and source_code[i+1] == '=':
             tokens.append(Token("not_equal", ""))
@@ -268,7 +268,7 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("less_than_equal", ""))
                 i += 2
-                
+
         # Otherwise increment the index
         else:
             i += 1

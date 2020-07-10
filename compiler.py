@@ -92,11 +92,28 @@ def compile(opcodes, c_filename, table):
             # Get the datatye of the variable
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
+             #Helper Dictionaries
+            get_data_type = {'i':"int", 's':"char*", 'f':"float", 'd':"double"}
+            get_placeholder = {'i' : 'd', 's' : 's', 'f' : 'f', 'd' : 'lf'}
+
             # If it is of string type then change it to char <identifier>[]
             if(dtype == 'string'):
                 dtype = 'char*'
+            #Check if the statement is of type input or not
+            if (len(val)<3):
+                code += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
+            else:
+                #If the statement is of type input -
+                dtype = get_data_type[val[2]]
+                placeholder = get_placeholder[val[2]]
+                code += "\t" + dtype +" "+ str(val[0])+ ";\n"
+                code += "\t" + 'printf("' + str(val[1]) + '");\n'
+                code += "\t" + 'scanf("%'+placeholder
+                if ('*' in dtype ):
+                    code += '", '+str(val[0])+');\n'
+                else :
+                    code += '", &'+str(val[0])+');\n'
 
-            code += "\t" + dtype + " " + str(val[0]) + " = " + str(val[1]) + ";\n"
         # If opcode is of type var_no_assign then generate a declaration statement
         elif opcode.type == "var_no_assign":
             # val contains - <identifier>---<expression>, split that into a list
@@ -104,7 +121,6 @@ def compile(opcodes, c_filename, table):
 
             # Get the datatye of the variable
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
-
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
 
@@ -114,7 +130,21 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split('---')
 
-            code += "\t" + val[0] + " = " + val[1] + ";\n"
+            #Helper Dictionaries
+            get_data_type = {'i':"int", 's':"char *", 'f':"float", 'd':"double"}
+            get_placeholder = {'i' : 'd', 's' : 's', 'f' : 'f', 'd' : 'lf'}
+
+            #Check if the statement is of type input or not
+            if (len(val)<3):
+                code += "\t" + val[0] + " = " + val[1] + ";\n"
+
+            else:
+                #If the statement is of type input -
+                dtype = get_data_type[val[2]]
+                placeholder = get_placeholder[val[2]]
+                code += "\t" + 'printf("' + str(val[1]) + '");\n'
+                code += "\t" + 'scanf("%'+placeholder+'", &'+str(val[0])+');\n'
+
         # If opcode is of type func_decl then generate function declaration statement
         elif opcode.type == "func_decl":
             # val contains - <identifier>---<params>, split that into list

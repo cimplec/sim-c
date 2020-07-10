@@ -1,19 +1,10 @@
-
-fun sum(a, b, c, d) {
-  var ret = "Hello"
-  for a in 0 to 4 by + 1 {
-  continue
-  }
-}
-
-fun someting() {
-  return "Something something"
-  for x in 10 to 1 by / 2 {
-  break
-  }
-}
-
 MAIN
-  sum(1, 2, 3, 4)
-  something()
+var b
+b = input("DSD", "d")
+var c = input()
+print("asdas")
+var d
+d = 1+2
+var e
+e = 3+4
 END_MAIN

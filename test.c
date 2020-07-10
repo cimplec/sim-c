@@ -1,23 +1,17 @@
-
-
-void sum(int a, int b, int c, int d) {
-	char* ret = "Hello";
-	for( int a = 0 ; a < 4 ; a+=1){
-	continue;
-}
-}
-
-char* someting() {
-
-	return "Something something";
-	for( int x = 10 ; x > 1 ; x/=2){
-	break;
-}
-}
+#include <stdio.h>
 
 int main() {
-	sum(1, 2, 3, 4);
-	something();
+	double b;
+	printf("DSD");
+	scanf("%lf", &b);
+	char* c;
+	printf("");
+	scanf("%s", c);
+	printf("asdas");
+	int d;
+	d = 1 + 2;
+	int e;
+	e = 3 + 4;
 
 	return 0;
 }
