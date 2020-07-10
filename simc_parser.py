@@ -50,7 +50,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
     type_to_prec = {'int': 3, 'float': 4, 'double': 5}
 
     # Loop until expression is not parsed completely
-    while(i < len(tokens) and tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal']):
+    while(i < len(tokens) and tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal', 'modulus', 'increment', 'decrement', 'plus_equal', 'minus_equal', 'multiply_equal', 'divide_equal', 'modulus_equal']):
         # If token is identifier or constant
         if(tokens[i].type in ['number', 'string', 'id']):
             # Fetch information from symbol table
@@ -75,6 +75,8 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 error("Cannot find the type of %s" % value)
             elif(type == 'var' and accept_unkown):
                 op_value += str(value)
+        elif(tokens[i].type == 'newline'):
+            break
         else:
             if(tokens[i].type == 'plus'):
                 op_value += ' + '
@@ -98,8 +100,25 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 op_value += ' >= '
             elif(tokens[i].type == 'less_than_equal'):
                 op_value += ' <= '
+            elif(tokens[i].type == 'modulus'):
+                op_value += ' % '
+            elif(tokens[i].type == 'increment'):
+                op_value += ' ++ '
+            elif(tokens[i].type == 'decrement'):
+                op_value += ' -- '
+            elif(tokens[i].type == 'plus_equal'):
+                op_value += ' += '
+            elif(tokens[i].type == 'minus_equal'):
+                op_value += ' -= '
+            elif(tokens[i].type == 'multiply_equal'):
+                op_value += ' *= '
+            elif(tokens[i].type == 'divide_equal'):
+                op_value += ' /= '
+            elif(tokens[i].type == 'modulus_equal'):
+                op_value += ' %= '
 
         i += 1
+
 
     # If expression is empty then throw an error
     if(op_value == "" and not accept_empty_expression):
@@ -226,13 +245,13 @@ def assign_statement(tokens, i, table):
     """
 
     # Check if assignment operator follows identifier name
-    check_if(tokens[i].type, "assignment", "Expected assignment operator after identifier")
+    check_if(tokens[i].type, ["assignment", "plus_equal", "minus_equal", "multiply_equal", "divide_equal", "modulus_equal"], "Expected assignment operator after identifier")
 
     # Store the index of identifier
     id_idx = i-1
 
     # Check if expression follows = in assign statement
-    op_value, op_type, i = expression(tokens, i+1, table, "Required expression after assignment operator")
+    op_value, op_type, i = expression(tokens, i, table, "Required expression after assignment operator")
 
     #  Map datatype to appropriate datatype in C
     prec_to_type = {0: "string", 1: "string", 2: "char", 3: "int", 4: "float", 5: "double"}
@@ -551,6 +570,37 @@ def for_loop(tokens, i, table):
     # Return the opcode and i+1 (the token after for loop statement)
     return OpCode("for", str(var_name) + '&&&' + str(starting_val) + '&&&' + str(ending_val) + '&&&' + str(operator_type) + '&&&' + sign_needed + '&&&' + str(change_val)), i+1
 
+def unary_statement(tokens, i, table):
+    """
+        Parse unary statement
+
+        Params
+        ======
+        tokens      (list) = List of tokens
+        i           (int)  = Current index in token
+        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
+        Returns
+        =======
+        OpCode, int: The opcode for the unary code and the index after parsing unary statement
+
+        Grammar
+        =======
+        unary_statement -> id operator
+        id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+        operator        -> ++ | --
+    """
+
+    # Check if assignment operator follows identifier name
+    check_if(tokens[i+1].type, ["increment", "decrement"], "Expected unary operator after identifier")
+
+    # Check if expression follows = in assign statement
+    op_value, _, i = expression(
+        tokens, i, table, "", accept_empty_expression=True)
+
+    # Return the opcode and i (the token after unary statement)
+    return OpCode("unary", op_value), i
+
 def parse(tokens, table):
     """
         Parse tokens and generate opcodes
@@ -591,6 +641,9 @@ def parse(tokens, table):
             if(tokens[i+1].type == "left_paren"):
                 fun_opcode, i = function_call_statement(tokens, i, table)
                 op_codes.append(fun_opcode)
+            elif(tokens[i+1].type in ["increment", "decrement"]):
+                unary_opcode, i = unary_statement(tokens, i, table)
+                op_codes.append(unary_opcode)
             else:
                 assign_opcode, i = assign_statement(tokens, i+1, table)
                 op_codes.append(assign_opcode)

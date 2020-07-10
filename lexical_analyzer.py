@@ -212,6 +212,11 @@ def lexical_analyze(filename, table):
             tokens.append(Token("right_brace", ""))
             i += 1
 
+        # Identifying newline token
+        elif source_code[i] == '\n':
+            tokens.append(Token("newline", ""))
+            i += 1
+
         # Identifying assignment token or equivalence token
         elif source_code[i] == '=':
             if source_code[i+1] != '=':
@@ -221,31 +226,62 @@ def lexical_analyze(filename, table):
                 tokens.append(Token("equal", ""))
                 i += 2
 
-        # Identifying plus token
+        # Identifying plus_equal, increment or plus token
         elif source_code[i] == '+':
-            tokens.append(Token("plus", ""))
-            i += 1
+            if source_code[i+1] == '=':
+                tokens.append(Token("plus_equal", ""))
+                i += 2
+            elif source_code[i+1] == '+':
+                tokens.append(Token("increment", ""))
+                i += 2
+            else:
+                tokens.append(Token("plus", ""))
+                i += 1
 
-        # Identifying minus token
+        # Identifying minus_equal, decrement or minus token
         elif source_code[i] == '-':
-            tokens.append(Token("minus", ""))
-            i += 1
+            if source_code[i+1] == '=':
+                tokens.append(Token("minus_equal", ""))
+                i += 2
+            elif source_code[i+1] == '-':
+                tokens.append(Token("decrement", ""))
+                i += 2
+            else:
+                tokens.append(Token("minus", ""))
+                i += 1
 
-        # Identifying multiply token
+        # Identifying multiply_equal or multiply token
         elif source_code[i] == '*':
-            tokens.append(Token("multiply", ""))
-            i += 1
+            if source_code[i+1] == '=':
+                tokens.append(Token("multiply_equal", ""))
+                i += 2
+            else:
+                tokens.append(Token("multiply", ""))
+                i += 1
 
-        # Identifying divide token
+        # Identifying divide_equal or divide token
         elif source_code[i] == '/':
-            tokens.append(Token("divide", ""))
-            i += 1
+            if source_code[i+1] == '=':
+                tokens.append(Token("divide_equal", ""))
+                i += 2
+            else:
+                tokens.append(Token("divide", ""))
+                i += 1
+
+        # Identifying modulus_equal or modulus token
+        elif source_code[i] == '%':
+            if source_code[i+1] == '=':
+                tokens.append(Token("modulus_equal", ""))
+                i += 2
+            else:
+                tokens.append(Token("modulus", ""))
+                i += 1
 
         # Identifying comma token
         elif source_code[i] == ',':
             tokens.append(Token("comma", ""))
             i += 1
-        
+
         # Identifying not_equal token
         elif source_code[i] == '!' and source_code[i+1] == '=':
             tokens.append(Token("not_equal", ""))
@@ -268,7 +304,7 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("less_than_equal", ""))
                 i += 2
-                
+
         # Otherwise increment the index
         else:
             i += 1
