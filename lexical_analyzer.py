@@ -212,6 +212,11 @@ def lexical_analyze(filename, table):
             tokens.append(Token("right_brace", ""))
             i += 1
 
+        # Identifying newline token
+        elif source_code[i] == '\n':
+            tokens.append(Token("newline", ""))
+            i += 1
+
         # Identifying assignment token or equivalence token
         elif source_code[i] == '=':
             if source_code[i+1] != '=':
@@ -276,7 +281,7 @@ def lexical_analyze(filename, table):
         elif source_code[i] == ',':
             tokens.append(Token("comma", ""))
             i += 1
-        
+
         # Identifying not_equal token
         elif source_code[i] == '!' and source_code[i+1] == '=':
             tokens.append(Token("not_equal", ""))

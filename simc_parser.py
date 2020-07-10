@@ -51,6 +51,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
 
     # Loop until expression is not parsed completely
     while(i < len(tokens) and tokens[i].type in ['number', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal', 'modulus', 'increment', 'decrement', 'plus_equal', 'minus_equal', 'multiply_equal', 'divide_equal', 'modulus_equal']):
+        print(tokens[i])
         # If token is identifier or constant
         if(tokens[i].type in ['number', 'string', 'id']):
             # Fetch information from symbol table
@@ -75,6 +76,8 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 error("Cannot find the type of %s" % value)
             elif(type == 'var' and accept_unkown):
                 op_value += str(value)
+        elif(tokens[i].type == 'newline'):
+            break
         else:
             if(tokens[i].type == 'plus'):
                 op_value += ' + '
@@ -116,7 +119,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 op_value += ' %= '
 
         i += 1
-        
+
 
     # If expression is empty then throw an error
     if(op_value == "" and not accept_empty_expression):
