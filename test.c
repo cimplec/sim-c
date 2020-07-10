@@ -1,16 +1,9 @@
 #include <stdio.h>
 
 int main() {
-	int a = 1;
-	if(a == 1) {
-	printf("One");
-	}
-	else if(a == 2) {
-	printf("Two");
-	}
-	else {
-	printf("Otherwise");
-	}
+	char* name = "Siddhartha";
+	int age = 21;
+	printf("Hello %s, you are %d years old", name, age);
 
 	return 0;
 }
