@@ -1,9 +1,11 @@
-
+#include <stdio.h>
 
 int main() {
-	string j;
-	printf("");
-	scanf("%s", &j);
+	int a = 10;
+	while(a > 0) {
+	a = a - 1;
+	printf("yolo");
+	}
 
 	return 0;
 }

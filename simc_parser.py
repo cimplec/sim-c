@@ -278,6 +278,9 @@ def var_statement(tokens, i, table):
         # Get the value from symbol table by id
         value, _, _ = table.get_by_id(tokens[i].val)
 
+        # Set declared
+        table.symbol_table[tokens[i].val][1] = "declared"
+
         # Return the opcode and i+1 (the token after var statement)
         return OpCode("var_no_assign", value), i+1
 
@@ -305,6 +308,12 @@ def assign_statement(tokens, i, table):
         id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
         operator        -> + | - | * | /
     """
+
+    # Check if variable is declared or not
+    value, type, _ = table.get_by_id(tokens[i-1].val)
+
+    if(type == 'var'):
+        error('Variable %s used before declaration' % value, tokens[i-1].line_num)
 
     # Check if assignment operator follows identifier name
     check_if(tokens[i].type, ["assignment", "plus_equal", "minus_equal", "multiply_equal", "divide_equal", "modulus_equal"], "Expected assignment operator after identifier" , tokens[i].line_num)
@@ -362,7 +371,7 @@ def function_definition_statement(tokens, i, table):
     func_name, _, _ = table.get_by_id(func_idx)
 
     # Check if ( follows id in function
-    check_if(tokens[i+1].type, "left_paren", "Expected ( after function name", token[i+1].line_num)
+    check_if(tokens[i+1].type, "left_paren", "Expected ( after function name", tokens[i+1].line_num)
 
     # Check if expression follows ( in function statement
     op_value, op_type, i = expression(tokens, i+2, table, "", True, True)
@@ -372,7 +381,7 @@ def function_definition_statement(tokens, i, table):
     check_if(tokens[i].type, "right_paren", "Expected ) after function params list", tokens[i].line_num)
 
     # Check if { follows ) in function
-    check_if(tokens[i+1].type, "left_brace", "Expected { before function body", token[i+1].line_num)
+    check_if(tokens[i+1].type, "left_brace", "Expected { before function body", tokens[i+1].line_num)
 
     # Loop until } is reached
     i += 2
@@ -490,7 +499,7 @@ def while_statement(tokens, i, table, in_do):
 
     #Check if { follows ) in while statement
     if(not in_do):
-        check_if(tokens[i+1].type, "left_brace", "Expected { before while loop body", token[i+1].line_num)
+        check_if(tokens[i+1].type, "left_brace", "Expected { before while loop body", tokens[i+1].line_num)
 
         # Loop until } is reached
         i += 2
@@ -552,7 +561,7 @@ def if_statement(tokens, i, table):
 
     #Check if { follows ) in if statement
     check_if(tokens[i+1].type, "left_brace",
-             "Expected { before if body", token[i+1].line_num)
+             "Expected { before if body", tokens[i+1].line_num)
 
     # Loop until } is reached
     i += 2
@@ -597,27 +606,27 @@ def for_loop(tokens, i, table):
     """
 
     # Check if identifier follows for keyword
-    check_if(tokens[i].type, "id", "Expected variable name", token[i+1].line_num)
+    check_if(tokens[i].type, "id", "Expected variable name", tokens[i].line_num)
 
     # Check if in follows identifier
-    check_if(tokens[i+1].type, "in", "Expected in keyword", token[i+1].line_num)
+    check_if(tokens[i+1].type, "in", "Expected in keyword", tokens[i+1].line_num)
 
     # Check if number follows in keyword
-    check_if(tokens[i+2].type, "number", "Expected starting value", token[i+2].line_num)
+    check_if(tokens[i+2].type, "number", "Expected starting value", tokens[i+2].line_num)
 
     # Check if to keyword follows number
-    check_if(tokens[i+3].type, "to", "Expected to keyword", token[i+3].line_num)
+    check_if(tokens[i+3].type, "to", "Expected to keyword", tokens[i+3].line_num)
 
     # Check if number follows in keyword
-    check_if(tokens[i+4].type, "number", "Expected ending value", token[i+4].line_num)
+    check_if(tokens[i+4].type, "number", "Expected ending value", tokens[i+4].line_num)
 
     # Check if by keyword follows number
-    check_if(tokens[i+5].type, "by", "Expected by keyword", token[i+5].line_num)
+    check_if(tokens[i+5].type, "by", "Expected by keyword", tokens[i+5].line_num)
 
     word_to_op = {"plus": "+", "minus": "-", "multiply": "*", "divide": "/"}
 
     # Check if number follows operator
-    check_if(tokens[i+7].type, "number", "Expected value for change", token[i+7].line_num)
+    check_if(tokens[i+7].type, "number", "Expected value for change", tokens[i+7].line_num)
 
     #Get required values
     var_name, _, _ = table.get_by_id(tokens[i].val)
@@ -658,7 +667,7 @@ def unary_statement(tokens, i, table):
     """
 
     # Check if assignment operator follows identifier name
-    check_if(tokens[i+1].type, ["increment", "decrement"], "Expected unary operator after identifier", token[i+1].line_num)
+    check_if(tokens[i+1].type, ["increment", "decrement"], "Expected unary operator after identifier", tokens[i+1].line_num)
 
     # Check if expression follows = in assign statement
     op_value, _, i = expression(
@@ -692,6 +701,9 @@ def parse(tokens, table):
 
     # Do while started or not
     in_do = False
+
+    # Count main functions
+    main_fn_count = 0
 
     # Loop through all the tokens
     i = 0
@@ -727,10 +739,14 @@ def parse(tokens, table):
         # If token is of type MAIN then generate MAIN opcode
         elif tokens[i].type == "MAIN":
             op_codes.append(OpCode("MAIN", "", ""))
+            main_fn_count += 1
+            if(main_fn_count > 1):
+                error("Presence of two MAIN in a single file", tokens[i].line_num)
             i += 1
         # If token is of type END_MAIN then generate MAIN opcode
         elif tokens[i].type == "END_MAIN":
             op_codes.append(OpCode("END_MAIN", "", ""))
+            main_fn_count -= 1
             i += 1
         # If token is of type for then generate for code
         elif tokens[i].type == "for":
@@ -738,7 +754,7 @@ def parse(tokens, table):
             op_codes.append(for_opcode)
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
-            check_if(tokens[i+1].type, "left_brace", "Expected { after do statement", token[i+1].line_num)
+            check_if(tokens[i+1].type, "left_brace", "Expected { after do statement", tokens[i+1].line_num)
             in_do = True
             op_codes.append(OpCode("do", "", ""))
             i += 2
@@ -790,6 +806,10 @@ def parse(tokens, table):
         # Otherwise increment the index
         else:
             i += 1
+
+    # Errors that may occur after parsing loop
+    if(main_fn_count != 0):
+        error("MAIN not ended with END_MAIN", tokens[i-1].line_num + 1)
 
     # Return opcodes
     return op_codes

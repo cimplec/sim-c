@@ -1,4 +1,9 @@
 MAIN
-  var j
-  j = input("","i")
+
+  var a = 10
+  while(a>0){
+  a = a-1
+  print("yolo")
+}
+
 END_MAIN

@@ -210,7 +210,7 @@ def lexical_analyze(filename, table):
 
         # Identifying left brace token
         elif source_code[i] == '{':
-            tokens.append(Token("left_brace", ""), line_num)
+            tokens.append(Token("left_brace", "", line_num))
             i += 1
 
         # Identifying right brace token
