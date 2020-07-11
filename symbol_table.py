@@ -1,16 +1,16 @@
-class SymbolTable():
+class SymbolTable:
     """
-        SymbolTable class is responsible for storing information about identifiers and constants
+    SymbolTable class is responsible for storing information about identifiers and constants
     """
 
     def __init__(self):
         """
-            Initializer of SymbolTable class
+        Initializer of SymbolTable class
 
-            Values
-            ======
-            id            (int)  = Global id which acts as unique id for a symbol (identifier/constant)
-            symbol_table  (dict) = Dictionary containing the actual symbol table
+        Values
+        ======
+        id            (int)  = Global id which acts as unique id for a symbol (identifier/constant)
+        symbol_table  (dict) = Dictionary containing the actual symbol table
         """
 
         self.id = 1
@@ -18,17 +18,17 @@ class SymbolTable():
 
     def entry(self, value, type, typedata):
         """
-            Returns id in symbol table after making an entry
+        Returns id in symbol table after making an entry
 
-            Params
-            ======
-            value    (string) = Value to be stored in symbol table (identifier/constant)
-            type     (string) = Datatype of symbol
-            typedata (string) = Type of data (constant/variable)
+        Params
+        ======
+        value    (string) = Value to be stored in symbol table (identifier/constant)
+        type     (string) = Datatype of symbol
+        typedata (string) = Type of data (constant/variable)
 
-            Returns
-            =======
-            int: The id of the current entry in symbol table
+        Returns
+        =======
+        int: The id of the current entry in symbol table
         """
 
         self.symbol_table[self.id] = [value, type, typedata]
@@ -37,30 +37,30 @@ class SymbolTable():
 
     def get_by_id(self, id):
         """
-            Returns symbol table entry by integer unique id
+        Returns symbol table entry by integer unique id
 
-            Params
-            ======
-            id (id) = Integer unique id of a symbol in the table
+        Params
+        ======
+        id (id) = Integer unique id of a symbol in the table
 
-            Returns
-            =======
-            list: [value, type, typedata], typedata = constant/variable
+        Returns
+        =======
+        list: [value, type, typedata], typedata = constant/variable
         """
 
         return self.symbol_table.get(id, [None, None, None])
 
     def get_by_symbol(self, value):
         """
-            Returns unique id of a given value
+        Returns unique id of a given value
 
-            Params
-            ======
-            value (string) = Value to be searched in the symbol table
+        Params
+        ======
+        value (string) = Value to be searched in the symbol table
 
-            Returns
-            =======
-            int: The unique id of the entry in symbol table
+        Returns
+        =======
+        int: The unique id of the entry in symbol table
         """
 
         id = -1
