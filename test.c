@@ -1,9 +1,9 @@
 
 
 int main() {
-	int i = 0;
-	i =  += 1;
-	i += 1;
+	string j;
+	printf("");
+	scanf("%s", &j);
 
 	return 0;
 }

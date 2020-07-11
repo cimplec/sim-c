@@ -1,17 +1,18 @@
 # Library to exit code when error occurs
 import sys
 
-def error(msg):
+def error(msg, line_num):
     """
         Shows error message in red color and exits the current process
 
         Params
         ======
-        msg (string) = The message to be shown as error message
+        msg      (string) = The message to be shown as error message
+        line_num (int)         = Line number
     """
 
     # Prints the error to screen in red color and then exits tokenizer
-    print('\033[91mError: ' + msg)
+    print('\033[91m[Line %d] Error: %s' % (line_num, msg))
     sys.exit()
 
 def is_digit(char):

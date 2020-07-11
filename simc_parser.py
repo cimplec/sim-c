@@ -4,7 +4,7 @@ from global_helpers import error
 # Module to import OpCode class
 from op_code import OpCode
 
-def check_if(given_type, should_be_types, msg):
+def check_if(given_type, should_be_types, msg, line_num):
     """
         Check if type matches what it should be otherwise throw an error and exit
 
@@ -13,6 +13,7 @@ def check_if(given_type, should_be_types, msg):
         given_type      (string)      = Type of token to be checked
         should_be_types (string/list) = Type(s) to be compared with
         msg             (string)      = Error message to print in case some case fails
+        line_num        (int)         = Line number
     """
 
     # Convert to list if type is string
@@ -21,7 +22,7 @@ def check_if(given_type, should_be_types, msg):
 
     # If the given_type is not part of should_be_types then throw error and exit
     if(given_type not in should_be_types):
-        error(msg)
+        error(msg, line_num)
 
 def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expression=False):
     """
@@ -80,7 +81,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                     for var in vars:
                         _, type, _ = table.get_by_id(table.get_by_symbol(var))
                         if(type == "var"):
-                            error("Unknown variable %s" % var)
+                            error("Unknown variable %s" % var, tokens[i].line_num)
                         value = value.replace(var, type_to_fs[type])
                         value += ", " + var
 
@@ -102,7 +103,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 op_value += str(value)
                 op_type = type_to_prec['double'] if type_to_prec['double'] > op_type else op_type
             elif(type == 'var' and not accept_unkown):
-                error("Cannot find the type of %s" % value)
+                error("Cannot find the type of %s" % value, tokens[i].line_num)
             elif(type == 'var' and accept_unkown):
                 op_value += str(value)
         elif(tokens[i].type == 'newline'):
@@ -158,7 +159,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
 
     # If expression is empty then throw an error
     if(op_value == "" and not accept_empty_expression):
-        error(msg)
+        error(msg, tokens[i].line_num)
 
     #Check if statement is of type input
     if ' scanf ' in op_value:
@@ -214,7 +215,7 @@ def print_statement(tokens, i, table):
     """
 
     # Check if ( follows print statement
-    check_if(tokens[i].type, "left_paren", "Expected ( after print statement")
+    check_if(tokens[i].type, "left_paren", "Expected ( after print statement", tokens[i].line_num)
 
     # Check if expression follows ( in print statement
     op_value, op_type, i = expression(tokens, i+1, table, "Expected expression inside print statement")
@@ -224,7 +225,7 @@ def print_statement(tokens, i, table):
     op_value = prec_to_type[op_type] + op_value
 
     # Check if print statement has closing )
-    check_if(tokens[i].type, "right_paren", "Expected ) after expression in print statement")
+    check_if(tokens[i].type, "right_paren", "Expected ) after expression in print statement", tokens[i].line_num)
 
     # Return the opcode and i+1 (the token after print statement)
     return OpCode("print", op_value), i+1
@@ -255,7 +256,7 @@ def var_statement(tokens, i, table):
     """
 
     # Check if identifier is present after var
-    check_if(tokens[i].type, "id", "Expected id after var keyword")
+    check_if(tokens[i].type, "id", "Expected id after var keyword", tokens[i].line_num)
 
     # Check if variable is also initialized
     if(i+1 < len(tokens) and tokens[i+1].type == 'assignment'):
@@ -306,13 +307,13 @@ def assign_statement(tokens, i, table):
     """
 
     # Check if assignment operator follows identifier name
-    check_if(tokens[i].type, ["assignment", "plus_equal", "minus_equal", "multiply_equal", "divide_equal", "modulus_equal"], "Expected assignment operator after identifier")
+    check_if(tokens[i].type, ["assignment", "plus_equal", "minus_equal", "multiply_equal", "divide_equal", "modulus_equal"], "Expected assignment operator after identifier" , tokens[i].line_num)
 
     # Store the index of identifier
     id_idx = i-1
 
     # Check if expression follows = in assign statement
-    op_value, op_type, i = expression(tokens, i, table, "Required expression after assignment operator")
+    op_value, op_type, i = expression(tokens, i+1, table, "Required expression after assignment operator")
 
     #  Map datatype to appropriate datatype in C
     prec_to_type = {0: "string", 1: "string", 2: "char", 3: "int", 4: "float", 5: "double"}
@@ -352,7 +353,7 @@ def function_definition_statement(tokens, i, table):
     """
 
     # Check if identifier follows fun
-    check_if(tokens[i].type, "id", "Expected function name")
+    check_if(tokens[i].type, "id", "Expected function name", tokens[i].line_num)
 
     # Store the id of function name in symbol table
     func_idx = tokens[i].val
@@ -361,17 +362,17 @@ def function_definition_statement(tokens, i, table):
     func_name, _, _ = table.get_by_id(func_idx)
 
     # Check if ( follows id in function
-    check_if(tokens[i+1].type, "left_paren", "Expected ( after function name")
+    check_if(tokens[i+1].type, "left_paren", "Expected ( after function name", token[i+1].line_num)
 
     # Check if expression follows ( in function statement
     op_value, op_type, i = expression(tokens, i+2, table, "", True, True)
     op_value_list = op_value.replace(" ", "").split(",")
 
     # Check if ) follows expression in function
-    check_if(tokens[i].type, "right_paren", "Expected ) after function params list")
+    check_if(tokens[i].type, "right_paren", "Expected ) after function params list", tokens[i].line_num)
 
     # Check if { follows ) in function
-    check_if(tokens[i+1].type, "left_brace", "Expected { before function body")
+    check_if(tokens[i+1].type, "left_brace", "Expected { before function body", token[i+1].line_num)
 
     # Loop until } is reached
     i += 2
@@ -388,7 +389,7 @@ def function_definition_statement(tokens, i, table):
 
     # If right brace is not found then produce error
     if(not found_right_brace):
-        error("Expected } after function body")
+        error("Expected } after function body", tokens[i].line_num)
 
     # Add the identifier types to function's typedata
     table.symbol_table[func_idx][2] = "function---" + "---".join(op_value_list) if len(op_value_list) > 0 and len(op_value_list[0]) > 0 else "function"
@@ -436,10 +437,10 @@ def function_call_statement(tokens, i, table):
     # Check if number of actual and formal parameters match
     if(len(params) != len(op_value_list)):
         error("Expected %d parameters but got %d parameters in function %s" %
-                (len(params), len(op_value_list), func_name))
+                (len(params), len(op_value_list), func_name), tokens[i].line_num)
 
     # Check if ) follows params in function calling
-    check_if(tokens[i].type, "right_paren", "Expected ) after params in function calling")
+    check_if(tokens[i].type, "right_paren", "Expected ) after params in function calling", tokens[i].line_num)
 
     # Assign datatype to formal parameters
     for j in range(len(params)):
@@ -478,18 +479,18 @@ def while_statement(tokens, i, table, in_do):
         operator        -> + | - | * | /
     """
     #Check if ( follows while statement
-    check_if(tokens[i].type, "left_paren", "Expected ( after while statement")
+    check_if(tokens[i].type, "left_paren", "Expected ( after while statement", tokens[i].line_num)
 
     #check if expression follows ( in while statement
     op_value, _, i = expression(tokens, i+1, table, "Expected expression inside while statement")
 
     # check if ) follows expression in while statement
     check_if(tokens[i].type, "right_paren",
-             "Expected ) after expression in while statement")
+             "Expected ) after expression in while statement", tokens[i].line_num)
 
     #Check if { follows ) in while statement
     if(not in_do):
-        check_if(tokens[i+1].type, "left_brace", "Expected { before while loop body")
+        check_if(tokens[i+1].type, "left_brace", "Expected { before while loop body", token[i+1].line_num)
 
         # Loop until } is reached
         i += 2
@@ -506,7 +507,7 @@ def while_statement(tokens, i, table, in_do):
 
         # If right brace is not found then produce error
         if(not found_right_brace):
-            error("Expected } after while loop body")
+            error("Expected } after while loop body", tokens[i].line_num)
 
         return OpCode("while", op_value), ret_idx
     else:
@@ -539,7 +540,7 @@ def if_statement(tokens, i, table):
         operator        -> + | - | * | /
     """
     #Check if ( follows if statement
-    check_if(tokens[i].type, "left_paren", "Expected ( after if statement")
+    check_if(tokens[i].type, "left_paren", "Expected ( after if statement", tokens[i].line_num)
 
     #check if expression follows ( in if statement
     op_value, op_type, i = expression(
@@ -547,11 +548,11 @@ def if_statement(tokens, i, table):
     op_value_list = op_value.replace(" ", "").split(",")
     # check if ) follows expression in if statement
     check_if(tokens[i].type, "right_paren",
-             "Expected ) after expression in if statement")
+             "Expected ) after expression in if statement", tokens[i].line_num)
 
     #Check if { follows ) in if statement
     check_if(tokens[i+1].type, "left_brace",
-             "Expected { before if body")
+             "Expected { before if body", token[i+1].line_num)
 
     # Loop until } is reached
     i += 2
@@ -568,7 +569,7 @@ def if_statement(tokens, i, table):
 
     # If right brace is not found then produce error
     if(not found_right_brace):
-        error("Expected } after if body")
+        error("Expected } after if body", tokens[i].line_num)
 
     return OpCode("if", op_value), ret_idx
 
@@ -596,27 +597,27 @@ def for_loop(tokens, i, table):
     """
 
     # Check if identifier follows for keyword
-    check_if(tokens[i].type, "id", "Expected variable name")
+    check_if(tokens[i].type, "id", "Expected variable name", token[i+1].line_num)
 
     # Check if in follows identifier
-    check_if(tokens[i+1].type, "in", "Expected in keyword")
+    check_if(tokens[i+1].type, "in", "Expected in keyword", token[i+1].line_num)
 
     # Check if number follows in keyword
-    check_if(tokens[i+2].type, "number", "Expected starting value")
+    check_if(tokens[i+2].type, "number", "Expected starting value", token[i+2].line_num)
 
     # Check if to keyword follows number
-    check_if(tokens[i+3].type, "to", "Expected to keyword")
+    check_if(tokens[i+3].type, "to", "Expected to keyword", token[i+3].line_num)
 
     # Check if number follows in keyword
-    check_if(tokens[i+4].type, "number", "Expected ending value")
+    check_if(tokens[i+4].type, "number", "Expected ending value", token[i+4].line_num)
 
     # Check if by keyword follows number
-    check_if(tokens[i+5].type, "by", "Expected by keyword")
+    check_if(tokens[i+5].type, "by", "Expected by keyword", token[i+5].line_num)
 
     word_to_op = {"plus": "+", "minus": "-", "multiply": "*", "divide": "/"}
 
     # Check if number follows operator
-    check_if(tokens[i+7].type, "number", "Expected value for change")
+    check_if(tokens[i+7].type, "number", "Expected value for change", token[i+7].line_num)
 
     #Get required values
     var_name, _, _ = table.get_by_id(tokens[i].val)
@@ -657,7 +658,7 @@ def unary_statement(tokens, i, table):
     """
 
     # Check if assignment operator follows identifier name
-    check_if(tokens[i+1].type, ["increment", "decrement"], "Expected unary operator after identifier")
+    check_if(tokens[i+1].type, ["increment", "decrement"], "Expected unary operator after identifier", token[i+1].line_num)
 
     # Check if expression follows = in assign statement
     op_value, _, i = expression(
@@ -737,7 +738,7 @@ def parse(tokens, table):
             op_codes.append(for_opcode)
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
-            check_if(tokens[i+1].type, "left_brace", "Expected { after do statement")
+            check_if(tokens[i+1].type, "left_brace", "Expected { after do statement", token[i+1].line_num)
             in_do = True
             op_codes.append(OpCode("do", "", ""))
             i += 2
@@ -767,7 +768,7 @@ def parse(tokens, table):
         elif tokens[i].type == "return":
             op_value, op_type, i = expression(tokens, i+1, table, "Expected expression after return")
             if(func_name == ""):
-                error("Return statement outside any function")
+                error("Return statement outside any function", tokens[i].line_num)
             else:
                 #  Map datatype to appropriate datatype in C
                 prec_to_type = {0: "char*", 1: "char*", 2: "char", 3: "int", 4: "float", 5: "double"}

@@ -21,7 +21,7 @@ def is_keyword(value):
     """
     return value in ['fun', 'do', 'MAIN', 'print', 'return', 'var', 'END_MAIN', 'for', 'in', 'to', 'by', 'while', 'if', 'else', 'break', 'continue', 'input']
 
-def numeric_val(source_code, i, table):
+def numeric_val(source_code, i, table, line_num):
     """
         Processes numeric values in the source code
 
@@ -30,6 +30,7 @@ def numeric_val(source_code, i, table):
         source_code (string)      = The string containing simc source code
         i           (int)         = The current index in the source code
         table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+        line_num    (int)         = Line number
 
         Returns
         =======
@@ -63,9 +64,9 @@ def numeric_val(source_code, i, table):
     id = table.entry(numeric_constant, type, 'constant')
 
     # Return number token and current index in source code
-    return Token("number", id), i
+    return Token("number", id, line_num), i
 
-def string_val(source_code, i, table):
+def string_val(source_code, i, table, line_num):
     """
         Processes string values in the source code
 
@@ -74,6 +75,7 @@ def string_val(source_code, i, table):
         source_code (string) = The string containing simc source code
         i           (int)    = The current index in the source code
         table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+        line_num    (int)         = Line number
 
         Returns
         =======
@@ -109,9 +111,9 @@ def string_val(source_code, i, table):
     id = table.entry(string_constant, type, 'constant')
 
     # Return string token and current index in source code
-    return Token("string", id), i
+    return Token("string", id, line_num), i
 
-def keyword_identifier(source_code, i, table):
+def keyword_identifier(source_code, i, table, line_num):
     """
         Process keywords and identifiers in source code
 
@@ -120,6 +122,7 @@ def keyword_identifier(source_code, i, table):
         source_code (string) = The string containing simc source code
         i           (int)    = The current index in the source code
         table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+        line_num    (int)         = Line number
 
         Returns
         =======
@@ -135,7 +138,7 @@ def keyword_identifier(source_code, i, table):
 
     # Check if value is keyword or not
     if is_keyword(value):
-        return Token(value, ""), i
+        return Token(value, "", line_num), i
 
     # Check if identifier is in symbol table
     id = table.get_by_symbol(value)
@@ -145,7 +148,7 @@ def keyword_identifier(source_code, i, table):
         id = table.entry(value, 'var', 'variable')
 
     # Return id token and current index in source code
-    return Token("id", id), i
+    return Token("id", id, line_num), i
 
 def lexical_analyze(filename, table):
     """
@@ -173,136 +176,140 @@ def lexical_analyze(filename, table):
     # List of tokens
     tokens = []
 
+    # Line number
+    line_num = 1
+
     # Loop through the source code character by character
     i = 0
     while(source_code[i] != '\0'):
         # If a digit appears, call numeric_val function and add the numeric token to list,
         # if it was correct
         if is_digit(source_code[i]):
-            token, i = numeric_val(source_code, i, table)
+            token, i = numeric_val(source_code, i, table, line_num)
             tokens.append(token)
 
         # If quote appears the value is a string token
         elif source_code[i] == '\"':
-            token, i = string_val(source_code, i, table)
+            token, i = string_val(source_code, i, table, line_num)
             tokens.append(token)
 
         # If alphabet or number appears then it might be either a keyword or an identifier
         elif is_alnum(source_code[i]):
-            token, i = keyword_identifier(source_code, i, table)
+            token, i = keyword_identifier(source_code, i, table, line_num)
             tokens.append(token)
 
         # Identifying left paren token
         elif source_code[i] == '(':
-            tokens.append(Token("left_paren", ""))
+            tokens.append(Token("left_paren", "", line_num))
             i += 1
 
         # Identifying right paren token
         elif source_code[i] == ')':
-            tokens.append(Token("right_paren", ""))
+            tokens.append(Token("right_paren", "", line_num))
             i += 1
 
         # Identifying left brace token
         elif source_code[i] == '{':
-            tokens.append(Token("left_brace", ""))
+            tokens.append(Token("left_brace", ""), line_num)
             i += 1
 
         # Identifying right brace token
         elif source_code[i] == '}':
-            tokens.append(Token("right_brace", ""))
+            tokens.append(Token("right_brace", "", line_num))
             i += 1
 
         # Identifying newline token
         elif source_code[i] == '\n':
-            tokens.append(Token("newline", ""))
+            tokens.append(Token("newline", "", line_num))
+            line_num += 1
             i += 1
 
         # Identifying assignment token or equivalence token
         elif source_code[i] == '=':
             if source_code[i+1] != '=':
-                tokens.append(Token("assignment", ""))
+                tokens.append(Token("assignment", "", line_num))
                 i += 1
             else:
-                tokens.append(Token("equal", ""))
+                tokens.append(Token("equal", "", line_num))
                 i += 2
 
         # Identifying plus_equal, increment or plus token
         elif source_code[i] == '+':
             if source_code[i+1] == '=':
-                tokens.append(Token("plus_equal", ""))
+                tokens.append(Token("plus_equal", "", line_num))
                 i += 2
             elif source_code[i+1] == '+':
-                tokens.append(Token("increment", ""))
+                tokens.append(Token("increment", "", line_num))
                 i += 2
             else:
-                tokens.append(Token("plus", ""))
+                tokens.append(Token("plus", "", line_num))
                 i += 1
 
         # Identifying minus_equal, decrement or minus token
         elif source_code[i] == '-':
             if source_code[i+1] == '=':
-                tokens.append(Token("minus_equal", ""))
+                tokens.append(Token("minus_equal", "", line_num))
                 i += 2
             elif source_code[i+1] == '-':
-                tokens.append(Token("decrement", ""))
+                tokens.append(Token("decrement", "", line_num))
                 i += 2
             else:
-                tokens.append(Token("minus", ""))
+                tokens.append(Token("minus", "", line_num))
                 i += 1
 
         # Identifying multiply_equal or multiply token
         elif source_code[i] == '*':
             if source_code[i+1] == '=':
-                tokens.append(Token("multiply_equal", ""))
+                tokens.append(Token("multiply_equal", "", line_num))
                 i += 2
             else:
-                tokens.append(Token("multiply", ""))
+                tokens.append(Token("multiply", "", line_num))
                 i += 1
 
         # Identifying divide_equal or divide token
         elif source_code[i] == '/':
             if source_code[i+1] == '=':
-                tokens.append(Token("divide_equal", ""))
+                tokens.append(Token("divide_equal", "", line_num))
                 i += 2
             else:
-                tokens.append(Token("divide", ""))
+                tokens.append(Token("divide", "", line_num))
                 i += 1
 
         # Identifying modulus_equal or modulus token
         elif source_code[i] == '%':
             if source_code[i+1] == '=':
-                tokens.append(Token("modulus_equal", ""))
+                tokens.append(Token("modulus_equal", "", line_num))
                 i += 2
             else:
-                tokens.append(Token("modulus", ""))
+                tokens.append(Token("modulus", "", line_num))
                 i += 1
 
         # Identifying comma token
         elif source_code[i] == ',':
-            tokens.append(Token("comma", ""))
+            tokens.append(Token("comma", "", line_num))
             i += 1
 
         # Identifying not_equal token
         elif source_code[i] == '!' and source_code[i+1] == '=':
-            tokens.append(Token("not_equal", ""))
+            tokens.append(Token("not_equal", "", line_num))
             i += 2
 
         # Identifying greater_than or greater_than_equal token
         elif source_code[i] == '>':
             if source_code[i+1] != '=':
-                tokens.append(Token("greater_than", ""))
+                tokens.append(Token("greater_than", "", line_num))
                 i += 1
             else :
-                tokens.append(Token("greater_than_equal", ""))
+                tokens.append(Token("greater_than_equal", "", line_num))
                 i += 2
 
         # Identifying less_than or less_than_equal token
         elif source_code[i] == '<':
             if source_code[i+1] != '=':
-                tokens.append(Token("less_than", ""))
+                tokens.append(Token("less_than", "", line_num))
                 i += 1
             else:
-                tokens.append(Token("less_than_equal", ""))
+                tokens.append(Token("less_than_equal", "", line_num))
                 i += 2
 
         # Otherwise increment the index

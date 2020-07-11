@@ -1,4 +1,4 @@
 MAIN
-  var i = 0
-  i += 1
+  var j
+  j = input("","i")
 END_MAIN
