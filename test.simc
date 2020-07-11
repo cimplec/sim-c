@@ -1,5 +1,8 @@
 MAIN
-  var name = "Siddhartha"
-  var age = 21
-  print("Hello {name}, you are {age} years old")
+  var i = 0
+  do {
+    print(i)
+    i += 1
+  }
+  while(i < 1)
 END_MAIN

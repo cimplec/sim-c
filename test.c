@@ -1,9 +1,12 @@
 #include <stdio.h>
 
 int main() {
-	char* name = "Siddhartha";
-	int age = 21;
-	printf("Hello %s, you are %d years old", name, age);
-
+	int i = 0;
+	do {
+	printf("%d", i);
+	i =  += 1;
+	i += 1;
+	}
+	while(i < 1);
 	return 0;
 }

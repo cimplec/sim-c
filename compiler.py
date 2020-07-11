@@ -222,6 +222,12 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type while then generate while loop statement
         elif opcode.type == "while":
             code = "\twhile(%s) {\n" % opcode.val
+        # If opcode is of type do then generate do statement
+        elif opcode.type == "do":
+            code = "\tdo {\n";
+        # If opcode is of type while_do then generate while for do-while statement
+        elif opcode.type == "while_do":
+            code = "\twhile(%s);" % opcode.val
         # If opcode is of type if then generate if statement
         elif opcode.type == "if":
             code = "\tif(%s) {\n" % opcode.val

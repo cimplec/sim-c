@@ -86,7 +86,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
 
                     # Replace all {} in string
                     value = value.replace("{", "").replace("}", "")
-                    
+
                 op_value += value
                 op_type = 0 if typedata == 'constant' else 1
             elif(type == 'char'):
@@ -447,15 +447,16 @@ def function_call_statement(tokens, i, table):
 
     return OpCode("func_call", func_name + "---" + "&&&".join(op_value_list), ""), i+1
 
-def while_statement(tokens, i, table):
+def while_statement(tokens, i, table, in_do):
     """
         Parse while statement
 
         Params
         ======
-        tokens      (list) = List of tokens
-        i           (int)  = Current index in token
+        tokens      (list)        = List of tokens
+        i           (int)         = Current index in token
         table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+        in_do       (bool)        = While is part of do-while or is a separate while
 
         Returns
         =======
@@ -483,26 +484,29 @@ def while_statement(tokens, i, table):
              "Expected ) after expression in while statement")
 
     #Check if { follows ) in while statement
-    check_if(tokens[i+1].type, "left_brace", "Expected { before while loop body")
+    if(not in_do):
+        check_if(tokens[i+1].type, "left_brace", "Expected { before while loop body")
 
-    # Loop until } is reached
-    i += 2
-    ret_idx = i
-    found_right_brace = False
-    while(i < len(tokens) and tokens[i].type != "right_brace"):
-        if(found_right_brace):
+        # Loop until } is reached
+        i += 2
+        ret_idx = i
+        found_right_brace = False
+        while(i < len(tokens) and tokens[i].type != "right_brace"):
+            if(found_right_brace):
+                found_right_brace = True
+            i += 1
+
+        # If right brace found at end
+        if(i != len(tokens) and tokens[i].type == "right_brace"):
             found_right_brace = True
-        i += 1
 
-    # If right brace found at end
-    if(i != len(tokens) and tokens[i].type == "right_brace"):
-        found_right_brace = True
+        # If right brace is not found then produce error
+        if(not found_right_brace):
+            error("Expected } after while loop body")
 
-    # If right brace is not found then produce error
-    if(not found_right_brace):
-        error("Expected } after while loop body")
-
-    return OpCode("while", op_value), ret_idx
+        return OpCode("while", op_value), ret_idx
+    else:
+        return OpCode("while_do", op_value), i+1
 
 
 def if_statement(tokens, i, table):
@@ -681,6 +685,9 @@ def parse(tokens, table):
     # Current function's name
     func_name = ""
 
+    # Do while started or not
+    in_do = False
+
     # Loop through all the tokens
     i = 0
     while(i <= len(tokens) - 1):
@@ -724,9 +731,17 @@ def parse(tokens, table):
         elif tokens[i].type == "for":
             for_opcode, i = for_loop(tokens, i+1, table)
             op_codes.append(for_opcode)
+        # If token is of type do then generate do_while code
+        elif tokens[i].type == "do":
+            check_if(tokens[i+1].type, "left_brace", "Expected { after do statement")
+            in_do = True
+            op_codes.append(OpCode("do", "", ""))
+            i += 2
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
-            while_opcode, i = while_statement(tokens, i+1, table)
+            while_opcode, i = while_statement(tokens, i+1, table, in_do)
+            if(in_do):
+                in_do = False
             op_codes.append(while_opcode)
         # If token is of type if then generate if opcode
         elif tokens[i].type == "if":
@@ -736,13 +751,11 @@ def parse(tokens, table):
         elif tokens[i].type == "else":
             # If the next token is if, then it is else if
             if(tokens[i+1].type == "if"):
-                print("Hello")
                 if_opcode, i = if_statement(tokens, i+2, table)
                 if_opcode.type = "else_if"
                 op_codes.append(if_opcode)
             # Otherwise it is else
             elif(tokens[i+1].type == "left_brace"):
-                print("World")
                 op_codes.append(OpCode("else", "", ""))
                 i += 2
             print(i, tokens[i])
