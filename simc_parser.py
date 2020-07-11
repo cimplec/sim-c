@@ -50,7 +50,7 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
     type_to_prec = {'int': 3, 'float': 4, 'double': 5}
 
     # Loop until expression is not parsed completely
-    while(i < len(tokens) and tokens[i].type in ['number', 'input', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal', 'modulus', 'increment', 'decrement', 'plus_equal', 'minus_equal', 'multiply_equal', 'divide_equal', 'modulus_equal']):
+    while(i < len(tokens) and tokens[i].type in ['number', 'input', 'string', 'id', 'plus', 'minus', 'multiply', 'divide', 'comma', 'equal', 'not_equal', 'greater_than', 'less_than', 'greater_than_equal', 'less_than_equal', 'modulus', 'increment', 'decrement', 'plus_equal', 'minus_equal', 'multiply_equal', 'divide_equal', 'modulus_equal', 'and', 'or']):
         # If token is identifier or constant
         if(tokens[i].type in ['number', 'string', 'id']):
             # Fetch information from symbol table
@@ -148,6 +148,10 @@ def expression(tokens, i, table, msg, accept_unkown=False, accept_empty_expressi
                 op_value += ' /= '
             elif(tokens[i].type == 'modulus_equal'):
                 op_value += ' %= '
+            elif(tokens[i].type == 'and'):
+                op_value += ' && '
+            elif(tokens[i].type == 'or'):
+                op_value += ' || '
 
         i += 1
 
