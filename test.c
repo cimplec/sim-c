@@ -1,9 +1,9 @@
-#include <stdio.h>
+
 
 int main() {
-	int a;
-	a = 10;
-	printf("%d", a);
+	int i;
+	int j = 10 + 20 * 30 / 4 % 7;
+	i = j;
 
 	return 0;
 }

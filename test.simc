@@ -1,6 +1,6 @@
 MAIN
   var i
-  var j = 10
-  i = (j)
+  var j = 10 + 20 * 30 / 4 % 7
+  i = j
 
 END_MAIN

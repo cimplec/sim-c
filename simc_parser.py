@@ -155,50 +155,14 @@ def expression(
         elif tokens[i].type == "newline":
             break
         else:
-            if tokens[i].type == "plus":
-                op_value += " + "
-            elif tokens[i].type == "minus":
-                op_value += " - "
-            elif tokens[i].type == "multiply":
-                op_value += " * "
-            elif tokens[i].type == "divide":
-                op_value += " / "
-            elif tokens[i].type == "comma":
-                op_value += ", "
-            elif tokens[i].type == "equal":
-                op_value += " == "
-            elif tokens[i].type == "not_equal":
-                op_value += " != "
-            elif tokens[i].type == "greater_than":
-                op_value += " > "
-            elif tokens[i].type == "less_than":
-                op_value += " < "
-            elif tokens[i].type == "greater_than_equal":
-                op_value += " >= "
-            elif tokens[i].type == "less_than_equal":
-                op_value += " <= "
-            elif tokens[i].type == "input":
-                op_value += " scanf "
-            elif tokens[i].type == "modulus":
-                op_value += " % "
-            elif tokens[i].type == "increment":
-                op_value += " ++ "
-            elif tokens[i].type == "decrement":
-                op_value += " -- "
-            elif tokens[i].type == "plus_equal":
-                op_value += " += "
-            elif tokens[i].type == "minus_equal":
-                op_value += " -= "
-            elif tokens[i].type == "multiply_equal":
-                op_value += " *= "
-            elif tokens[i].type == "divide_equal":
-                op_value += " /= "
-            elif tokens[i].type == "modulus_equal":
-                op_value += " %= "
-            elif tokens[i].type == "and":
-                op_value += " && "
-            elif tokens[i].type == "or":
-                op_value += " || "
+            word_to_op = {'plus': ' + ', 'minus': ' - ', 'multiply': ' * ', 'divide': ' / ', ' comma ': ', ',
+                          'equal': ' == ', 'not_equal': ' != ', 'greater_than': ' > ', 'less_than': ' < ',
+                          'greater_than_equal': ' >= ', 'less_than_equal': ' <= ', 'input': ' scanf ',
+                          'modulus': ' % ', 'increment': ' ++ ', 'decrement': ' -- ', 'plus_equal': ' += ',
+                          'minus_equal': ' -= ', 'multiply_equal': ' *= ', 'divide_equal': ' /= ',
+                          'modulus_equal': ' %= ', 'and': ' && ', 'or': ' || '}
+
+            op_value += word_to_op[tokens[i].type]
 
         i += 1
 
