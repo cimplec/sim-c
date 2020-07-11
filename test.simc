@@ -1,8 +1,4 @@
 MAIN
   var i = 0
-  do {
-    print(i)
-    i += 1
-  }
-  while(i < 1)
+  i += 1
 END_MAIN
