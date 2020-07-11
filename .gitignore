@@ -3,3 +3,6 @@ __pycache__
 *.pyc
 a.out
 a.exe
+build/*
+dist/*
+simc.spec
