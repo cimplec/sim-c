@@ -1,9 +1,6 @@
 MAIN
-
-  var a = 10
-  while(a>0){
-  a = a-1
-  print("yolo")
-}
+  var i
+  var j = 10
+  i = (j)
 
 END_MAIN

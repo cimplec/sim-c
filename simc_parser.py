@@ -276,7 +276,11 @@ def var_statement(tokens, i, table):
         return OpCode("var_assign", table.symbol_table[tokens[id_idx].val][0] + '---' + op_value, prec_to_type[op_type]), i
     else:
         # Get the value from symbol table by id
-        value, _, _ = table.get_by_id(tokens[i].val)
+        value, type, _ = table.get_by_id(tokens[i].val)
+
+        # If already declared then throw error
+        if(type in ['declared', 'int', 'char', 'float', 'double', 'string', 'char *', 'char*']):
+            error("Variable %s already declared" % value, tokens[i].line_num)
 
         # Set declared
         table.symbol_table[tokens[i].val][1] = "declared"
