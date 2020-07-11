@@ -155,12 +155,30 @@ def expression(
         elif tokens[i].type == "newline":
             break
         else:
-            word_to_op = {'plus': ' + ', 'minus': ' - ', 'multiply': ' * ', 'divide': ' / ', ' comma ': ', ',
-                          'equal': ' == ', 'not_equal': ' != ', 'greater_than': ' > ', 'less_than': ' < ',
-                          'greater_than_equal': ' >= ', 'less_than_equal': ' <= ', 'input': ' scanf ',
-                          'modulus': ' % ', 'increment': ' ++ ', 'decrement': ' -- ', 'plus_equal': ' += ',
-                          'minus_equal': ' -= ', 'multiply_equal': ' *= ', 'divide_equal': ' /= ',
-                          'modulus_equal': ' %= ', 'and': ' && ', 'or': ' || '}
+            word_to_op = {
+                "plus": " + ",
+                "minus": " - ",
+                "multiply": " * ",
+                "divide": " / ",
+                " comma ": ", ",
+                "equal": " == ",
+                "not_equal": " != ",
+                "greater_than": " > ",
+                "less_than": " < ",
+                "greater_than_equal": " >= ",
+                "less_than_equal": " <= ",
+                "input": " scanf ",
+                "modulus": " % ",
+                "increment": " ++ ",
+                "decrement": " -- ",
+                "plus_equal": " += ",
+                "minus_equal": " -= ",
+                "multiply_equal": " *= ",
+                "divide_equal": " /= ",
+                "modulus_equal": " %= ",
+                "and": " && ",
+                "or": " || ",
+            }
 
             op_value += word_to_op[tokens[i].type]
 
