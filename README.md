@@ -1,7 +1,7 @@
 # sim-C
 
 <p align="center">
-  <img src="./logo.png">
+  <img src="./logo.png" height="100">
 </p>
 
 A simple abstraction over C syntax to make programming in C easier.
