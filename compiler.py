@@ -251,6 +251,9 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type if then generate if statement
         elif opcode.type == "if":
             code = "\tif(%s) {\n" % opcode.val
+        # If opcode is of type exit then generate exit statement
+        elif opcode.type == "exit":
+            code = "\texit(%s);" % opcode.val
         # If opcode is of type else_if then generate else if statement
         elif opcode.type == "else_if":
             code = "\telse if(%s) {\n" % opcode.val

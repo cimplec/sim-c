@@ -38,7 +38,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     Returns
     =======
-    OpCode, int: The opcode for the assign code and the index after parsing function calling statement
+    OpCode, int, dict: The opcode for the assign code, index after parsing function calling statement and function return type
 
     Grammar
     =======
@@ -159,6 +159,7 @@ def expression(
         "or",
         "left_paren",
         "right_paren"
+        "exit"
     ]:
         # Check for function call
         if tokens[i].type == 'id' and tokens[i+1].type == 'left_paren':
@@ -907,6 +908,58 @@ def unary_statement(tokens, i, table, func_ret_type):
     return OpCode("unary", op_value), i, func_ret_type
 
 
+def exit_statement(tokens, i, table, func_ret_type):
+    """
+    Parse exit statement
+
+    Params
+    ======
+    tokens      (list) = List of tokens
+    i           (int)  = Current index in token
+    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+
+    Returns
+    =======
+    OpCode, int: The opcode for the assign code and the index after parsing exit statement
+
+    Grammar
+    =======
+    exit_statement -> exit(expr)
+    expr            -> number
+    number          -> [0-9]+
+
+    """
+    # Check if ( follows exit statement
+    check_if(
+        tokens[i].type,
+        "left_paren",
+        "Expected ( after exit statement",
+        tokens[i].line_num,
+    )
+
+    # Check if number follows ( in exit statement
+    check_if(
+        tokens[i+1].type,
+        "number",
+        "Expected number after ( in exit statement",
+        tokens[i].line_num,
+    )
+
+    # check if expression follows ( in exit statement
+    op_value, _, i, func_ret_type = expression(
+        tokens, i + 1, table, "Expected expression inside exit statement", func_ret_type=func_ret_type
+    )
+    op_value_list = op_value.replace(" ", "").split(",")
+    # check if ) follows expression in exit statement
+    check_if(
+        tokens[i].type,
+        "right_paren",
+        "Expected ) after expression in exit statement",
+        tokens[i].line_num,
+    )
+
+    return OpCode("exit", op_value), i, func_ret_type
+
 def parse(tokens, table):
     """
     Parse tokens and generate opcodes
@@ -1009,6 +1062,11 @@ def parse(tokens, table):
         elif tokens[i].type == "if":
             if_opcode, i, func_ret_type = if_statement(tokens, i + 1, table, func_ret_type)
             op_codes.append(if_opcode)
+        # If token is of type exit then generate exit opcode
+        elif tokens[i].type == "exit":
+            exit_opcode, i, func_ret_type = exit_statement(
+                tokens, i + 1, table, func_ret_type)
+            op_codes.append(exit_opcode)
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
             # If the next token is if, then it is else if
