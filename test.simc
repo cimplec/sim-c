@@ -1,6 +1,8 @@
-MAIN
-  var i
-  var j = 10 + 20 * 30 / 4 % 7
-  i = j
+fun sum(a, b) {
+  return a + b
+}
 
+MAIN
+  var hello = sum(1, 2)
+  print("The sum = {hello}")
 END_MAIN

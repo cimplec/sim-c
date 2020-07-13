@@ -1,9 +1,13 @@
+#include <stdio.h>
 
+int sum(int a, int b) {
+
+	return a + b;
+}
 
 int main() {
-	int i;
-	int j = 10 + 20 * 30 / 4 % 7;
-	i = j;
+	int hello = sum(1, 2);
+	printf("The sum = %d", hello);
 
 	return 0;
 }
