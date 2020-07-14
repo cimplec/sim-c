@@ -1027,9 +1027,14 @@ def parse(tokens, table):
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             beg_idx = i + 1
-            op_value, op_type, i, func_ret_type = expression(
-                tokens, i + 1, table, "Expected expression after return", True, True, expect_paren=False, func_ret_type=func_ret_type
-            )
+            if tokens[i+1].type not in ['id','number'] :
+                op_value = ""
+                op_type = 6
+                i += 2
+            else:
+                op_value, op_type, i, func_ret_type = expression(
+                    tokens, i + 1, table, "Expected expression after return", True, True, expect_paren=False, func_ret_type=func_ret_type
+                    )
             if func_name == "":
                 error("Return statement outside any function", tokens[i].line_num)
             else:
@@ -1042,6 +1047,7 @@ def parse(tokens, table):
                     3: "int",
                     4: "float",
                     5: "double",
+                    6: "void",
                 }
 
                 if(op_type == -1):

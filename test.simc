@@ -1,8 +1,8 @@
 fun sum(a, b) {
-  return a + b
+  print(a+b)
+  return
 }
 
 MAIN
-  var hello = sum(1, 2) + 2
-  print(sum(1, 2))
+  sum(1, 2)
 END_MAIN
