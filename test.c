@@ -1,14 +1,12 @@
 #include <stdio.h>
 
-void sum(not_known a, not_known b) {
-	printf("YOS");
-
-	return ;
+void sum(int a, int b) {
+	printf("%d", a+b);
+  return;
 }
 
 int main() {
-	int hello = 10;
-	printf("The sum = %d", hello);
-
+  sum(1, 2);
+  
 	return 0;
 }
