@@ -77,7 +77,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     # Assign datatype to formal parameters
     for j in range(len(params)):
         # Fetch the datatype of corresponding actual parameter from symbol table
-        _, dtype, _ = table.get_by_id(table.get_by_symbol(op_value_list[j]))
+        _, dtype, _ = table.get_by_id(table.get_by_symbol(op_value_list[j].replace(')', '')))
 
         # Set the datatype of the formal parameter
         table.symbol_table[table.get_by_symbol(params[j])][1] = dtype
@@ -158,16 +158,19 @@ def expression(
         "and",
         "or",
         "left_paren",
-        "right_paren"
+        "right_paren",
+        "newline",
+        "call_end"
     ]:
         # Check for function call
         if tokens[i].type == 'id' and tokens[i+1].type == 'left_paren':
             fun_opcode, i, func_ret_type = function_call_statement(tokens, i, table, func_ret_type)
             val = fun_opcode.val.split("---")
             params = val[1].split("&&&")
-            op_value += val[0] + "(" + ", ".join(params) + ")"
+            op_value += val[0] + "(" + ", ".join(params)
             type_to_prec = {'string': 1, 'char': 2, 'int': 3, 'float': 4, 'double': 5}
             op_type = type_to_prec[table.get_by_id(table.get_by_symbol(val[0]))[1]]
+            i -= 1
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id"]:
             # Fetch information from symbol table
@@ -201,6 +204,7 @@ def expression(
                         "double": "%lf",
                     }
                     for var in vars:
+                        print(var)
                         _, type, _ = table.get_by_id(table.get_by_symbol(var))
                         if type == "var":
                             error("Unknown variable %s" % var, tokens[i].line_num)
@@ -238,7 +242,7 @@ def expression(
                 error("Cannot find the type of %s" % value, tokens[i].line_num)
             elif type == "var" and accept_unkown:
                 op_value += str(value)
-        elif tokens[i].type == "newline":
+        elif tokens[i].type in ["newline", "call_end"]:
             break
         else:
             word_to_op = {
@@ -356,14 +360,14 @@ def print_statement(tokens, i, table, func_ret_type):
         4: '"%f", ',
         5: '"%lf", ',
     }
-    op_value = prec_to_type[op_type] + op_value
+    op_value = prec_to_type[op_type] + op_value[:-1]
 
     # Check if print statement has closing )
     check_if(
-        tokens[i].type,
+        tokens[i-1].type,
         "right_paren",
         "Expected ) after expression in print statement",
-        tokens[i].line_num,
+        tokens[i-1].line_num,
     )
 
     # Return the opcode and i+1 (the token after print statement)
@@ -585,10 +589,10 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     # Check if ) follows expression in function
     check_if(
-        tokens[i].type,
+        tokens[i-1].type,
         "right_paren",
         "Expected ) after function params list",
-        tokens[i].line_num,
+        tokens[i-1].line_num,
     )
 
     # Check if { follows ) in function

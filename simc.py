@@ -26,6 +26,10 @@ if __name__ == "__main__":
     # Get tokens from lexical_analyzer
     tokens = lexical_analyze(filename, table)
 
+    if(len(sys.argv) > 2 and sys.argv[2] == 'tokens'):
+        for token in tokens:
+            print(token)
+
     # Get opcodes from parser
     op_codes = parse(tokens, table)
 

@@ -3,6 +3,6 @@ fun sum(a, b) {
 }
 
 MAIN
-  var hello = sum(1, 2)
-  print("The sum = {hello}")
+  var hello = sum(1, 2) + 2
+  print(sum(1, 2))
 END_MAIN

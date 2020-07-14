@@ -6,8 +6,8 @@ int sum(int a, int b) {
 }
 
 int main() {
-	int hello = sum(1, 2);
-	printf("The sum = %d", hello);
+	int hello = sum(1, 2) + 2;
+	printf("%d", sum(1, 2));
 
 	return 0;
 }
