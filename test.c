@@ -1,12 +1,12 @@
-#include <stdio.h>
 
-void sum(int a, int b) {
-	printf("%d", a+b);
-  return;
+
+int sum(int a, int b) {
+
+	return a + b;
 }
 
 int main() {
-  sum(1, 2);
-  
+	int hello = sum(1, 2);
+
 	return 0;
 }
