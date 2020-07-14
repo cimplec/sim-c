@@ -58,5 +58,6 @@ class OpCode:
             "func_decl": 5,
             "while": 6,
             "if": 7,
+            "exit": 8,
         }
         return dic.get(str_type, 0)

@@ -38,6 +38,7 @@ def is_keyword(value):
         "break",
         "continue",
         "input",
+        "exit",
     ]
 
 

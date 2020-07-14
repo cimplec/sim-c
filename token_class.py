@@ -80,6 +80,7 @@ class Token:
             "modulus_equal": 31,
             "and": 32,
             "or": 33,
+            "exit": 34,
         }
 
         return dic.get(str_type, 0)
