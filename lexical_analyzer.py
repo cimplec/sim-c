@@ -208,6 +208,9 @@ def lexical_analyze(filename, table):
     # Line number
     line_num = 1
 
+    # Parantheses checker for detecting function call
+    parantheses_count = 0
+
     # Loop through the source code character by character
     i = 0
     while source_code[i] != "\0":
@@ -229,12 +232,21 @@ def lexical_analyze(filename, table):
 
         # Identifying left paren token
         elif source_code[i] == "(":
+            if(tokens[-1].type == 'id' or parantheses_count > 0):
+                parantheses_count += 1
             tokens.append(Token("left_paren", "", line_num))
             i += 1
 
         # Identifying right paren token
         elif source_code[i] == ")":
+            if(parantheses_count > 0):
+                parantheses_count -= 1
+
             tokens.append(Token("right_paren", "", line_num))
+
+            if(parantheses_count == 0):
+                tokens.append(Token("call_end", "", line_num))
+
             i += 1
 
         # Identifying left brace token
