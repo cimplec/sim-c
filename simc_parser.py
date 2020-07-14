@@ -956,13 +956,13 @@ def exit_statement(tokens, i, table, func_ret_type):
     op_value_list = op_value.replace(" ", "").split(",")
     # check if ) follows expression in exit statement
     check_if(
-        tokens[i].type,
+        tokens[i-1].type,
         "right_paren",
         "Expected ) after expression in exit statement",
-        tokens[i].line_num,
+        tokens[i-1].line_num,
     )
 
-    return OpCode("exit", op_value), i, func_ret_type
+    return OpCode("exit", op_value[:-1]), i, func_ret_type
 
 def parse(tokens, table):
     """
