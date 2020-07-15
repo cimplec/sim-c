@@ -6,4 +6,8 @@ MAIN
   var hello = sum(1, 2)
   print("The sum = {hello}")
   exit (0)
+
+  // testing single line comment
+
+
 END_MAIN
