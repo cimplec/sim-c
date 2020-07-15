@@ -307,6 +307,11 @@ def lexical_analyze(filename, table):
                 tokens.append(Token("multiply", "", line_num))
                 i += 1
 
+        #Identifying 'address of' token
+        elif source_code[i] == '&':
+            tokens.append(Token("address_of", "", line_num))
+            i += 1
+
         # Identifying divide_equal or divide token
         elif source_code[i] == "/":
             if source_code[i + 1] == "=":

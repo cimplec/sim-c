@@ -59,5 +59,8 @@ class OpCode:
             "while": 6,
             "if": 7,
             "exit": 8,
+            "ptr_no_assign": 9,
+            "ptr_assign" :10,
+            "ptr_only_assign" :11,
         }
         return dic.get(str_type, 0)

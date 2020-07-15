@@ -116,6 +116,25 @@ def compile(opcodes, c_filename, table):
                     code += '", ' + str(val[0]) + ");\n"
                 else:
                     code += '", &' + str(val[0]) + ");\n"
+        #If opcode is of type ptr_assign then generate a declarative statement
+        elif opcode.type == "ptr_assign":
+            code = ""
+
+            # val contains - <identifier>---<expression>---<count_ast>, split that into a list
+            val = opcode.val.split("---")
+
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+
+            # Helper Dictionaries
+            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double"}
+            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf"}
+
+            # If it is of string type then change it to char <identifier>[]
+            if dtype == "string":
+                dtype = "char*"
+            code += "\t" + dtype +" " + "*"*int(val[2]) + str(val[0]) + " = " + str(val[1]) + ";\n"
+
 
         # If opcode is of type var_no_assign then generate a declaration statement
         elif opcode.type == "var_no_assign":
@@ -128,6 +147,18 @@ def compile(opcodes, c_filename, table):
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
 
             code += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
+
+        #If opcode is of type ptr_no_assign then generate declaration statement
+        elif opcode.type == "ptr_no_assign":
+            val = opcode.val.split("---")
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            # Check if dtype could be inferred or not
+            opcode.dtype = str(dtype) if dtype is not None else "not_known"
+            if opcode.dtype == 'string':
+                opcode.dtype = 'char'
+            code += "\t" + opcode.dtype + " *" + str(opcode.val) + ";\n"
+
         # If opcode is of type assign then generate an assignment statement
         elif opcode.type == "assign":
             # val contains - <identifier>---<expression>, split that into a list
@@ -146,6 +177,12 @@ def compile(opcodes, c_filename, table):
                 placeholder = get_placeholder[val[2]]
                 code += "\t" + 'printf("' + str(val[1]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder + '", &' + str(val[0]) + ");\n"
+
+        # If opcode is of type ptr_only_assign then generate an assignment statement
+        elif opcode.type == "ptr_only_assign":
+            # val contains - <identifier>---<expression>---<count_ast>, split that into a list
+            val = opcode.val.split("---")
+            code += "\t" + int(val[2])*'*'+val[0] + " = " + val[1] + ";\n"
 
         # If opcode is of type unary then generate an uanry statement
         elif opcode.type == "unary":

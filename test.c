@@ -1,13 +1,10 @@
 #include <stdio.h>
-
-int sum(int a, int b) {
-
-	return a + b;
-}
-
-int main() {
-	int hello = sum(1, 2);
-	printf("The sum = %d", hello);
-	exit(0);
-	return 0;
-}
+	int a;
+	a = 10;
+	int *b;
+	b = &a;
+	float f = 1.2;
+	float **e = &f;
+	printf("%d", &b);
+	******b =  * a;
+	**b =  *  * a;
