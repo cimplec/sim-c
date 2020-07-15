@@ -274,7 +274,7 @@ def compile(opcodes, c_filename, table):
             code += "\\ %s \n" %opcode.val
         # If opcode is of type multi_line_comment the generate single comment line
         elif opcode.type == "multi_line_comment":
-            code += "\\ %s \n" %opcode.val
+            code += "\* %s *\\n" %opcode.val
 
         outside_code, ccode = compile_func_main_code(
             outside_code, ccode, outside_main, code
