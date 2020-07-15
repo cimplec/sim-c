@@ -39,6 +39,9 @@ def is_keyword(value):
         "continue",
         "input",
         "exit",
+        "switch",
+        "case",
+        "default"
     ]
 
 
@@ -352,6 +355,11 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("less_than_equal", "", line_num))
                 i += 2
+
+        # Identifiying colon token
+        elif source_code[i] == ':':
+            tokens.append(Token("colon", "", line_num))
+            i += 1
 
         # Otherwise increment the index
         else:
