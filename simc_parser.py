@@ -161,7 +161,8 @@ def expression(
         "exit",
         "right_paren",
         "newline",
-        "call_end"
+        "call_end",
+        "address_of"
     ]:
         # Check for function call
         if tokens[i].type == 'id' and tokens[i+1].type == 'left_paren':
@@ -270,7 +271,8 @@ def expression(
                 "or": " || ",
                 "comma": ",",
                 "left_paren": "(",
-                "right_paren": ")"
+                "right_paren": ")",
+                "address_of": "&"
             }
 
             if(expect_paren and tokens[i].type == 'right_paren' and tokens[i+1].type in ['newline', 'left_brace']):
@@ -374,6 +376,23 @@ def print_statement(tokens, i, table, func_ret_type):
     return OpCode("print", op_value), i + 1, func_ret_type
 
 
+def check_ptr(tokens,i):
+    #Check if a pointer is being declared
+    is_ptr = False
+    #Count the depth of pointer
+    count_ast  = 0
+    if(tokens[i].type == "multiply"):
+        j = 0
+        while(tokens[i+j].type == "multiply"):
+            j += 1
+        i += j
+        count_ast = j
+        is_ptr = True
+        return is_ptr, count_ast, i
+    else:
+        return False, 0, i
+
+
 def var_statement(tokens, i, table, func_ret_type):
     """
     Parse variable declaration [/initialization] statement
@@ -400,8 +419,10 @@ def var_statement(tokens, i, table, func_ret_type):
     operator        -> + | - | * | /
     """
 
+    is_ptr, count_ast, i = check_ptr(tokens,i)
     # Check if identifier is present after var
     check_if(tokens[i].type, "id", "Expected id after var keyword", tokens[i].line_num)
+
 
     # Check if variable is also initialized
     if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
@@ -426,16 +447,27 @@ def var_statement(tokens, i, table, func_ret_type):
         # Modify datatype of the identifier
         table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
 
-        # Return the opcode and i (the token after var statement)
-        return (
-            OpCode(
-                "var_assign",
-                table.symbol_table[tokens[id_idx].val][0] + "---" + op_value,
-                prec_to_type[op_type],
-            ),
-            i,
-            func_ret_type
-        )
+        if(is_ptr):
+            return (
+                OpCode(
+                    "ptr_assign",
+                    table.symbol_table[tokens[id_idx].val][0] + "---" + op_value+ "---" +str(count_ast),
+                    prec_to_type[op_type],
+                    ),
+                    i,
+                    func_ret_type
+                    )
+        else:
+            # Return the opcode and i (the token after var statement)
+            return (
+                OpCode(
+                    "var_assign",
+                    table.symbol_table[tokens[id_idx].val][0] + "---" + op_value,
+                    prec_to_type[op_type],
+                    ),
+                    i,
+                    func_ret_type
+                    )
     else:
         # Get the value from symbol table by id
         value, type, _ = table.get_by_id(tokens[i].val)
@@ -457,6 +489,9 @@ def var_statement(tokens, i, table, func_ret_type):
         table.symbol_table[tokens[i].val][1] = "declared"
 
         # Return the opcode and i+1 (the token after var statement)
+        if is_ptr:
+            return OpCode("ptr_no_assign", value), i + 1, func_ret_type
+
         return OpCode("var_no_assign", value), i + 1, func_ret_type
 
 
@@ -485,6 +520,17 @@ def assign_statement(tokens, i, table, func_ret_type):
     operator        -> + | - | * | /
     """
 
+    #Check if the identifier is a pointer
+    is_ptr = False
+    #count depth of pointer
+    count_ast = 0
+    if(tokens[i-2].type == "multiply"):
+        j = -2
+        while(tokens[j+i].type == "multiply"):
+            j -= 1
+        count_ast = -1*j-2
+        is_ptr = True
+        
     # Check if variable is declared or not
     value, type, _ = table.get_by_id(tokens[i - 1].val)
 
@@ -526,7 +572,15 @@ def assign_statement(tokens, i, table, func_ret_type):
 
     # Modify datatype of the identifier
     table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
-
+    #Check if a pointer is being assigned
+    if(is_ptr):
+        return (
+            OpCode(
+                "ptr_only_assign", table.symbol_table[tokens[id_idx].val][0] + "---" + op_value +"---"+str(count_ast), ""
+                ),
+                i,
+                func_ret_type
+                )
     # Return the opcode and i (the token after assign statement)
     return (
         OpCode(
@@ -963,6 +1017,30 @@ def exit_statement(tokens, i, table, func_ret_type):
 
     return OpCode("exit", op_value[:-1]), i, func_ret_type
 
+def switch_statement(tokens, i, table, func_ret_type):
+
+    check_if(tokens[i].type, "left_paren", "Expected ( after switch", tokens[i].line_num)
+
+    op_value, _, i, func_ret_type = expression(
+        tokens, i+1, table, "Expected expression inside switch statement", func_ret_type=func_ret_type
+    )
+
+    check_if(tokens[i-1].type, "right_paren", "Expected ) after expression in switch", tokens[i-1].line_num)
+
+    check_if(tokens[i+1].type, "left_brace", "Expected { after switch statement", tokens[i].line_num)
+
+    return OpCode("switch", op_value[:-1], ""), i+1, func_ret_type
+
+def case_statement(tokens, i, table, func_ret_type):
+
+    op_value, _, i, func_ret_type = expression(
+        tokens, i, table, "Expected expected expression after case", expect_paren=False, func_ret_type=func_ret_type
+    )
+
+    check_if(tokens[i].type, "colon", "Expected : after case in switch statement", tokens[i].line_num)
+
+    return OpCode("case", op_value, ""), i+1, func_ret_type
+
 def parse(tokens, table):
     """
     Parse tokens and generate opcodes
@@ -1134,6 +1212,19 @@ def parse(tokens, table):
         elif tokens[i].type == "multi_line_comment":
             op_codes.append(OpCode("multi_line_comment", tokens[i].val, ""))
             i += 1
+        # If token is of type switch then generate switch opcode
+        elif tokens[i].type == "switch":
+            switch_opcode, i, func_ret_type = switch_statement(tokens, i+1, table, func_ret_type)
+            op_codes.append(switch_opcode)
+        # If token is of type case then generate case opcode
+        elif tokens[i].type == "case":
+            case_opcode, i, func_ret_type = case_statement(tokens, i+1, table, func_ret_type)
+            op_codes.append(case_opcode)
+        # If token is of type default then generate default opcode
+        elif tokens[i].type == "default":
+            check_if(tokens[i+1].type, "colon", "Expected : after default statement in switch", tokens[i+1].line_num)
+            op_codes.append(OpCode("default", "", ""))
+            i += 2
         # Otherwise increment the index
         else:
             i += 1
