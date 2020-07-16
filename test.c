@@ -13,10 +13,7 @@ int main() {
 	int hello = sum(1, 2);
 	printf("The sum = %d", hello);
 	exit(0);
-	// 
-  Code written by:- Siddhartha
-  Main starts
- testing single line comment 
+	//  testing single line comment 
 
 	return 0;
 }

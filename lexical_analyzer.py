@@ -322,6 +322,7 @@ def lexical_analyze(filename, table):
                     comment_str += str(source_code[i])
                     i += 1
                 tokens.append(Token("single_line_comment", comment_str, line_num))
+                comment_str = ""
             # to check if it is a multi line comment
             elif source_code[i+1] == "*":
                 i += 2
@@ -329,6 +330,7 @@ def lexical_analyze(filename, table):
                     comment_str += str(source_code[i])
                     i += 1
                 tokens.append(Token("multi_line_comment", comment_str, line_num))
+                comment_str = ""
             else:
                 tokens.append(Token("divide", "", line_num))
                 i += 1
