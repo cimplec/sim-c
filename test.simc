@@ -2,6 +2,11 @@ fun sum(a, b) {
   return a + b
 }
 
+/*
+  Code written by:- Siddhartha
+  Main starts
+*/
+
 MAIN
   var hello = sum(1, 2)
   print("The sum = {hello}")

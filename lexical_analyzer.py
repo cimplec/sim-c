@@ -317,17 +317,17 @@ def lexical_analyze(filename, table):
                 i += 2
             # to check if it is a single line comment
             elif source_code[i+1] == "/":
-                x = i + 2
-                while x != "\n":
-                    comment_str += str(x)
-                    x += 1
+                i += 2
+                while source_code[i] != "\n":
+                    comment_str += str(source_code[i])
+                    i += 1
                 tokens.append(Token("single_line_comment", comment_str, line_num))
             # to check if it is a multi line comment
             elif source_code[i+1] == "*":
-                x = i + 2
-                while x != "*" and x+1 != "/":
-                    comment_str += str(x)
-                    x += 1
+                i += 2
+                while source_code[i] != "*" and source_code[i+1] != "/":
+                    comment_str += str(source_code[i])
+                    i += 1
                 tokens.append(Token("multi_line_comment", comment_str, line_num))
             else:
                 tokens.append(Token("divide", "", line_num))
