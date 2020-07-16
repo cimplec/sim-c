@@ -253,7 +253,7 @@ def compile(opcodes, c_filename, table):
             code = "\tif(%s) {\n" % opcode.val
         # If opcode is of type exit then generate exit statement
         elif opcode.type == "exit":
-            code = "\texit(%s);" % opcode.val
+            code = "\texit(%s);\n" % opcode.val
         # If opcode is of type else_if then generate else if statement
         elif opcode.type == "else_if":
             code = "\telse if(%s) {\n" % opcode.val
@@ -271,10 +271,10 @@ def compile(opcodes, c_filename, table):
             code += "\tcontinue;\n"
         # If opcode is of type single_line_comment the generate single comment line
         elif opcode.type == "single_line_comment":
-            code += "\\ %s \n" %opcode.val
+            code += "\t// %s \n" % opcode.val
         # If opcode is of type multi_line_comment the generate single comment line
         elif opcode.type == "multi_line_comment":
-            code += "\* %s *\\n" %opcode.val
+            code += "/* %s*/\n" %opcode.val
 
         outside_code, ccode = compile_func_main_code(
             outside_code, ccode, outside_main, code
