@@ -306,6 +306,15 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type continue then generate continue statement
         elif opcode.type == "continue":
             code += "\tcontinue;\n"
+        # If opcode is of type switch then generate switch statement
+        elif opcode.type == "switch":
+            code += "\tswitch(" + opcode.val + ") {\n";
+        # If opcode is of type case then generate case statement
+        elif opcode.type == "case":
+            code += "\tcase " + opcode.val + ":\n"
+        # If opcode is of type default then generate default statement
+        elif opcode.type == "default":
+            code += "\tdefault:\n"
 
         outside_code, ccode = compile_func_main_code(
             outside_code, ccode, outside_main, code

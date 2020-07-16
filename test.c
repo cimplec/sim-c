@@ -1,10 +1,19 @@
 #include <stdio.h>
-	int a;
-	a = 10;
-	int *b;
-	b = &a;
-	float f = 1.2;
-	float **e = &f;
-	printf("%d", &b);
-	******b =  * a;
-	**b =  *  * a;
+
+int main() {
+	int a = 1;
+	int b = 2;
+	switch(a + b) {
+	case 1:
+	printf("Hello");
+	break;
+	case 2:
+	printf("World");
+	break;
+	default:
+	printf("Default");
+	break;
+	}
+
+	return 0;
+}

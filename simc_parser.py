@@ -1018,6 +1018,30 @@ def exit_statement(tokens, i, table, func_ret_type):
 
     return OpCode("exit", op_value[:-1]), i, func_ret_type
 
+def switch_statement(tokens, i, table, func_ret_type):
+
+    check_if(tokens[i].type, "left_paren", "Expected ( after switch", tokens[i].line_num)
+
+    op_value, _, i, func_ret_type = expression(
+        tokens, i+1, table, "Expected expression inside switch statement", func_ret_type=func_ret_type
+    )
+
+    check_if(tokens[i-1].type, "right_paren", "Expected ) after expression in switch", tokens[i-1].line_num)
+
+    check_if(tokens[i+1].type, "left_brace", "Expected { after switch statement", tokens[i].line_num)
+
+    return OpCode("switch", op_value[:-1], ""), i+1, func_ret_type
+
+def case_statement(tokens, i, table, func_ret_type):
+
+    op_value, _, i, func_ret_type = expression(
+        tokens, i, table, "Expected expected expression after case", expect_paren=False, func_ret_type=func_ret_type
+    )
+
+    check_if(tokens[i].type, "colon", "Expected : after case in switch statement", tokens[i].line_num)
+
+    return OpCode("case", op_value, ""), i+1, func_ret_type
+
 def parse(tokens, table):
     """
     Parse tokens and generate opcodes
@@ -1181,6 +1205,19 @@ def parse(tokens, table):
         elif tokens[i].type == "continue":
             op_codes.append(OpCode("continue", "", ""))
             i += 1
+        # If token is of type switch then generate switch opcode
+        elif tokens[i].type == "switch":
+            switch_opcode, i, func_ret_type = switch_statement(tokens, i+1, table, func_ret_type)
+            op_codes.append(switch_opcode)
+        # If token is of type case then generate case opcode
+        elif tokens[i].type == "case":
+            case_opcode, i, func_ret_type = case_statement(tokens, i+1, table, func_ret_type)
+            op_codes.append(case_opcode)
+        # If token is of type default then generate default opcode
+        elif tokens[i].type == "default":
+            check_if(tokens[i+1].type, "colon", "Expected : after default statement in switch", tokens[i+1].line_num)
+            op_codes.append(OpCode("default", "", ""))
+            i += 2
         # Otherwise increment the index
         else:
             i += 1

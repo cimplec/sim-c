@@ -1,9 +1,16 @@
-var a
-a = 10
-var *b
-b = &a
-var f = 1.2
-var **e = &f
-print(&b)
-******b = *a
-**b = **a
+MAIN
+  var a = 1
+  var b = 2
+
+  switch(a + b) {
+    case 1:
+      print("Hello")
+      break
+    case 2:
+      print("World")
+      break
+    default:
+      print("Default")
+      break
+  }
+END_MAIN
