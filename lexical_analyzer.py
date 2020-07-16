@@ -206,7 +206,7 @@ def keyword_identifier(source_code, i, table, line_num):
 
     #Check if identifier is a keyword in class
     if value in C_keywords:
-        error("A keyword cannot be an identifier", line_num)
+        error("A keyword cannot be an identifier - %s" % value, line_num)
 
     # If identifier is not in symbol table then give a placeholder datatype var
     if id == -1:
