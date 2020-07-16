@@ -73,7 +73,7 @@ def numeric_val(source_code, i, table, line_num):
     if numeric_constant.count(".") > 1:
         error(
             "Invalid numeric constant, cannot have more than one decimal point in a"
-            " number!"
+            " number!" , line_num
         )
 
     # Check the length after . to distinguish between float and double
@@ -119,7 +119,7 @@ def string_val(source_code, i, table, line_num):
     # Loop until we get a non-digit character
     while source_code[i] != '"':
         if source_code[i] == "\0":
-            error("Unterminated string!")
+            error("Unterminated string!", line_num)
 
         string_constant += source_code[i]
         i += 1
@@ -174,6 +174,40 @@ def keyword_identifier(source_code, i, table, line_num):
     # Check if identifier is in symbol table
     id = table.get_by_symbol(value)
 
+    C_keywords = ['break',
+                    'else',
+                    'long',
+                    'switch',
+                    'case',
+                    'enum',
+                    'register',
+                    'typedef',
+                    'char',
+                    'extern',
+                    'return',
+                    'union',
+                    'const',
+                    'float',
+                    'short',
+                    'unsigned',
+                    'continue',
+                    'for',
+                    'signed',
+                    'void',
+                    'default',
+                    'goto',
+                    'sizeof',
+                    'volatile',
+                    'do',
+                    'if',
+                    'static',
+                    'while'
+                    ]
+
+    #Check if identifier is a keyword in class
+    if value in C_keywords:
+        error("A keyword cannot be an identifier - %s" % value, line_num)
+
     # If identifier is not in symbol table then give a placeholder datatype var
     if id == -1:
         id = table.entry(value, "var", "variable")
@@ -199,7 +233,7 @@ def lexical_analyze(filename, table):
 
     # Check if file extension is .simc or not
     if "." not in filename or filename.split(".")[-1] != "simc":
-        error("Incorrect file extension")
+        error("Incorrect file extension", line_num)
 
     # Read the entire source code as a string
     source_code = open(filename, "r").read()
