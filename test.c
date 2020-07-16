@@ -1,19 +1,19 @@
 #include <stdio.h>
 
+int sum(int a, int b) {
+
+	return a + b;
+}
+/*
+  Code written by:- Siddhartha
+  Main starts
+*/
+
 int main() {
-	int a = 1;
-	int b = 2;
-	switch(a + b) {
-	case 1:
-	printf("Hello");
-	break;
-	case 2:
-	printf("World");
-	break;
-	default:
-	printf("Default");
-	break;
-	}
+	int hello = sum(1, 2);
+	printf("The sum = %d", hello);
+	exit(0);
+	//  testing single line comment
 
 	return 0;
 }

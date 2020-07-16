@@ -248,6 +248,9 @@ def lexical_analyze(filename, table):
     # Parantheses checker for detecting function call
     parantheses_count = 0
 
+    # To store comment string
+    comment_str = ""
+
     # Loop through the source code character by character
     i = 0
     while source_code[i] != "\0":
@@ -354,6 +357,22 @@ def lexical_analyze(filename, table):
             if source_code[i + 1] == "=":
                 tokens.append(Token("divide_equal", "", line_num))
                 i += 2
+            # to check if it is a single line comment
+            elif source_code[i+1] == "/":
+                i += 2
+                while source_code[i] != "\n":
+                    comment_str += str(source_code[i])
+                    i += 1
+                tokens.append(Token("single_line_comment", comment_str, line_num))
+                comment_str = ""
+            # to check if it is a multi line comment
+            elif source_code[i+1] == "*":
+                i += 2
+                while source_code[i] != "*" and source_code[i+1] != "/":
+                    comment_str += str(source_code[i])
+                    i += 1
+                tokens.append(Token("multi_line_comment", comment_str, line_num))
+                comment_str = ""
             else:
                 tokens.append(Token("divide", "", line_num))
                 i += 1

@@ -290,7 +290,7 @@ def compile(opcodes, c_filename, table):
             code = "\tif(%s) {\n" % opcode.val
         # If opcode is of type exit then generate exit statement
         elif opcode.type == "exit":
-            code = "\texit(%s);" % opcode.val
+            code = "\texit(%s);\n" % opcode.val
         # If opcode is of type else_if then generate else if statement
         elif opcode.type == "else_if":
             code = "\telse if(%s) {\n" % opcode.val
@@ -306,6 +306,12 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type continue then generate continue statement
         elif opcode.type == "continue":
             code += "\tcontinue;\n"
+        # If opcode is of type single_line_comment the generate single comment line
+        elif opcode.type == "single_line_comment":
+            code += "\t// %s \n" % opcode.val
+        # If opcode is of type multi_line_comment the generate single comment line
+        elif opcode.type == "multi_line_comment":
+            code += "/* %s*/\n" %opcode.val
         # If opcode is of type switch then generate switch statement
         elif opcode.type == "switch":
             code += "\tswitch(" + opcode.val + ") {\n";

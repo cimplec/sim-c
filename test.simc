@@ -1,5 +1,18 @@
+fun sum(a, b) {
+  return a + b
+}
+
+/*
+  Code written by:- Siddhartha
+  Main starts
+*/
+
 MAIN
-  var a = 1
-  var b = 2
-  var char = 1
+  var hello = sum(1, 2)
+  print("The sum = {hello}")
+  exit (0)
+
+  // testing single line comment
+
 END_MAIN
+

@@ -206,7 +206,6 @@ def expression(
                         "double": "%lf",
                     }
                     for var in vars:
-                        print(var)
                         _, type, _ = table.get_by_id(table.get_by_symbol(var))
                         if type == "var":
                             error("Unknown variable %s" % var, tokens[i].line_num)
@@ -1204,6 +1203,14 @@ def parse(tokens, table):
         # If token is of type continue then generate continue opcode
         elif tokens[i].type == "continue":
             op_codes.append(OpCode("continue", "", ""))
+            i += 1
+        # If token is of type single_line_statement then generate single_line_comment opcode
+        elif tokens[i].type == "single_line_comment":
+            op_codes.append(OpCode("single_line_comment", tokens[i].val, ""))
+            i += 1
+        # If token is of type multi_line_statement then generate multi_line_comment opcode
+        elif tokens[i].type == "multi_line_comment":
+            op_codes.append(OpCode("multi_line_comment", tokens[i].val, ""))
             i += 1
         # If token is of type switch then generate switch opcode
         elif tokens[i].type == "switch":
