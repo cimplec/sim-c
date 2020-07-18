@@ -2,17 +2,7 @@ fun sum(a, b) {
   return a + b
 }
 
-/*
-  Code written by:- Siddhartha
-  Main starts
-*/
-
 MAIN
-  var hello = sum(1, 2)
-  print("The sum = {hello}")
-  exit (0)
-
-  // testing single line comment
-
+  var sum_two = 3 + sum(1, 2)
+  print("The value of 1+2+3 is = {sum_two}")
 END_MAIN
-

@@ -530,7 +530,7 @@ def assign_statement(tokens, i, table, func_ret_type):
             j -= 1
         count_ast = -1*j-2
         is_ptr = True
-        
+
     # Check if variable is declared or not
     value, type, _ = table.get_by_id(tokens[i - 1].val)
 
@@ -683,7 +683,7 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     return (
         OpCode("func_decl", func_name + "---" + "&&&".join(op_value_list), ""),
-        ret_idx,
+        ret_idx - 1,
         func_name,
         func_ret_type
     )
@@ -729,10 +729,10 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
 
     # check if ) follows expression in while statement
     check_if(
-        tokens[i].type,
+        tokens[i-1].type,
         "right_paren",
         "Expected ) after expression in while statement",
-        tokens[i].line_num,
+        tokens[i-1].line_num,
     )
 
     # Check if { follows ) in while statement
@@ -761,7 +761,7 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
         if not found_right_brace:
             error("Expected } after while loop body", tokens[i].line_num)
 
-        return OpCode("while", op_value), ret_idx, func_ret_type
+        return OpCode("while", op_value[:-1]), ret_idx-1, func_ret_type
     else:
         return OpCode("while_do", op_value), i + 1, func_ret_type
 
@@ -806,10 +806,10 @@ def if_statement(tokens, i, table, func_ret_type):
     op_value_list = op_value.replace(" ", "").split(",")
     # check if ) follows expression in if statement
     check_if(
-        tokens[i].type,
+        tokens[i-1].type,
         "right_paren",
         "Expected ) after expression in if statement",
-        tokens[i].line_num,
+        tokens[i-1].line_num,
     )
 
     # Check if { follows ) in if statement
@@ -837,10 +837,10 @@ def if_statement(tokens, i, table, func_ret_type):
     if not found_right_brace:
         error("Expected } after if body", tokens[i].line_num)
 
-    return OpCode("if", op_value), ret_idx, func_ret_type
+    return OpCode("if", op_value[:-1]), ret_idx-1, func_ret_type
 
 
-def for_statement(tokens, i, table):
+def for_statement(tokens, i, table, func_ret_type):
     """
     Parse for for_loop
 
@@ -926,6 +926,7 @@ def for_statement(tokens, i, table):
             + str(change_val),
         ),
         i + 1,
+        func_ret_type
     )
 
 
@@ -1102,6 +1103,10 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(fun_opcode)
+        # If token is of type left_brace then generate scope_begin opcode
+        elif tokens[i].type == "left_brace":
+            op_codes.append(OpCode("scope_begin", "", ""))
+            i += 1
         # If token is of type right_brace then generate scope_over opcode
         elif tokens[i].type == "right_brace":
             op_codes.append(OpCode("scope_over", "", ""))
@@ -1120,7 +1125,7 @@ def parse(tokens, table):
             i += 1
         # If token is of type for then generate for code
         elif tokens[i].type == "for":
-            for_opcode, i, func_ret_type = for_statement(tokens, i + 1, table)
+            for_opcode, i, func_ret_type = for_statement(tokens, i + 1, table, func_ret_type)
             op_codes.append(for_opcode)
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
@@ -1158,7 +1163,7 @@ def parse(tokens, table):
             # Otherwise it is else
             elif tokens[i + 1].type == "left_brace":
                 op_codes.append(OpCode("else", "", ""))
-                i += 2
+                i += 1
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             beg_idx = i + 1

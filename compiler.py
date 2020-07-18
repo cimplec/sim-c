@@ -217,7 +217,7 @@ def compile(opcodes, c_filename, table):
                 code = code[:-2]
 
             # Finally add opening brace to start the function body
-            code += ") {\n"
+            code += ") "
         # If the opcode is of type func_call then generate function calling statement
         elif opcode.type == "func_call":
             # val contains - <identifier>---<params>, split that into list
@@ -240,6 +240,9 @@ def compile(opcodes, c_filename, table):
 
             # Finally add opening brace to start the function body
             code += ");\n"
+        # If opcode is of type scope_begin then generate open brace statement
+        elif opcode.type == "scope_begin":
+            code += "{\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
             code += "}\n"
@@ -259,44 +262,44 @@ def compile(opcodes, c_filename, table):
         elif opcode.type == "for":
             val = opcode.val.split("&&&")
             code += (
-                "\tfor( int "
+                "\tfor(int "
                 + val[0]
                 + " = "
                 + val[1]
-                + " ; "
+                + "; "
                 + val[0]
                 + " "
                 + val[4]
                 + " "
                 + val[2]
-                + " ; "
+                + "; "
                 + val[0]
                 + val[3]
                 + "="
                 + val[5]
-                + "){\n"
+                + ") "
             )
         # If opcode is of type while then generate while loop statement
         elif opcode.type == "while":
-            code = "\twhile(%s) {\n" % opcode.val
+            code = "\twhile(%s) " % opcode.val
         # If opcode is of type do then generate do statement
         elif opcode.type == "do":
-            code = "\tdo {\n"
+            code = "\tdo "
         # If opcode is of type while_do then generate while for do-while statement
         elif opcode.type == "while_do":
             code = "\twhile(%s);" % opcode.val
         # If opcode is of type if then generate if statement
         elif opcode.type == "if":
-            code = "\tif(%s) {\n" % opcode.val
+            code = "\tif(%s) " % opcode.val
         # If opcode is of type exit then generate exit statement
         elif opcode.type == "exit":
             code = "\texit(%s);\n" % opcode.val
         # If opcode is of type else_if then generate else if statement
         elif opcode.type == "else_if":
-            code = "\telse if(%s) {\n" % opcode.val
+            code = "\telse if(%s) " % opcode.val
         # If opcode is of type else then generate else statement
         elif opcode.type == "else":
-            code = "\telse {\n"
+            code = "\telse "
         # If opcode is of type return then generate return statement
         elif opcode.type == "return":
             code += "\n\treturn " + opcode.val + ";\n"
@@ -314,7 +317,7 @@ def compile(opcodes, c_filename, table):
             code += "/* %s*/\n" %opcode.val
         # If opcode is of type switch then generate switch statement
         elif opcode.type == "switch":
-            code += "\tswitch(" + opcode.val + ") {\n";
+            code += "\tswitch(" + opcode.val + ") ";
         # If opcode is of type case then generate case statement
         elif opcode.type == "case":
             code += "\tcase " + opcode.val + ":\n"

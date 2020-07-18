@@ -4,16 +4,10 @@ int sum(int a, int b) {
 
 	return a + b;
 }
-/*
-  Code written by:- Siddhartha
-  Main starts
-*/
 
 int main() {
-	int hello = sum(1, 2);
-	printf("The sum = %d", hello);
-	exit(0);
-	//  testing single line comment
+	int sum_two = 3 + sum(1, 2);
+	printf("The value of 1+2+3 is = %d", sum_two);
 
 	return 0;
 }
