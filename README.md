@@ -14,6 +14,10 @@
   <img src="./simc-pipeline.png">
 </p>
 
+## Get started
+
+To get started with simC follow the official documentation:- https://cimplec.github.io/docs/
+
 ## License
 
 sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICENSE)
