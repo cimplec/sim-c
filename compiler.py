@@ -188,8 +188,11 @@ def compile(opcodes, c_filename, table):
         elif opcode.type == "unary":
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
-
-            code += "\t" + opcode.val + ";\n"
+            print_val = ""
+            for i in val:
+                i = i.replace(" ","")
+                print_val += str(i)
+            code += "\t" + print_val  + ";\n"
         # If opcode is of type func_decl then generate function declaration statement
         elif opcode.type == "func_decl":
             # val contains - <identifier>---<params>, split that into list

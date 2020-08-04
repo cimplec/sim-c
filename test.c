@@ -1,13 +1,24 @@
 #include <stdio.h>
 
-int sum(int a, int b) {
+void fan(not_known yo) {
 
-	return a + b;
+	return ;
 }
 
 int main() {
-	int sum_two = 3 + sum(1, 2);
-	printf("The value of 1+2+3 is = %d", sum_two);
+	char a = 'a';
+	char j = 2 + ( ++ a);
+	a++;
+	--j;
+	--a;
+	++j;
+	switch(a) {
+	case 's':
+	printf("lo");
+	break;
+	default:
+	printf("do");
+	}
 
 	return 0;
 }

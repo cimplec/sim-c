@@ -952,18 +952,34 @@ def unary_statement(tokens, i, table, func_ret_type):
     """
 
     # Check if assignment operator follows identifier name
-    check_if(
-        tokens[i + 1].type,
-        ["increment", "decrement"],
-        "Expected unary operator after identifier",
-        tokens[i + 1].line_num,
-    )
+    if tokens[i].type not in ["increment", "decrement"]:
+        check_if(
+            tokens[i + 1].type,
+            ["increment", "decrement"],
+            "Expected unary operator after identifier",
+            tokens[i + 1].line_num,
+            )
+        # Check if expression follows = in assign statement
+        op_value, _, i, func_ret_type = expression(tokens, i, table, "", accept_empty_expression=True, expect_paren=False, func_ret_type=func_ret_type)
+        # Return the opcode and i (the token after unary statement)
+        return OpCode("unary", op_value), i, func_ret_type
 
-    # Check if expression follows = in assign statement
-    op_value, _, i, func_ret_type = expression(tokens, i, table, "", accept_empty_expression=True, expect_paren=False, func_ret_type=func_ret_type)
+    else:
+        check_if(
+            tokens[i + 1].type,
+            "id",
+            "Expected identifier after unary operator",
+            tokens[i + 1].line_num,
+        )
+        op_value = -1
+        if tokens[i].type == "increment":
+            op_value = "++ --- "
+        else:
+            op_value = "-- --- "
+        value,func_ret_type,_ = table.get_by_id(tokens[i+1].val)
+        op_value += str(value)
+        return OpCode("unary", op_value), i+2, func_ret_type
 
-    # Return the opcode and i (the token after unary statement)
-    return OpCode("unary", op_value), i, func_ret_type
 
 
 def exit_statement(tokens, i, table, func_ret_type):
@@ -1230,6 +1246,11 @@ def parse(tokens, table):
             check_if(tokens[i+1].type, "colon", "Expected : after default statement in switch", tokens[i+1].line_num)
             op_codes.append(OpCode("default", "", ""))
             i += 2
+        #If token is the type increment or decrement then generate unary_opcode
+        elif tokens[i].type in [ "increment", "decrement"]:
+            unary_opcode, i, func_ret_type = unary_statement(tokens, i, table, func_ret_type)
+            op_codes.append(unary_opcode)
+
         # Otherwise increment the index
         else:
             i += 1
