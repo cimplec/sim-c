@@ -1,8 +1,20 @@
-fun sum(a, b) {
-  return a + b
+
+fun fan(yo){
+return "yo"
 }
 
-MAIN
-  var sum_two = 3 + sum(1, 2)
-  print("The value of 1+2+3 is = {sum_two}")
-END_MAIN
+
+  MAIN
+  var a = "a"
+  var j = 2 + (++a)
+  a++
+  --j
+  --a
+  ++j
+
+  switch(a){
+  case "s": print("lo")
+            break;
+  default : print("do")
+  }
+  END_MAIN
