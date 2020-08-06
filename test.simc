@@ -1,21 +1,4 @@
-
-fun fan(yo){
-return "yo"
-}
-
-
-  MAIN
-  var a = "a"
-  var j = 2 + (++a)
-  a++
-  --j
-  --a
-  ++j
-  var c == 3
-  c = 2
-  switch(a){
-  case "s": print("lo")
-            break;
-  default : print("do")
-  }
-  END_MAIN
+var a = 2
+a += 4
+a*=5
+a = input("to","i")
