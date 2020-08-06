@@ -12,6 +12,8 @@ int main() {
 	--j;
 	--a;
 	++j;
+	int c;
+	c = 2;
 	switch(a) {
 	case 's':
 	printf("lo");

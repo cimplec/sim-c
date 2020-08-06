@@ -423,7 +423,20 @@ def var_statement(tokens, i, table, func_ret_type):
     # Check if identifier is present after var
     check_if(tokens[i].type, "id", "Expected id after var keyword", tokens[i].line_num)
 
-
+    #Tokens that are not accepted after declaration of a variable
+    invalid_tokens = ['plus_equal',
+                      'minus_equal',
+                      'divide_equal',
+                      'multiply_equal',
+                      'plus',
+                      'minus',
+                      'divide',
+                      'multiply',
+                      'modulus',
+                      'modulus_equal',
+                      'equal',
+                      'not_equal'
+                      ]
     # Check if variable is also initialized
     if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
         # Store the index of identifier
@@ -468,6 +481,8 @@ def var_statement(tokens, i, table, func_ret_type):
                     i,
                     func_ret_type
                     )
+    elif i + 1 < len(tokens) and tokens[i + 1].type in invalid_tokens:
+        error("Invalid Syntax for declaration", tokens[i].line_num)
     else:
         # Get the value from symbol table by id
         value, type, _ = table.get_by_id(tokens[i].val)

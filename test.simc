@@ -11,7 +11,8 @@ return "yo"
   --j
   --a
   ++j
-
+  var c == 3
+  c = 2
   switch(a){
   case "s": print("lo")
             break;
