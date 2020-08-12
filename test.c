@@ -1,5 +1,11 @@
 
-	int a = 2;
-	a += 4;
-	printf("to");
-	scanf("%d", &a);
+
+int main() {
+	int i = 1;
+	int j = 2;
+	do {
+	i++;
+	}
+	while(i < 10);
+	return 0;
+}

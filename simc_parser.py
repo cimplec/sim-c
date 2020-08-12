@@ -788,7 +788,7 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
 
         return OpCode("while", op_value[:-1]), ret_idx-1, func_ret_type
     else:
-        return OpCode("while_do", op_value), i + 1, func_ret_type
+        return OpCode("while_do", op_value[:-1]), i + 1, func_ret_type
 
 
 def if_statement(tokens, i, table, func_ret_type):
@@ -1178,7 +1178,7 @@ def parse(tokens, table):
             )
             in_do = True
             op_codes.append(OpCode("do", "", ""))
-            i += 2
+            i += 1
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
             while_opcode, i, func_ret_type = while_statement(tokens, i + 1, table, in_do, func_ret_type)
