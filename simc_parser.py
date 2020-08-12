@@ -423,7 +423,20 @@ def var_statement(tokens, i, table, func_ret_type):
     # Check if identifier is present after var
     check_if(tokens[i].type, "id", "Expected id after var keyword", tokens[i].line_num)
 
-
+    #Tokens that are not accepted after declaration of a variable
+    invalid_tokens = ['plus_equal',
+                      'minus_equal',
+                      'divide_equal',
+                      'multiply_equal',
+                      'plus',
+                      'minus',
+                      'divide',
+                      'multiply',
+                      'modulus',
+                      'modulus_equal',
+                      'equal',
+                      'not_equal'
+                      ]
     # Check if variable is also initialized
     if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
         # Store the index of identifier
@@ -468,6 +481,8 @@ def var_statement(tokens, i, table, func_ret_type):
                     i,
                     func_ret_type
                     )
+    elif i + 1 < len(tokens) and tokens[i + 1].type in invalid_tokens:
+        error("Invalid Syntax for declaration", tokens[i].line_num)
     else:
         # Get the value from symbol table by id
         value, type, _ = table.get_by_id(tokens[i].val)
@@ -537,6 +552,15 @@ def assign_statement(tokens, i, table, func_ret_type):
     if type == "var":
         error("Variable %s used before declaration" % value, tokens[i - 1].line_num)
 
+    #Dictionary to convert tokens to their corresponding assignment types
+    assignment_type = {
+                    "assignment"     : '=' ,
+                    "plus_equal"     : '+=',
+                    "minus_equal"    : '-=',
+                    "multiply_equal" : '*=',
+                    "divide_equal"   : '/=',
+                    "modulus_equal"  : '%=',
+                    }
     # Check if assignment operator follows identifier name
     check_if(
         tokens[i].type,
@@ -551,7 +575,8 @@ def assign_statement(tokens, i, table, func_ret_type):
         "Expected assignment operator after identifier",
         tokens[i].line_num,
     )
-
+    #Convert the token to respective symbol
+    converted_type = assignment_type[tokens[i].type]
     # Store the index of identifier
     id_idx = i - 1
 
@@ -559,7 +584,6 @@ def assign_statement(tokens, i, table, func_ret_type):
     op_value, op_type, i, func_ret_type = expression(
         tokens, i + 1, table, "Required expression after assignment operator", expect_paren=False, func_ret_type=func_ret_type
     )
-
     #  Map datatype to appropriate datatype in C
     prec_to_type = {
         0: "string",
@@ -569,7 +593,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         4: "float",
         5: "double",
     }
-
+    op_value = converted_type+"---"+ op_value
     # Modify datatype of the identifier
     table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
     #Check if a pointer is being assigned
@@ -581,6 +605,7 @@ def assign_statement(tokens, i, table, func_ret_type):
                 i,
                 func_ret_type
                 )
+
     # Return the opcode and i (the token after assign statement)
     return (
         OpCode(
@@ -1103,7 +1128,7 @@ def parse(tokens, table):
             op_codes.append(var_opcode)
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
-            # If ( follows id then it is function calling else variable assignment
+            # If '(' follows id then it is function calling else variable assignment
             if tokens[i + 1].type == "left_paren":
                 fun_opcode, i, func_ret_type = function_call_statement(tokens, i, table, func_ret_type)
                 op_codes.append(fun_opcode)
