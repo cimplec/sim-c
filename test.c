@@ -6,18 +6,13 @@ void fan(not_known yo) {
 }
 
 int main() {
-	char a = 'a';
-	char j = 2 + ( ++ a);
-	a++;
-	--j;
-	--a;
-	++j;
+	char a = 's';
 	switch(a) {
 	case 's':
-	printf("lo");
+	printf("SS");
 	break;
 	default:
-	printf("do");
+	printf("nono");
 	}
 
 	return 0;

@@ -1,20 +1,13 @@
-
 fun fan(yo){
 return "yo"
 }
 
 
-  MAIN
-  var a = "a"
-  var j = 2 + (++a)
-  a++
-  --j
-  --a
-  ++j
-
+MAIN
+  var a = 's'
   switch(a){
-  case "s": print("lo")
+  case 's': print("SS")
             break;
-  default : print("do")
+  default : print("nono")
   }
-  END_MAIN
+END_MAIN
