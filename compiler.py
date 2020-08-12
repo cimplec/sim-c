@@ -145,7 +145,6 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
-
             code += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
 
         #If opcode is of type ptr_no_assign then generate declaration statement
@@ -163,19 +162,17 @@ def compile(opcodes, c_filename, table):
         elif opcode.type == "assign":
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
-
             # Helper Dictionaries
             get_data_type = {"i": "int", "s": "char *", "f": "float", "d": "double"}
             get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf"}
-
             # Check if the statement is of type input or not
-            if len(val) < 3:
-                code += "\t" + val[0] + " = " + val[1] + ";\n"
+            if len(val) == 3:
+                code += "\t" + val[0] + " " + val[1] + " " + val[2] + ";\n"
             else:
                 # If the statement is of type input
-                dtype = get_data_type[val[2]]
-                placeholder = get_placeholder[val[2]]
-                code += "\t" + 'printf("' + str(val[1]) + '");\n'
+                dtype = get_data_type[val[3]]
+                placeholder = get_placeholder[val[3]]
+                code += "\t" + 'printf("' + str(val[2]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder + '", &' + str(val[0]) + ");\n"
 
         # If opcode is of type ptr_only_assign then generate an assignment statement

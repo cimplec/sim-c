@@ -1,13 +1,5 @@
-fun fan(yo){
-return "yo"
-}
 
-
-MAIN
-  var a = 's'
-  switch(a){
-  case 's': print("SS")
-            break;
-  default : print("nono")
-  }
-END_MAIN
+var a = 2
+a += 4
+a*=5
+a = input("to","i")
