@@ -94,7 +94,7 @@ def numeric_val(source_code, i, table, line_num):
     return Token("number", id, line_num), i
 
 
-def string_val(source_code, i, table, line_num):
+def string_val(source_code, i, table, line_num, start_char='"'):
     """
     Processes string values in the source code
 
@@ -104,6 +104,7 @@ def string_val(source_code, i, table, line_num):
     i           (int)    = The current index in the source code
     table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
     line_num    (int)         = Line number
+    start_char  (str) (Optional) = Character with which string starts
 
     Returns
     =======
@@ -117,7 +118,7 @@ def string_val(source_code, i, table, line_num):
     i += 1
 
     # Loop until we get a non-digit character
-    while source_code[i] != '"':
+    while source_code[i] != start_char:
         if source_code[i] == "\0":
             error("Unterminated string!", line_num)
 
@@ -260,9 +261,14 @@ def lexical_analyze(filename, table):
             token, i = numeric_val(source_code, i, table, line_num)
             tokens.append(token)
 
-        # If quote appears the value is a string token
+        # If double quote appears the value is a string token
         elif source_code[i] == '"':
             token, i = string_val(source_code, i, table, line_num)
+            tokens.append(token)
+
+        # If single quote appears the value is a string token
+        elif source_code[i] == '\'':
+            token, i = string_val(source_code, i, table, line_num, start_char='\'')
             tokens.append(token)
 
         # If alphabet or number appears then it might be either a keyword or an identifier
