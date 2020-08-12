@@ -1,11 +1,17 @@
-
+#include <stdio.h>
 
 int main() {
-	int i = 1;
-	int j = 2;
-	do {
-	i++;
+	int p = 2;
+	if(p > 2) {
+	printf("jo");
 	}
-	while(i < 10);
+	else {
+	printf("yo");
+	}
+/* else{
+  print("yolo")
+  }*/
+	printf("%d", p);
+
 	return 0;
 }

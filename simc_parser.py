@@ -1112,6 +1112,9 @@ def parse(tokens, table):
     # Count main functions
     main_fn_count = 0
 
+    # Count if conditions
+    if_count = 0
+
     # If function return type could not be figured out during return then do it while calling
     func_ret_type = {}
 
@@ -1189,6 +1192,9 @@ def parse(tokens, table):
         elif tokens[i].type == "if":
             if_opcode, i, func_ret_type = if_statement(tokens, i + 1, table, func_ret_type)
             op_codes.append(if_opcode)
+
+            # Increment if count on encountering if
+            if_count += 1
         # If token is of type exit then generate exit opcode
         elif tokens[i].type == "exit":
             exit_opcode, i, func_ret_type = exit_statement(
@@ -1204,6 +1210,14 @@ def parse(tokens, table):
             # Otherwise it is else
             elif tokens[i + 1].type == "left_brace":
                 op_codes.append(OpCode("else", "", ""))
+
+                # Decrement if count on encountering if, to make sure there aren't extra else conditions
+                if_count -= 1
+
+                # If if_count is negative then the current else is extra
+                if(if_count < 0):
+                    error("Else does not match any if!", tokens[i].line_num)
+
                 i += 1
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":

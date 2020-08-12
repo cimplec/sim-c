@@ -1,9 +1,14 @@
-
-  MAIN
-  var i = 1
-  var j =2
-  do{
-  i++
+MAIN
+  var p = 2
+  if(p>2){
+  print("jo")
   }
-  while(i<10)
+  else{
+  print("yo")
+  }
+  else{
+  print("yolo")
+  }
+
+  print(p)
   END_MAIN
