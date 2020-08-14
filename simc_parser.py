@@ -678,6 +678,13 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         tokens[i-1].line_num,
     )
 
+    # If \n follows ) then skip all the \n characters
+    if(tokens[i+1].type == "newline"):
+        i += 1
+        while(tokens[i].type == "newline"):
+            i += 1
+        i -= 1
+
     # Check if { follows ) in function
     check_if(
         tokens[i+1].type,
@@ -764,8 +771,17 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
         tokens[i-1].line_num,
     )
 
-    # Check if { follows ) in while statement
+
+    # If while is not part of do-while
     if not in_do:
+        # If \n follows ) then skip all the \n characters
+        if(tokens[i+1].type == "newline"):
+            i += 1
+            while(tokens[i].type == "newline"):
+                i += 1
+            i -= 1
+
+        # Check if { follows ) in while statement
         check_if(
             tokens[i + 1].type,
             "left_brace",
@@ -840,6 +856,13 @@ def if_statement(tokens, i, table, func_ret_type):
         "Expected ) after expression in if statement",
         tokens[i-1].line_num,
     )
+
+    # If \n follows ) then skip all the \n characters
+    if(tokens[i+1].type == "newline"):
+        i += 1
+        while(tokens[i].type == "newline"):
+            i += 1
+        i -= 1
 
     # Check if { follows ) in if statement
     check_if(

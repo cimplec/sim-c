@@ -11,6 +11,9 @@ int main() {
 	a_var = a_var - 1;
 	printf("yolo");
 	}
+	for(int i = 1; i < 10; i+=1) {
+	printf("%d", i);
+	}
 
 	return 0;
 }

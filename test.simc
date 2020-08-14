@@ -1,12 +1,18 @@
-fun a(b){
+fun a(b)
+{
 return 1;
 }
 
 MAIN
   var a_var = 10
-  while(a(1)) {
+  while(a(1))
+  {
   a_var = a_var - 1
   print("yolo")
+  }
+
+  for i in 1 to 10 by +1 {
+    print(i)
   }
 
 END_MAIN
