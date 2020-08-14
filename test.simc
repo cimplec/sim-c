@@ -1,14 +1,12 @@
+fun a(b){
+return 1;
+}
+
 MAIN
-  var p = 2
-  if(p>2){
-  print("jo")
-  }
-  else{
-  print("yo")
-  }
-  else{
+  var a_var = 10
+  while(a(1)) {
+  a_var = a_var - 1
   print("yolo")
   }
 
-  print(p)
-  END_MAIN
+END_MAIN

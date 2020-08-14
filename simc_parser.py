@@ -57,7 +57,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     func_name, _, metadata = table.get_by_id(tokens[i].val)
 
     # Extract params from functions metadata (typedata), these are stored as <id>---[<param 1>, . . . , <param n>]
-    params = metadata.split("---")[1:] if "---" in metadata else []
+    params = metadata.split("---")[1:] if "---" in metadata else [')']
 
     # Parse the params
     op_value, op_type, i, func_ret_type = expression(tokens, i + 2, table, "", True, True, expect_paren=True, func_ret_type=func_ret_type)
@@ -76,6 +76,10 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     # Assign datatype to formal parameters
     for j in range(len(params)):
+        # If parameter list is empty
+        if(params[j] == ')'):
+            continue
+
         # Fetch the datatype of corresponding actual parameter from symbol table
         _, dtype, _ = table.get_by_id(table.get_by_symbol(op_value_list[j].replace(')', '')))
 

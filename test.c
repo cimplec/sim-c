@@ -1,17 +1,16 @@
 #include <stdio.h>
 
+int a(int b) {
+
+	return 1;
+}
+
 int main() {
-	int p = 2;
-	if(p > 2) {
-	printf("jo");
+	int a_var = 10;
+	while(a(1)) {
+	a_var = a_var - 1;
+	printf("yolo");
 	}
-	else {
-	printf("yo");
-	}
-/* else{
-  print("yolo")
-  }*/
-	printf("%d", p);
 
 	return 0;
 }
