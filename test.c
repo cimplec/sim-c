@@ -7,6 +7,11 @@ int a(int b) {
 
 int main() {
 	int a_var = 10;
+	int a = a_var << 1;
+	a = 1 >> a;
+	if(a < 4) {
+	a++;
+	}
 	while(a(1)) {
 	a_var = a_var - 1;
 	printf("yolo");

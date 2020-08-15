@@ -166,7 +166,9 @@ def expression(
         "right_paren",
         "newline",
         "call_end",
-        "address_of"
+        "address_of",
+        "right_shift",
+        "left_shift",
     ]:
         # Check for function call
         if tokens[i].type == 'id' and tokens[i+1].type == 'left_paren':
@@ -276,7 +278,9 @@ def expression(
                 "comma": ",",
                 "left_paren": "(",
                 "right_paren": ")",
-                "address_of": "&"
+                "address_of": "&",
+                "left_shift": " << ",
+                "right_shift": " >> ",
             }
 
             if(expect_paren and tokens[i].type == 'right_paren' and tokens[i+1].type in ['newline', 'left_brace']):

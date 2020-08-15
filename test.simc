@@ -5,6 +5,11 @@ return 1;
 
 MAIN
   var a_var = 10
+  var a = a_var<<1
+  a = 1>>a
+  if(a<4){
+  a++
+  }
   while(a(1))
   {
   a_var = a_var - 1
