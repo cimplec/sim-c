@@ -81,6 +81,8 @@ class Token:
             "and": 32,
             "or": 33,
             "exit": 34,
+            "left_shift": 35,
+            "right_shift": 36,
         }
 
         return dic.get(str_type, 0)

@@ -404,20 +404,26 @@ def lexical_analyze(filename, table):
 
         # Identifying greater_than or greater_than_equal token
         elif source_code[i] == ">":
-            if source_code[i + 1] != "=":
+            if source_code[i + 1] not in ["=", ">"]:
                 tokens.append(Token("greater_than", "", line_num))
                 i += 1
-            else:
+            elif source_code[i + 1] == "=":
                 tokens.append(Token("greater_than_equal", "", line_num))
                 i += 2
+            else:
+                tokens.append(Token("right_shift", "", line_num))
+                i+=2
 
         # Identifying less_than or less_than_equal token
         elif source_code[i] == "<":
-            if source_code[i + 1] != "=":
+            if  source_code[i + 1] not in ["<", "="]:
                 tokens.append(Token("less_than", "", line_num))
                 i += 1
-            else:
+            elif source_code[i + 1] == "=" :
                 tokens.append(Token("less_than_equal", "", line_num))
+                i+=2
+            elif source_code[i + 1] == "<" :
+                tokens.append(Token("left_shift", "", line_num))
                 i += 2
 
         # Identifiying colon token
