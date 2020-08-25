@@ -4,7 +4,7 @@
   <img src="./logo.png" height="200">
 </p>
 
-![GitHub](https://img.shields.io/github/license/cimplec/sim-c?style=plastic)  ![GitHub stars](https://img.shields.io/github/stars/cimplec/sim-c?style=social)
+![GitHub](https://img.shields.io/github/license/cimplec/sim-c?style=plastic)  ![GitHub stars](https://img.shields.io/github/stars/cimplec/sim-c?style=social)  ![GitHub contributors](https://img.shields.io/github/contributors/cimplec/sim-c?style=plastic)  ![GitHub repo size](https://img.shields.io/github/repo-size/cimplec/sim-c)
 
 ## What is sim-C?
 
