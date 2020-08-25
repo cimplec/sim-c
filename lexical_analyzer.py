@@ -41,7 +41,7 @@ def is_keyword(value):
         "exit",
         "switch",
         "case",
-        "default"
+        "default",
     ]
 
 
@@ -73,7 +73,8 @@ def numeric_val(source_code, i, table, line_num):
     if numeric_constant.count(".") > 1:
         error(
             "Invalid numeric constant, cannot have more than one decimal point in a"
-            " number!" , line_num
+            " number!",
+            line_num,
         )
 
     # Check the length after . to distinguish between float and double
@@ -175,37 +176,38 @@ def keyword_identifier(source_code, i, table, line_num):
     # Check if identifier is in symbol table
     id = table.get_by_symbol(value)
 
-    C_keywords = ['break',
-                    'else',
-                    'long',
-                    'switch',
-                    'case',
-                    'enum',
-                    'register',
-                    'typedef',
-                    'char',
-                    'extern',
-                    'return',
-                    'union',
-                    'const',
-                    'float',
-                    'short',
-                    'unsigned',
-                    'continue',
-                    'for',
-                    'signed',
-                    'void',
-                    'default',
-                    'goto',
-                    'sizeof',
-                    'volatile',
-                    'do',
-                    'if',
-                    'static',
-                    'while'
-                    ]
+    C_keywords = [
+        "break",
+        "else",
+        "long",
+        "switch",
+        "case",
+        "enum",
+        "register",
+        "typedef",
+        "char",
+        "extern",
+        "return",
+        "union",
+        "const",
+        "float",
+        "short",
+        "unsigned",
+        "continue",
+        "for",
+        "signed",
+        "void",
+        "default",
+        "goto",
+        "sizeof",
+        "volatile",
+        "do",
+        "if",
+        "static",
+        "while",
+    ]
 
-    #Check if identifier is a keyword in class
+    # Check if identifier is a keyword in class
     if value in C_keywords:
         error("A keyword cannot be an identifier - %s" % value, line_num)
 
@@ -267,8 +269,8 @@ def lexical_analyze(filename, table):
             tokens.append(token)
 
         # If single quote appears the value is a string token
-        elif source_code[i] == '\'':
-            token, i = string_val(source_code, i, table, line_num, start_char='\'')
+        elif source_code[i] == "'":
+            token, i = string_val(source_code, i, table, line_num, start_char="'")
             tokens.append(token)
 
         # If alphabet or number appears then it might be either a keyword or an identifier
@@ -278,19 +280,19 @@ def lexical_analyze(filename, table):
 
         # Identifying left paren token
         elif source_code[i] == "(":
-            if(tokens[-1].type == 'id' or parantheses_count > 0):
+            if tokens[-1].type == "id" or parantheses_count > 0:
                 parantheses_count += 1
             tokens.append(Token("left_paren", "", line_num))
             i += 1
 
         # Identifying right paren token
         elif source_code[i] == ")":
-            if(parantheses_count > 0):
+            if parantheses_count > 0:
                 parantheses_count -= 1
 
             tokens.append(Token("right_paren", "", line_num))
 
-            if(parantheses_count == 0):
+            if parantheses_count == 0:
                 tokens.append(Token("call_end", "", line_num))
 
             i += 1
@@ -353,8 +355,8 @@ def lexical_analyze(filename, table):
                 tokens.append(Token("multiply", "", line_num))
                 i += 1
 
-        #Identifying 'address of' token
-        elif source_code[i] == '&':
+        # Identifying 'address of' token
+        elif source_code[i] == "&":
             tokens.append(Token("address_of", "", line_num))
             i += 1
 
@@ -364,7 +366,7 @@ def lexical_analyze(filename, table):
                 tokens.append(Token("divide_equal", "", line_num))
                 i += 2
             # to check if it is a single line comment
-            elif source_code[i+1] == "/":
+            elif source_code[i + 1] == "/":
                 i += 2
                 while source_code[i] != "\n":
                     comment_str += str(source_code[i])
@@ -372,9 +374,9 @@ def lexical_analyze(filename, table):
                 tokens.append(Token("single_line_comment", comment_str, line_num))
                 comment_str = ""
             # to check if it is a multi line comment
-            elif source_code[i+1] == "*":
+            elif source_code[i + 1] == "*":
                 i += 2
-                while source_code[i] != "*" and source_code[i+1] != "/":
+                while source_code[i] != "*" and source_code[i + 1] != "/":
                     comment_str += str(source_code[i])
                     i += 1
                 tokens.append(Token("multi_line_comment", comment_str, line_num))
@@ -412,22 +414,22 @@ def lexical_analyze(filename, table):
                 i += 2
             else:
                 tokens.append(Token("right_shift", "", line_num))
-                i+=2
+                i += 2
 
         # Identifying less_than or less_than_equal token
         elif source_code[i] == "<":
-            if  source_code[i + 1] not in ["<", "="]:
+            if source_code[i + 1] not in ["<", "="]:
                 tokens.append(Token("less_than", "", line_num))
                 i += 1
-            elif source_code[i + 1] == "=" :
+            elif source_code[i + 1] == "=":
                 tokens.append(Token("less_than_equal", "", line_num))
-                i+=2
-            elif source_code[i + 1] == "<" :
+                i += 2
+            elif source_code[i + 1] == "<":
                 tokens.append(Token("left_shift", "", line_num))
                 i += 2
 
         # Identifiying colon token
-        elif source_code[i] == ':':
+        elif source_code[i] == ":":
             tokens.append(Token("colon", "", line_num))
             i += 1
 

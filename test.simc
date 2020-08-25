@@ -1,5 +1,5 @@
 MAIN
-  var a_var = 10
-  var a = a_var<<1
-  a = 1>>a
+  var i
+  i = 2
+  print(i)
 END_MAIN

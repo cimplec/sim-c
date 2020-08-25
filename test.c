@@ -1,9 +1,9 @@
-
+#include <stdio.h>
 
 int main() {
-	int a_var = 10;
-	int a = a_var << 1;
-	a = 1 >> a;
+	int i;
+	i = 2;
+	printf("%d", i);
 
 	return 0;
 }
