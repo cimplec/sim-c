@@ -1245,6 +1245,9 @@ def parse(tokens, table):
     # Count if conditions
     if_count = 0
 
+    # Brace count
+    brace_count = 0
+
     # If function return type could not be figured out during return then do it while calling
     func_ret_type = {}
 
@@ -1290,10 +1293,15 @@ def parse(tokens, table):
         # If token is of type left_brace then generate scope_begin opcode
         elif tokens[i].type == "left_brace":
             op_codes.append(OpCode("scope_begin", "", ""))
+            brace_count += 1
             i += 1
         # If token is of type right_brace then generate scope_over opcode
         elif tokens[i].type == "right_brace":
             op_codes.append(OpCode("scope_over", "", ""))
+            brace_count -= 1
+
+            if(brace_count < 0):
+                error("Closing brace doesn't match any previous opening brace", tokens[i].line_num)
             i += 1
         # If token is of type MAIN then generate MAIN opcode
         elif tokens[i].type == "MAIN":

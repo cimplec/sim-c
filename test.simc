@@ -1,7 +1,12 @@
-fun fan(yo){
-return 3.14
+MAIN
+
+var i = 1//comment 1
+if(i){
+i++
+if(i==2){
+i+=2
+}
+}
 }
 
-MAIN
-  var ptr = fan("yo")
 END_MAIN
