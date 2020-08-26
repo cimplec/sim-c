@@ -1,9 +1,12 @@
-#include <stdio.h>
+
+
+float fan(char* yo) {
+
+	return 3.14;
+}
 
 int main() {
-	int i;
-	i = 2;
-	printf("%d", i);
+	float ptr = fan("yo");
 
 	return 0;
 }

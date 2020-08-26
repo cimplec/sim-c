@@ -220,9 +220,12 @@ def compile(opcodes, c_filename, table):
                     has_param = True
                     _, dtype, _ = table.get_by_id(table.get_by_symbol(params[i]))
                     dtype = dtype if dtype != "var" else "not_known"
+                    dtype = "char*" if dtype == "string" else dtype
                     code += dtype + " " + params[i] + ", "
             if has_param:
                 code = code[:-2]
+            else:
+                code += "void"
 
             # Finally add opening brace to start the function body
             code += ") "
