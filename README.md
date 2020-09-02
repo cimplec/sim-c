@@ -1,3 +1,4 @@
+
 # sim-C
 
 <p align="center">
@@ -19,6 +20,17 @@
 ## Get started
 
 To get started with simC follow the official documentation:- https://cimplec.github.io/docs/
+
+## Contributing
+
+The following resources are a good place to get to know more about simC:-
+
+1) Writing code in C? Simplify your life with sim-C <a href="https://dev.to/cimplec/writing-code-in-c-simplify-your-life-with-sim-c-2dkj">Dev.to</a>, <a href="https://medium.com/oss-build/writing-code-in-c-simplify-your-life-with-sim-c-9dd98f882bf8">Medium</a>.
+2) Getting Started with sim-C <a href="https://dev.to/cimplec/getting-started-with-sim-c-4iek">Dev.to</a>, <a href="https://medium.com/oss-build/getting-started-with-sim-c-1397ee539877">Medium</a>
+
+Apart from these blog posts, you can also checkout the <a href="https://cimplec.github.io/docs">official docs</a>.
+
+Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## License
 
