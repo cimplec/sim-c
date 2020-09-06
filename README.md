@@ -19,28 +19,22 @@
 
 ## Start Contributing
 
-sim-C which has a highly intuitive codebase, you'll be ready to contribute in no time!
-While adding any functionality to sim-C you need to make changes in the following files only:
+<p align="justify">sim-C which has a highly intuitive codebase, you'll be ready to contribute in no time!
+While adding any functionality to sim-C you need to make changes in the following files only:</p>
 
-1. **lexical_analyzer.py**
-Lexical analysis is the first phase of a compiler. It takes the modified source code from language preprocessors that are written in the form of sentences. The lexical analyzer breaks these syntaxes into a series of tokens, by removing any whitespace or comments in the source code. Depending on the type of functionality add it to the respective function: is_keyword, numeric_val, string_val, keyword_identifier and/or lexical_analyze.
+<p align="justify">1. **lexical_analyzer.py**
+Lexical analysis is the first phase of a compiler. It takes the modified source code from language preprocessors that are written in the form of sentences. The lexical analyzer breaks these syntaxes into a series of tokens, by removing any whitespace or comments in the source code. Depending on the type of functionality add it to the respective function: is_keyword, numeric_val, string_val, keyword_identifier and/or lexical_analyze.</p>
 
-2. **op_code.py**
-It is responsible for creating opcodes. If need be you need to change the opcode2dig function only which returns the integer representation of opcode type.
+<p align="justify">2. **op_code.py**
+It is responsible for creating opcodes. If need be you need to change the opcode2dig function only which returns the integer representation of opcode type.</p>
 
-3. **token_class.py**
-It is responsible for creating tokens. Here you need to append the token type and its integer reprsentation in the token2dig function.
+<p align="justify">3. **simc_parser.py**
+Parser is an interpreter component that is used to break the data into smaller elements coming from lexical analysis phase. A parser takes input in the form of sequence of tokens and produces output. Here you may need to create a separate function which defines the grammar and checks for the syntax. The function should return the OpCode. Also, if need be you have to append the functionality to the parse function which parses the tokens, calls the particular function and returns opcodes.</p>
 
-4. **symbol_table.py**
-SymbolTable is responsible for storing information about identifiers and constants.
+<p align="justify">4. **compiler.py**
+Finally you need to define the opcode type in the compiler and write the expected C syntax for the functonality.</p>
 
-5. **simc_parser.py**
-Parser is an interpreter component that is used to break the data into smaller elements coming from lexical analysis phase. A parser takes input in the form of sequence of tokens and produces output. Here you may need to create a separate function which defines the grammar and checks for the syntax. The function should return the OpCode. Also, if need be you have to append the functionality to the parse function which parses the tokens, calls the particular function and returns opcodes. 
-
-6. **compiler.py**
-Finally you need to define the opcode type in the compiler and write the expected C syntax for the functonality.
-
-You can write a test in test.simc and verify whether it's producing results in the test.c file.
+<p align="justify">You can write a test in test.simc and verify whether it's producing results in the test.c file.</p>
 
 
 ## Get started
