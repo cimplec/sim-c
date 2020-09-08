@@ -53,3 +53,10 @@ Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIB
 ## License
 
 sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICENSE)
+
+## The Team
+
+- [Siddhartha Dhar Choudhury](https://github.com/frankhart2018)
+- [Aayush Agarwal](https://github.com/Aayush-99)
+- [Pranshul Dobriyal](https://github.com/PranshulDobriyal)
+- [Dhairya Jain](https://github.com/dhairyaj)
