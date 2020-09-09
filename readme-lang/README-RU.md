@@ -2,7 +2,7 @@
 # sim-C
 
 <p align = "center">
-  <img src = "./ logo.png" height = "200">
+  <img src = "../logo.png" height = "200">
 </p>
 
 [! [GitHub] (https://img.shields.io/github/license/cimplec/sim-c)] (https://github.com/cimplec/sim-c/blob/master/LICENSE)! [ Звезды GitHub] (https://img.shields.io/github/stars/cimplec/sim-c?style=plastic)! [Участники GitHub] (https://img.shields.io/github/contributors/cimplec/ sim-c)! [PRs приветствуются] (https://img.shields.io/badge/PRs-welcome-brightgreen.svg)! [последняя фиксация GitHub] (https://img.shields.io/github/last -commit / cimplec / sim-c)
@@ -14,7 +14,7 @@
 ## Трубопровод
 
 <p align = "center">
-  <img src = "./ simc-pipeline.png">
+  <img src = "../simc-pipeline.png">
 </p>
 
 ## Начать участие
