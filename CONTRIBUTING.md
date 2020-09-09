@@ -1,4 +1,6 @@
-# Contributing to simC
+# Contributing to simC   
+
+### Please star (⭐) the repository to show your support to the project.    
 
 ## Pull Requests (PRs)
 
