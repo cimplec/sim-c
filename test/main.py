@@ -1,9 +1,10 @@
 import unittest
 
 from test_compiler import TestCompiler
+from test_global_helpers import TestGlobalHelpers
 
 if __name__ == "__main__":
-    test_classes_to_run = [TestCompiler]
+    test_classes_to_run = [TestCompiler, TestGlobalHelpers]
 
     loader = unittest.TestLoader()
 
