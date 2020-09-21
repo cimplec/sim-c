@@ -2,9 +2,10 @@ import unittest
 
 from test_compiler import TestCompiler
 from test_global_helpers import TestGlobalHelpers
+from test_lexical_analyzer import TestLexicalAnalyzer
 
 if __name__ == "__main__":
-    test_classes_to_run = [TestCompiler, TestGlobalHelpers]
+    test_classes_to_run = [TestCompiler, TestGlobalHelpers, TestLexicalAnalyzer]
 
     loader = unittest.TestLoader()
 
