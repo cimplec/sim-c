@@ -1,12 +1,9 @@
-MAIN
-
-var i = 1//comment 1
-if(i){
-i++
-if(i==2){
-i+=2
+var a = 1
+switch(a) {
+  case 1: {
+    print("Hello")
+  }
+  default: {
+    print("Bye")
+  }
 }
-}
-}
-
-END_MAIN

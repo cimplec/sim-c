@@ -33,5 +33,10 @@ if __name__ == "__main__":
     # Get opcodes from parser
     op_codes = parse(tokens, table)
 
+    for op_code in op_codes:
+        print(op_code)
+
+    print(table.symbol_table)
+
     # Compile to C code
     compile(op_codes, c_filename, table)
