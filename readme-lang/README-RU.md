@@ -1,4 +1,5 @@
 
+
 # sim-C
 
 <p align = "center">
@@ -48,11 +49,11 @@
 
 Помимо этих сообщений в блоге, вы также можете ознакомиться с <a href="https://cimplec.github.io/docs"> официальными документами </a>.
 
-Прежде чем двигаться дальше, ознакомьтесь с правилами на [CONTRIBUTING.md] (./ CONTRIBUTING.md)
+Прежде чем двигаться дальше, ознакомьтесь с правилами на [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Лицензия
 
-sim-C находится под лицензией GNU General Public License (GPL) v3.0. [ЛИЦЕНЗИЯ] (./ ЛИЦЕНЗИЯ)
+sim-C находится под лицензией GNU General Public License (GPL) v3.0. [ЛИЦЕНЗИЯ](./LICENSE)
 
 ## Команда
 
