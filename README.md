@@ -37,7 +37,7 @@ Finally you need to define the opcode type in the compiler and write the expecte
 <p align="justify">You can write a test in test.simc and verify whether it's producing results in the test.c file.</p>
 
 
-## Get started
+## Contributing
 
 To get started with simC follow the official documentation:- https://cimplec.github.io/docs/
 
