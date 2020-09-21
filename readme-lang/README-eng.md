@@ -48,11 +48,11 @@ The following resources are a good place to get to know more about simC:-
 
 Apart from these blog posts, you can also checkout the <a href="https://cimplec.github.io/docs">official docs</a>.
 
-Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)
+Before moving further please go through the rules in [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ## License
 
-sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICENSE)
+sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](../LICENSE)
 
 ## The Team
 
