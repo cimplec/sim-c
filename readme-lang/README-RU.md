@@ -44,7 +44,7 @@
 Следующие ресурсы - хорошее место, чтобы узнать больше о simC: -
 
 1) Написание кода на C? Упростите свою жизнь с помощью sim-C <a href="https://dev.to/cimplec/writing-code-in-c-simplify-your-life-with-sim-c-2dkj"> Dev.to </a>, <a href="https://medium.com/oss-build/writing-code-in-c-simplify-your-life-with-sim-c-9dd98f882bf8"> Средний </a>.
-2) Начало работы с sim-C <a href="https://dev.to/cimplec/getting-started-with-sim-c-4iek"> Dev.to </a>, <a href = "https : //medium.com/oss-build/getting-started-with-sim-c-1397ee539877 "> Средний </a>.
+2) Начало работы с sim-C <a href="https://dev.to/cimplec/getting-started-with-sim-c-4iek"> Dev.to </a>, <a href= "https://medium.com/oss-build/getting-started-with-sim-c-1397ee539877">Средний</a>.
 
 Помимо этих сообщений в блоге, вы также можете ознакомиться с <a href="https://cimplec.github.io/docs"> официальными документами </a>.
 
