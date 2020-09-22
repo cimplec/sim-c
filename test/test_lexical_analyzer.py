@@ -237,3 +237,157 @@ class TestLexicalAnalyzer(unittest.TestCase):
 
         self.assertEqual(tokens[8], multiply_equal)
         self.assertEqual(tokens[4], multiply)
+
+    def test_lexical_analyze_address_of(self):
+        source_code = """var a = 1
+        var *n = &a
+        """
+
+        with open("testing.simc", "w") as file:
+            file.write(source_code)
+
+        table = SymbolTable()
+
+        tokens = lexical_analyze("testing.simc", table)
+
+        address_of = Token("address_of", "", 2)
+
+        self.assertEqual(tokens[-3], address_of)
+
+    def test_lexical_analyze_divide_single_line_multi_line(self):
+        # Test divide, single_line_comment, and multi_line_comment
+
+        source_code = """var a = 1 / 2
+        // Hello World
+        /*
+        Bye World
+        */
+        """
+
+        with open("testing.simc", "w") as file:
+            file.write(source_code)
+
+        table = SymbolTable()
+
+        tokens = lexical_analyze("testing.simc", table)
+
+        divide = Token("divide", "", 1)
+        single_line_comment = Token('single_line_comment', ' Hello World', 2)
+        multi_line_comment = Token('multi_line_comment', '''
+        Bye World
+        ''', 3)
+
+        self.assertEqual(tokens[4], divide)
+        self.assertEqual(tokens[7], single_line_comment)
+        self.assertEqual(tokens[-4], multi_line_comment)
+
+    def test_lexical_analyze_modulus_equal_modulus(self):
+        # Test modulus_equal and modulus
+
+        source_code = """var a = 1 % 2
+        a %= 3
+        """
+
+        with open("testing.simc", "w") as file:
+            file.write(source_code)
+
+        table = SymbolTable()
+
+        tokens = lexical_analyze("testing.simc", table)
+
+        modulus_equal = Token("modulus_equal", "", 2)
+        modulus = Token('modulus', "", 1)
+
+        self.assertEqual(tokens[8], modulus_equal)
+        self.assertEqual(tokens[4], modulus)
+
+    def test_lexical_analyze_comma(self):
+        source_code = """1, 2
+        """
+
+        with open("testing.simc", "w") as file:
+            file.write(source_code)
+
+        table = SymbolTable()
+
+        tokens = lexical_analyze("testing.simc", table)
+
+        comma = Token("comma", "", 1)
+
+        self.assertEqual(tokens[1], comma)
+
+    def test_lexical_analyze_not_equal(self):
+        source_code = """1 != 2
+        """
+
+        with open("testing.simc", "w") as file:
+            file.write(source_code)
+
+        table = SymbolTable()
+
+        tokens = lexical_analyze("testing.simc", table)
+
+        not_equal = Token("not_equal", "", 1)
+
+        self.assertEqual(tokens[1], not_equal)
+
+    def test_lexical_analyze_greater_than_greater_than_equal_right_shift(self):
+        # Test greater_than, greater_than_equal, right_shift
+
+        source_code = """1 > 2
+        1 >= 2
+        1 >> 2
+        """
+
+        with open("testing.simc", "w") as file:
+            file.write(source_code)
+
+        table = SymbolTable()
+
+        tokens = lexical_analyze("testing.simc", table)
+
+        greater_than = Token("greater_than", "", 1)
+        greater_than_equal = Token("greater_than_equal", "", 2)
+        right_shift = Token("right_shift", "", 3)
+
+        self.assertEqual(tokens[1], greater_than)
+        self.assertEqual(tokens[5], greater_than_equal)
+        self.assertEqual(tokens[9], right_shift)
+
+    def test_lexical_analyze_less_than_less_than_equal_left_shift(self):
+        # Test less_than, less_than_equal, left_shift
+
+        source_code = """1 < 2
+        1 <= 2
+        1 << 2
+        """
+
+        with open("testing.simc", "w") as file:
+            file.write(source_code)
+
+        table = SymbolTable()
+
+        tokens = lexical_analyze("testing.simc", table)
+
+        less_than = Token("less_than", "", 1)
+        less_than_equal = Token("less_than_equal", "", 2)
+        left_shift = Token("left_shift", "", 3)
+
+        self.assertEqual(tokens[1], less_than)
+        self.assertEqual(tokens[5], less_than_equal)
+        self.assertEqual(tokens[9], left_shift)
+
+    def test_lexical_analyze_colon(self):
+        source_code = """:
+        """
+
+        with open("testing.simc", "w") as file:
+            file.write(source_code)
+
+        table = SymbolTable()
+
+        tokens = lexical_analyze("testing.simc", table)
+
+        colon = Token("colon", "", 1)
+
+        self.assertEqual(tokens[0], colon)
