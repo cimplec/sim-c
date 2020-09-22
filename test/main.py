@@ -11,6 +11,7 @@ if __name__ == "__main__":
         TestGlobalHelpers,
         TestLexicalAnalyzer,
         TestOpCodeClass,
+        TestTokenClass
     ]
 
     loader = unittest.TestLoader()
