@@ -6,7 +6,12 @@ from test_lexical_analyzer import TestLexicalAnalyzer
 from test_op_code import TestOpCodeClass
 
 if __name__ == "__main__":
-    test_classes_to_run = [TestCompiler, TestGlobalHelpers, TestLexicalAnalyzer, TestOpCodeClass]
+    test_classes_to_run = [
+        TestCompiler,
+        TestGlobalHelpers,
+        TestLexicalAnalyzer,
+        TestOpCodeClass,
+    ]
 
     loader = unittest.TestLoader()
 

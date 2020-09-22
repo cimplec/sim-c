@@ -272,10 +272,14 @@ class TestLexicalAnalyzer(unittest.TestCase):
         tokens = lexical_analyze("testing.simc", table)
 
         divide = Token("divide", "", 1)
-        single_line_comment = Token('single_line_comment', ' Hello World', 2)
-        multi_line_comment = Token('multi_line_comment', '''
+        single_line_comment = Token("single_line_comment", " Hello World", 2)
+        multi_line_comment = Token(
+            "multi_line_comment",
+            """
         Bye World
-        ''', 3)
+        """,
+            3,
+        )
 
         self.assertEqual(tokens[4], divide)
         self.assertEqual(tokens[7], single_line_comment)
@@ -296,7 +300,7 @@ class TestLexicalAnalyzer(unittest.TestCase):
         tokens = lexical_analyze("testing.simc", table)
 
         modulus_equal = Token("modulus_equal", "", 2)
-        modulus = Token('modulus', "", 1)
+        modulus = Token("modulus", "", 1)
 
         self.assertEqual(tokens[8], modulus_equal)
         self.assertEqual(tokens[4], modulus)

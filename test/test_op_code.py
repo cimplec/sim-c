@@ -1,12 +1,12 @@
 import unittest
 import sys
 
-sys.path.append('..')
+sys.path.append("..")
 
 from op_code import OpCode
 
-class TestOpCodeClass(unittest.TestCase):
 
+class TestOpCodeClass(unittest.TestCase):
     def setUp(self):
         self.opcode = OpCode("var_assign", "a---1 + 2", "int")
 
