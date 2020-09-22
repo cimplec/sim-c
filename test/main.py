@@ -4,6 +4,7 @@ from test_compiler import TestCompiler
 from test_global_helpers import TestGlobalHelpers
 from test_lexical_analyzer import TestLexicalAnalyzer
 from test_op_code import TestOpCodeClass
+from test_token_class import TestTokenClass
 
 if __name__ == "__main__":
     test_classes_to_run = [
@@ -11,6 +12,7 @@ if __name__ == "__main__":
         TestGlobalHelpers,
         TestLexicalAnalyzer,
         TestOpCodeClass,
+        TestTokenClass
     ]
 
     loader = unittest.TestLoader()
