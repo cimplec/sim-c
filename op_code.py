@@ -35,7 +35,7 @@ class OpCode:
         string: The string representation of OpCode object, which can be used to print the opcodes
         """
 
-        return "OpCode(%s, %s, %s)" % (self.type, self.val, self.dtype)
+        return "OpCode('%s', '%s', '%s')" % (self.type, self.val, self.dtype)
 
     def opcode2dig(self, str_type):
         """

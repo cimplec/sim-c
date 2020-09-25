@@ -4,6 +4,7 @@ from global_helpers import error
 # Module to import OpCode class
 from op_code import OpCode
 
+
 def check_if(given_type, should_be_types, msg, line_num):
     """
     Check if type matches what it should be otherwise throw an error and exit
@@ -23,6 +24,7 @@ def check_if(given_type, should_be_types, msg, line_num):
     # If the given_type is not part of should_be_types then throw error and exit
     if given_type not in should_be_types:
         error(msg, line_num)
+
 
 def function_call_statement(tokens, i, table, func_ret_type):
     """
@@ -57,7 +59,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     # Extract params from functions metadata (typedata), these are stored as <id>---[<param 1>, . . . , <param n>]
     params = metadata.split("---")[1:] if "---" in metadata else [")"]
-    num_formal_params = len(params) if params != [')'] else 0
+    num_formal_params = len(params) if params != [")"] else 0
 
     # Parse the params
     op_value, op_type, i, func_ret_type = expression(
@@ -74,7 +76,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     op_value_list = (
         op_value_list if len(op_value_list) > 0 and len(op_value_list[0]) > 0 else []
     )
-    num_actual_params = len(op_value_list) if op_value_list != [')'] else 0
+    num_actual_params = len(op_value_list) if op_value_list != [")"] else 0
 
     # Check if number of actual and formal parameters match
     if num_formal_params != num_actual_params:
@@ -226,6 +228,7 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         func_name,
         func_ret_type,
     )
+
 
 def expression(
     tokens,
@@ -474,6 +477,7 @@ def check_ptr(tokens, i):
     else:
         return False, 0, i
 
+
 def for_statement(tokens, i, table, func_ret_type):
     """
     Parse for for_loop
@@ -653,6 +657,7 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
     else:
         return OpCode("while_do", op_value[:-1]), i + 1, func_ret_type
 
+
 def if_statement(tokens, i, table, func_ret_type):
     """
     Parse if statement
@@ -789,6 +794,7 @@ def case_statement(tokens, i, table, func_ret_type):
 
     return OpCode("case", op_value, ""), i + 1, func_ret_type
 
+
 def print_statement(tokens, i, table, func_ret_type):
     """
     Parse print statement
@@ -853,6 +859,7 @@ def print_statement(tokens, i, table, func_ret_type):
 
     # Return the opcode and i+1 (the token after print statement)
     return OpCode("print", op_value), i + 1, func_ret_type
+
 
 def var_statement(tokens, i, table, func_ret_type):
     """
@@ -1097,6 +1104,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         func_ret_type,
     )
 
+
 def unary_statement(tokens, i, table, func_ret_type):
     """
     Parse unary statement
@@ -1300,8 +1308,11 @@ def parse(tokens, table):
             op_codes.append(OpCode("scope_over", "", ""))
             brace_count -= 1
 
-            if(brace_count < 0):
-                error("Closing brace doesn't match any previous opening brace", tokens[i].line_num)
+            if brace_count < 0:
+                error(
+                    "Closing brace doesn't match any previous opening brace",
+                    tokens[i].line_num,
+                )
             i += 1
         # If token is of type MAIN then generate MAIN opcode
         elif tokens[i].type == "MAIN":

@@ -33,7 +33,24 @@ class Token:
         string: The string representation of Token object, which can be used to print the tokens
         """
 
-        return "Token(%s, %s)" % (self.type, self.val)
+        return "Token('%s', '%s', '%s')" % (self.type, self.val, self.line_num)
+
+    def __eq__(self, other):
+        """
+        Returns
+        =======
+        bool: Whether a token object is equal to another or not
+        """
+
+        if (
+            self.type == other.type
+            and self.typedig == other.typedig
+            and self.val == other.val
+            and self.line_num == other.line_num
+        ):
+            return True
+
+        return False
 
     def token2dig(self, str_type):
         """

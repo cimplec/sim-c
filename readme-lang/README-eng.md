@@ -2,7 +2,7 @@
 # sim-C
 
 <p align="center">
-  <img src="./logo.png" height="200">
+  <img src="../logo.png" height="200">
 </p>
 
 [![GitHub](https://img.shields.io/github/license/cimplec/sim-c)](https://github.com/cimplec/sim-c/blob/master/LICENSE)  ![GitHub stars](https://img.shields.io/github/stars/cimplec/sim-c?style=plastic)  ![GitHub contributors](https://img.shields.io/github/contributors/cimplec/sim-c)  ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)  ![GitHub last commit](https://img.shields.io/github/last-commit/cimplec/sim-c)
@@ -14,7 +14,7 @@
 ## Pipeline
 
 <p align="center">
-  <img src="./simc-pipeline.png">
+  <img src="../simc-pipeline.png">
 </p>
 
 ## Start Contributing
@@ -48,11 +48,11 @@ The following resources are a good place to get to know more about simC:-
 
 Apart from these blog posts, you can also checkout the <a href="https://cimplec.github.io/docs">official docs</a>.
 
-Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)
+Before moving further please go through the rules in [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ## License
 
-sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICENSE)
+sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](../LICENSE)
 
 ## The Team
 
