@@ -9,7 +9,7 @@
 
 # Hacktoberfest 2020
 
-Hacktoberfest 2020 is here. Contributions are now welcome. Please go through [CONTRIBUTING.md](./CONTRIBUTING.md) and the instructions in readme [Contribute](##Contributing). We look forward for your contributions.
+Hacktoberfest 2020 is here. Contributions are now welcome. Please go through [CONTRIBUTING.md](./CONTRIBUTING.md) and the instructions in readme [Contribute](#contribute). We look forward for your contributions.
 
 ## What is sim-C?
 
@@ -42,7 +42,7 @@ Finally you need to define the opcode type in the compiler and write the expecte
 
 
 ## Contributing
-
+<span id="contribute"></span>
 To get started with simC follow the official documentation:- https://cimplec.github.io/docs/
 
 The following resources are a good place to get to know more about simC:-
