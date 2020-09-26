@@ -1,0 +1,8 @@
+n = 12321
+first = str(n)
+second = first[::-1]
+
+if(first == second):
+    print("Palindrome")
+else:
+    print("Not a Palindrome")
