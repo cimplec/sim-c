@@ -1,0 +1,6 @@
+def perimeter(l, b):
+  return (2*(l+b))
+  
+ l = 5
+ b = 6
+ print(perimeter(l, b))
