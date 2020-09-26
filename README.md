@@ -48,13 +48,13 @@ The following resources are a good place to get to know more about simC:-
 
 Apart from these blog posts, you can also checkout the <a href="https://cimplec.github.io/docs">official docs</a>.
 
-Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)
-
 #### Instructions for first time contributors/ beginner level contributors for question related issues   
 
 - Start working on the issues once you are assigned to them. Head over to the issue and comment that you want it to be assigned to you. Once the maintainer assigns the issue to you, start working on it.
 - Once the issue is assigned, you have one week (7 Days) to submit the PR. Failing to do so will get the issue reassigned to someone else. As each issue related to questions are being assigned to single contributor at a time, we sincerely hope that you cooperate with us.
 - If you create a PR without the issue being assigned to you, the PR will be marked spam as you are not adhering to the rules.   
+
+Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)   
 
 ## License
 
