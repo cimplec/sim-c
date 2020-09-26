@@ -53,6 +53,7 @@ Apart from these blog posts, you can also checkout the <a href="https://cimplec.
 - Start working on the issues once you are assigned to them. Head over to the issue and comment that you want it to be assigned to you. Once the maintainer assigns the issue to you, start working on it.
 - Once the issue is assigned, you have one week (7 Days) to submit the PR. Failing to do so will get the issue reassigned to someone else. As each issue related to questions are being assigned to single contributor at a time, we sincerely hope that you cooperate with us.
 - If you create a PR without the issue being assigned to you, the PR will be marked spam as you are not adhering to the rules.   
+- The simC code that you write has to placed in the location sim-c/simc-codes. If not found in the right place, our maintainers would write a comment to the PR as a warning and if the correct location is still not provided on the resubmission, the PR would be marked spam for not adhering to the rules.
 
 Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)   
 
@@ -65,4 +66,4 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 - [Siddhartha Dhar Choudhury](https://github.com/frankhart2018)
 - [Dhairya Jain](https://github.com/dhairyaj)
 - [Pranshul Dobriyal](https://github.com/PranshulDobriyal)
-- [Dhairya Jain](https://github.com/dhairyaj)
+- [Aayush Agarwal](https://github.com/Aayush-99)
