@@ -32,7 +32,6 @@ setup(
     description=(
         "A dynamically typed high-level front end for C"
     ),
-    scripts=['bin/simc'],
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/cimplec/simc",
