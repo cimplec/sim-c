@@ -1,5 +1,5 @@
 # Module to import OpCode class
-from op_code import OpCode
+from .op_code import OpCode
 
 
 def check_include(opcodes):

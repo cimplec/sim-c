@@ -2,10 +2,10 @@
 import sys
 
 # Module to import some helper functions
-from global_helpers import error, is_alpha, is_alnum, is_digit
+from .global_helpers import error, is_alpha, is_alnum, is_digit
 
 # Module to import Token class
-from token_class import Token
+from .token_class import Token
 
 
 def is_keyword(value):
