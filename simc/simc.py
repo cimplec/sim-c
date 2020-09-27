@@ -1,3 +1,6 @@
+# Import sys module
+import sys
+
 # Module to import Symbol Table class
 from .symbol_table import SymbolTable
 
@@ -10,7 +13,14 @@ from .simc_parser import parse
 # Module for using compiler
 from .compiler import compile
 
-def run(filename):
+def run():
+    filename = ""
+    if(len(sys.argv) == 2):
+        filename = sys.argv[1]
+    else:
+        print("\033[91mError: please provide simc file path")
+        sys.exit()
+
     # Get the filename of c file to be generated
     c_filename = "".join(filename.split(".")[:-1]) + ".c"
 

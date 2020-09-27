@@ -234,6 +234,9 @@ def lexical_analyze(filename, table):
           presents user with an error
     """
 
+    # Line number
+    line_num = 1
+
     # Check if file extension is .simc or not
     if "." not in filename or filename.split(".")[-1] != "simc":
         error("Incorrect file extension", line_num)
@@ -244,9 +247,6 @@ def lexical_analyze(filename, table):
 
     # List of tokens
     tokens = []
-
-    # Line number
-    line_num = 1
 
     # Parantheses checker for detecting function call
     parantheses_count = 0

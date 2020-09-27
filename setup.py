@@ -39,6 +39,12 @@ setup(
     author="Siddhartha Dhar Choudhury",
     author_email="sdharchou@gmail.com",
     license="GNU General Public License v3",
+    packages = find_packages(),
+    entry_points ={
+        'console_scripts': [
+            'simc = simc.simc:run'
+        ]
+    },
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 3",
@@ -47,5 +53,4 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.6",
     ],
-    packages=[package for package in find_packages()],
 )
