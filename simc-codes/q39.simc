@@ -1,0 +1,9 @@
+
+ MAIN
+    var p = input("Input principle : ", "i")
+    var r = input("Input Rate of interest : ", "i")
+    var t = input("Input Time : ", "i")
+    var  amount= p*r*t/100
+    print("Simple interest =")
+    print(amount)
+END_MAIN
