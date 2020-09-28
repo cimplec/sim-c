@@ -1,0 +1,17 @@
+MAIN
+// taking input from the user and declaration of variables
+var number1 = input(“Enter first number : “, “f”)
+var number2 = input(“Enter second number : “, “f”)
+var sum=0 
+
+
+// A function to return sum of two numbers 
+fun add(number1, number2) {
+sum=number1+number2
+return sum
+}
+
+// print the value returned
+sum=add(number1, number2)
+print("The value of Sum is = {sum}")
+END_MAIN
