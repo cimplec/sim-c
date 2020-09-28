@@ -6,3 +6,4 @@ a.exe
 build/*
 dist/*
 simc.spec
+.vscode
