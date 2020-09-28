@@ -276,6 +276,7 @@ def expression(
         "plus",
         "minus",
         "multiply",
+        "power",
         "divide",
         "comma",
         "equal",
@@ -292,6 +293,7 @@ def expression(
         "multiply_equal",
         "divide_equal",
         "modulus_equal",
+        "power_equal",
         "and",
         "or",
         "left_paren",
@@ -416,6 +418,7 @@ def expression(
                 "address_of": "&",
                 "left_shift": " << ",
                 "right_shift": " >> ",
+                "power": ""
             }
 
             if (
@@ -425,7 +428,20 @@ def expression(
             ):
                 break
 
-            op_value += word_to_op[tokens[i].type]
+            if tokens[i].type == "power":
+                # Fetch information from symbol table for first operand
+                value_first, _, _ = table.get_by_id(tokens[i-1].val)
+
+                # Fetch information from symbol table for second operand (exponent)
+                value_second, _, _ = table.get_by_id(tokens[i+1].val)
+
+                # Remove the operand from before pow()
+                op_value = op_value[:-(len(value_first))]
+                op_value += f"pow({value_first}, {value_second})"
+
+                i += 1
+            else:
+                op_value += word_to_op[tokens[i].type]
 
         i += 1
 

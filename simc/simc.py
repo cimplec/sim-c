@@ -1,6 +1,9 @@
 # Import sys module
 import sys
 
+# Module to import global helpers
+from .global_helpers import error
+
 # Module to import Symbol Table class
 from .symbol_table import SymbolTable
 
@@ -17,9 +20,11 @@ def run():
     filename = ""
     if(len(sys.argv) == 2):
         filename = sys.argv[1]
+
+        if "." not in filename or filename.split(".")[-1] != "simc":
+            error("Incorrect file extension", line_num)
     else:
-        print("\033[91mError: please provide simc file path")
-        sys.exit()
+        error("Please provide simc file path", -1)
 
     # Get the filename of c file to be generated
     c_filename = "".join(filename.split(".")[:-1]) + ".c"

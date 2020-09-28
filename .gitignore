@@ -7,3 +7,4 @@ build/*
 dist/*
 simc.spec
 .vscode
+simc.egg-info/*

@@ -237,10 +237,6 @@ def lexical_analyze(filename, table):
     # Line number
     line_num = 1
 
-    # Check if file extension is .simc or not
-    if "." not in filename or filename.split(".")[-1] != "simc":
-        error("Incorrect file extension", line_num)
-
     # Read the entire source code as a string
     source_code = open(filename, "r").read()
     source_code += "\0"
@@ -354,6 +350,11 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("multiply", "", line_num))
                 i += 1
+
+        # Identifying or power token
+        elif source_code[i] == "^":
+            tokens.append(Token("power", "", line_num))
+            i += 1
 
         # Identifying 'address of' token
         elif source_code[i] == "&":

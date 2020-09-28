@@ -24,6 +24,9 @@ def check_include(opcodes):
         if opcode.type == "print":
             includes.append("#include <stdio.h>")
 
+        if "pow(" in opcode.val:
+            includes.append("#include <math.h>")
+
     # Return string representation of unique elements of includes list separated by newline characters
     return "\n".join(list(set(includes)))
 
