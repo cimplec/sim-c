@@ -335,6 +335,9 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type default then generate default statement
         elif opcode.type == "default":
             code += "\tdefault:\n"
+         # If opcode is of type RAW_c, simpaly copy the value
+        elif opcode.type == "raw":
+            code += opcode.val + "\n" 
 
         outside_code, ccode = compile_func_main_code(
             outside_code, ccode, outside_main, code
