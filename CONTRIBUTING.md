@@ -6,7 +6,7 @@
 
 - PR will be reviewed within a maximum of 24 hours of submitting the request.
 - The following rules are to be followed while submitting a PR:-
-	- <strong>Branch Name</strong>: The name of the branch should start with in followed by hyphen (-) and the issue number. Eg:- If you are working on issue number 57 then your branch name should be in-57. You need to make sure that in your fork you create a branch following this pattern.
+	- <strong>Branch Name</strong>: The name of the branch should start with 'in' followed by hyphen (-) and the issue number. Eg:- If you are working on issue number 57 then your branch name should be in-57. You need to make sure that in your fork you create a branch following this pattern.
 	- <strong>Commit Message</strong>: Commit message should make sense, anyone should be able to get an idea of what changes were made in that particular commit. Irrelevant or inapporpriate commit messages are highly discouraged.
 	- <strong>Docstrings</strong>: Docstrings are special comments in python which helps one to understand what a function or class does, the parameters passed, and the data returned from that function. We tend to follow a similar syntax for javascript too, we expect everyone to adhere to the format in your code. To get a better idea of the format of docstrings, please refer to the codebase.
 	- <strong>Comments</strong>: The comments should be meaningful and one should be able to understand what the line(s) of code mean from the comments. Do not add unecessary comments in each line, leave out comments from code which is self-explanatory. 
