@@ -3,5 +3,5 @@ MAIN
   var radius = 4
   var height = 2
   var volume = pi * radius * radius * height
-  print("Resut = {volume}")
+  print("Result = {volume}")
 END_MAIN
