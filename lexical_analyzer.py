@@ -42,6 +42,8 @@ def is_keyword(value):
         "switch",
         "case",
         "default",
+        "BEGIN_C",
+        "END_C"
     ]
 
 
@@ -219,6 +221,47 @@ def keyword_identifier(source_code, i, table, line_num):
     return Token("id", id, line_num), i
 
 
+def get_raw_tokens(source_code,i,line_num):
+    """
+    makes tokens of each line in C, written between BEGIN_C and END_C
+
+    Params
+    ======
+    source_code (string) = The string containing simc source code
+    i           (int)    = The current index in the source code
+    line_num    (int)         = Line number
+
+    Returns
+    =======
+    [Token], int,int: List of raw tokens, current place in source_code, current line_number in source_code
+    """
+
+    #keep line_num to show in case of error
+    begin = line_num
+    tokens = []
+    while True :
+        val = ""
+
+        # capture whole line        
+        while source_code[i] != "\n" and source_code[i] != "\0" :
+            val += source_code[i]
+            i += 1
+
+        # if END_C found, add 1 to account for newline, and return
+        if val.strip() == "END_C":
+            i += 1
+            line_num += 1
+            return tokens,i,line_num
+
+        elif source_code[i] == "\0":
+            error("No matching END_C found to BEGIN_C",begin)
+        else:
+            tokens.append(Token("RAW_C",val,line_num))
+
+        # increment i and line_num to go to next line
+        i += 1
+        line_num += 1
+
 def lexical_analyze(filename, table):
     """
     Generate tokens from source code
@@ -254,9 +297,19 @@ def lexical_analyze(filename, table):
     # To store comment string
     comment_str = ""
 
+    # To indicate if BEGIN_C has been encountered
+    raw_c = False
+
     # Loop through the source code character by character
     i = 0
     while source_code[i] != "\0":
+
+        # If we have encountered BEGIN_C, copy everything exactly same until END_C
+        if raw_c :
+            raw_tokens,i,line_num = get_raw_tokens(source_code,i,line_num)
+            tokens.extend(raw_tokens)
+            raw_c = False
+            
         # If a digit appears, call numeric_val function and add the numeric token to list,
         # if it was correct
         if is_digit(source_code[i]):
@@ -276,6 +329,12 @@ def lexical_analyze(filename, table):
         # If alphabet or number appears then it might be either a keyword or an identifier
         elif is_alnum(source_code[i]):
             token, i = keyword_identifier(source_code, i, table, line_num)
+            if token.type == "BEGIN_C":
+                raw_c = True
+                continue
+            elif token.type == "END_C":
+                raw_c = False
+                continue
             tokens.append(token)
 
         # Identifying left paren token
