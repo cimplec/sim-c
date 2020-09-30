@@ -1,0 +1,18 @@
+MAIN
+	var num = input("Enter a number:\t","i")
+	var sqr = num * num
+	var temp = num;
+	var n = 0;
+	while(temp>0){
+		n = n + 1
+		temp = temp/10
+	}
+	var power = 10 ^n
+	var split = sqr % power
+	if(split == num){
+		print("Automorphic number\n")
+	}
+	else{
+		print("Not a Automorphic number\n")
+	}
+END_MAIN
