@@ -1,0 +1,18 @@
+MAIN
+    var n1 = input("Enter first number : ", "i")
+    var n2 = input("Enter second number : ", "i")
+    var max
+    if (n1 > n2){
+        max = n1
+    }
+    else {
+        max = n2
+    }
+    while(1){
+        if(max % n1 == 0 && max % n2 ==0){
+            print("LCM is : {max}")
+            break
+        }
+        max++
+    }
+END_MAIN
