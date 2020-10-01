@@ -2,10 +2,10 @@
 import sys
 
 # Module to import some helper functions
-from global_helpers import error, is_alpha, is_alnum, is_digit
+from .global_helpers import error, is_alpha, is_alnum, is_digit
 
 # Module to import Token class
-from token_class import Token
+from .token_class import Token
 
 
 def is_keyword(value):
@@ -277,9 +277,8 @@ def lexical_analyze(filename, table):
           presents user with an error
     """
 
-    # Check if file extension is .simc or not
-    if "." not in filename or filename.split(".")[-1] != "simc":
-        error("Incorrect file extension", line_num)
+    # Line number
+    line_num = 1
 
     # Read the entire source code as a string
     source_code = open(filename, "r").read()
@@ -287,9 +286,6 @@ def lexical_analyze(filename, table):
 
     # List of tokens
     tokens = []
-
-    # Line number
-    line_num = 1
 
     # Parantheses checker for detecting function call
     parantheses_count = 0
@@ -413,6 +409,11 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("multiply", "", line_num))
                 i += 1
+
+        # Identifying or power token
+        elif source_code[i] == "^":
+            tokens.append(Token("power", "", line_num))
+            i += 1
 
         # Identifying 'address of' token
         elif source_code[i] == "&":

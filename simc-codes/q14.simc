@@ -1,0 +1,5 @@
+MAIN
+  var side = 4
+  var perimeter = 4 * side
+  print("The perimeter of square of length {side} = {perimeter}")
+END_MAIN
