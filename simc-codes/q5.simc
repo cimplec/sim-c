@@ -1,0 +1,19 @@
+
+var num = input(“Enter a number : “, “i”)
+
+var sum = 0
+
+x = num
+while(x != 0)
+{
+   var digit = temp % 10
+   sum = sum + digit ^ 3
+   x = x/10
+}
+
+if(num == sum){
+   print("{num} is an Armstrong number")
+}
+else {
+   print("{num} is not an Armstrong number")
+}
