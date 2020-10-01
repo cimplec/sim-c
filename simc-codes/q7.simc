@@ -1,4 +1,4 @@
-
+MAIN
 var num = input(“Enter a number : “, “i”)
 var i = 0
 var j = 0
@@ -9,3 +9,4 @@ for j in i to num by +1
     print("*")
 }
 }
+END_MAIN
