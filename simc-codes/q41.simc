@@ -1,3 +1,9 @@
+//Question
+
+//Check if a number is special or not. 
+//A number is special when sum of factorial of digits of number is equal to that number.
+//Example 145 = 1! + 4! + 5! = 145.
+
 
 
 MAIN
