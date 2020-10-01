@@ -1,0 +1,17 @@
+var num = input(“Enter a number : “, “i”)
+var i = 0
+var j = 0
+var k = 0
+var sp = num-1
+for i in 1 to num by +1 
+{
+for k in 1 to sp by +1
+{
+print(" ")
+}
+for j in i to num by +1 
+{
+    print("*")
+}
+sp = sp-1
+}
