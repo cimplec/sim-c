@@ -1278,6 +1278,13 @@ def parse(tokens, table):
     # Loop through all the tokens
     i = 0
     while i <= len(tokens) - 1:
+        # If token is raw c type
+
+        if tokens[i].type == "RAW_C":
+            op_codes.append(OpCode("raw",tokens[i].val))
+            i += 1
+            continue
+
         # If token is of type print then generate print opcode
         if tokens[i].type == "print":
             print_opcode, i, func_ret_type = print_statement(
