@@ -32,13 +32,13 @@ MAIN
         
     }
 
-    //Conditionals to check if the number is super or not 
+    //Conditionals to check if the number is special or not 
     
     if ( facto == p){
-        print('Super')
+        print('Special')
     }
     else{
-        print('not super')
+        print('Not special')
     }
     
 END_MAIN 
