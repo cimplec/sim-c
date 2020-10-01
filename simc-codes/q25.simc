@@ -1,0 +1,18 @@
+// Print reverse of a number.
+MAIN
+    var n = input("Input number : ", "i")
+    var reverse = 0
+    var digit
+    if(n<0){
+        print("Enter non-negative integer")
+    }
+    else{
+        while(n>0)
+        {
+            digit=n%10
+            reverse = reverse*10 + digit
+            n=n/10
+        }
+        print("Reverse of the number is : {reverse}")
+    }    
+END_MAIN
