@@ -1,0 +1,50 @@
+//Question
+
+//Check if a number is special or not. 
+//A number is special when sum of factorial of digits of number is equal to that number.
+//Example 145 = 1! + 4! + 5! = 145.
+
+
+
+MAIN
+    //Taking input nunmber from user in p(int)
+    var p = input("enter a nunmber : ", "i")
+
+    // Initializations 
+    //temperory variable : temp
+    //variable to store sum of factorials : facto
+
+    var temp=p
+    var facto=0
+    
+
+    // This  is where the real magic happens !!
+    // The main while loop 
+
+    while (temp!=0){
+        var facto_cal=1
+
+        var digit=temp%10
+        
+        while (digit != 1)
+        {
+            facto_cal = facto_cal*digit
+            digit=digit-1
+        }
+
+        facto = facto+facto_cal
+        temp = temp/10
+
+        
+    }
+
+    //Conditionals to check if the number is special or not 
+    
+    if ( facto == p){
+        print('Special')
+    }
+    else{
+        print('Not special')
+    }
+    
+END_MAIN 
