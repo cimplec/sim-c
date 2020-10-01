@@ -1,0 +1,16 @@
+MAIN
+    var x1 = input("Enter x coordinate of center of circle 1","i")
+    var y1 = input("Enter y coordinate of center of circle 1","i")
+    var r1 = input("Enter radius of circle 1,"i")
+    var x2 = input("Enter x coordinate of center of circle 2","i")
+    var y2 = input("Enter y coordinate of center of circle 2","i")
+    var r2 = input("Enter radius of circle 2,"i")
+    var diff = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)
+    var sum = r1*r1 + r2*r2
+    if(sum==diff){
+        print("The circles are orthogonal")
+    }
+    else{
+        print("The circles are not orthogonal")
+    }
+END_MAIN
