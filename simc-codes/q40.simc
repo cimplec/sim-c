@@ -1,0 +1,11 @@
+//Compute compound interest
+MAIN
+    var p = input("Input principle amount : ", "f")
+    var t = input("Input time : ", "f")
+    var r = input("Input rate : ", "f")
+    r = r/100
+    var interest = 1+r
+    interest = interest^t
+    var ci= p*interest
+    print("Compound interest is : {ci}")
+END_MAIN
