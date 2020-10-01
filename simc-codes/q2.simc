@@ -1,0 +1,11 @@
+MAIN
+// taking input from the user
+var number1 = input(“Enter first number : “, “f”)
+var number2 = input(“Enter second number : “, “f”)
+var sum=0 
+
+
+// A logic to print  sum of two numbers 
+sum=number1+number2
+print("The value of Sum is = {sum}")
+END_MAIN
