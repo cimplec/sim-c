@@ -1,0 +1,41 @@
+MAIN
+	// Get the number and figure out how many digits it has
+	print("Magic Number Checker\n")
+	var num = input("Enter a number: ", "i")
+	var digs = 0
+	var ismagic = 1
+	var tmp = num
+	while (tmp > 0) {
+		tmp = tmp/10
+		digs = digs + 1
+	}
+	
+	// Check each digit to see if duplicates exist
+	var loc1 = 0		// The location of the digit being checked for
+	var loc2 = 0		// The current digit location
+	while (loc1 < digs) {
+		var digit1 = num / (10^loc1)	// The digit being checked for
+		digit1 = digit1 % 10
+		var digit2
+		
+		// Check each location to see if we can find a duplicate of the number
+		loc2 = 0
+		while (loc2 < digs) {
+			digit2 = num / (10^loc2)	// The digit we're currently checking digit1 against
+			digit2 = digit2 % 10
+			if (digit1==digit2 && loc1!=loc2) {		// Notice that we exclude the number from counting itself as a duplicate
+				ismagic = 0
+			}
+			loc2 = loc2 + 1
+		}
+		loc1 = loc1 + 1
+	}
+	
+	// Print the result
+	if (ismagic==1) {
+		print("This is a magic number!\n")
+	} else {
+		print("This is not a magic number!\n")
+	}
+	
+END_MAIN
