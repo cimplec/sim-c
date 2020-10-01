@@ -7,6 +7,10 @@
 
 [![GitHub](https://img.shields.io/github/license/cimplec/sim-c)](https://github.com/cimplec/sim-c/blob/master/LICENSE)  ![GitHub stars](https://img.shields.io/github/stars/cimplec/sim-c?style=plastic)  ![GitHub contributors](https://img.shields.io/github/contributors/cimplec/sim-c)  ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)  ![GitHub last commit](https://img.shields.io/github/last-commit/cimplec/sim-c)
 
+# Hacktoberfest 2020
+
+Hacktoberfest 2020 is here. Contributions are now welcome. Please go through [CONTRIBUTING.md](./CONTRIBUTING.md) and the instructions in readme [Contribute](#contribute). We look forward for your contributions.
+
 ## What is sim-C?
 
 <p align="justify">Often people have trouble programming in C (especially beginners) due to its low level syntax and unavailability of stable third party libraries. We present sim-C a high-level front end for C which creates a dynamically typed syntax for C. User can write code in this high level syntax and then compile it to optimized C code. sim-C does not process the code and simply translates it to C thus, there is no possibility of the code running slowly. So, with sim-C users can write code faster using the high level syntax and at the same time be able to harness the power and speed of a C program. Let us make C cool again.</p>
@@ -38,7 +42,7 @@ Finally you need to define the opcode type in the compiler and write the expecte
 
 
 ## Contributing
-
+<span id="contribute"></span>
 To get started with simC follow the official documentation:- https://cimplec.github.io/docs/
 
 The following resources are a good place to get to know more about simC:-
@@ -48,7 +52,14 @@ The following resources are a good place to get to know more about simC:-
 
 Apart from these blog posts, you can also checkout the <a href="https://cimplec.github.io/docs">official docs</a>.
 
-Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)
+### Instructions for first time contributors/beginner level contributors for question related issues during HACKTOBERFEST
+
+- Start working on the issues once you are assigned to them. Head over to the issue and comment that you want it to be assigned to you. Once the maintainer assigns the issue to you, start working on it. Issues will be assigned on a First Come First Serve (FCFS) basis.
+- Once the issue is assigned, you have one week (7 Days) to submit the PR. Failing to do so will get the issue reassigned to someone else. As each issue related to questions are being assigned to single contributor at a time, we sincerely hope that you cooperate with us.
+- If you create a PR without the issue being assigned to you, the PR will be marked spam as you are not adhering to the rules.   
+- The simC code that you write has to placed in the location simc-codes directory. If not found in the right place, our maintainers would write a comment to the PR as a warning and if the correct location is still not provided on the resubmission, the PR would be marked spam for not adhering to the rules.
+
+Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)   
 
 ## License
 
@@ -57,6 +68,6 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 ## The Team
 
 - [Siddhartha Dhar Choudhury](https://github.com/frankhart2018)
-- [Aayush Agarwal](https://github.com/Aayush-99)
-- [Pranshul Dobriyal](https://github.com/PranshulDobriyal)
 - [Dhairya Jain](https://github.com/dhairyaj)
+- [Pranshul Dobriyal](https://github.com/PranshulDobriyal)
+- [Aayush Agarwal](https://github.com/Aayush-99)

@@ -1,5 +1,5 @@
 # Module to import OpCode class
-from op_code import OpCode
+from .op_code import OpCode
 
 
 def check_include(opcodes):
@@ -23,6 +23,9 @@ def check_include(opcodes):
         # If opcode is of type print, then it requires stdio.h to be included
         if opcode.type == "print":
             includes.append("#include <stdio.h>")
+
+        if "pow(" in opcode.val:
+            includes.append("#include <math.h>")
 
     # Return string representation of unique elements of includes list separated by newline characters
     return "\n".join(list(set(includes)))
@@ -335,6 +338,9 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type default then generate default statement
         elif opcode.type == "default":
             code += "\tdefault:\n"
+         # If opcode is of type RAW_c, simpaly copy the value
+        elif opcode.type == "raw":
+            code += opcode.val + "\n" 
 
         outside_code, ccode = compile_func_main_code(
             outside_code, ccode, outside_main, code

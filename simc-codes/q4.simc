@@ -1,0 +1,12 @@
+MAIN
+    // Taking input from user  
+    var input_number = input("Enter a number : ", "i")
+
+    // Checking Odd or Even by using Modulo Operator
+    if (input_number % 2 == 0) {
+        print("{input_number} is Even!")
+    } else {
+        print("{input_number} is Odd!")
+    }
+    
+END_MAIN

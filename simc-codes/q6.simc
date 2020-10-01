@@ -1,0 +1,14 @@
+MAIN
+  var i = 0
+  var n = 10
+  var prev = 0
+  var next = 1
+  while(i<n)
+  {
+    print(" {prev}")
+    var temp = prev
+    prev = next
+    next += temp
+    i++
+  }
+END_MAIN

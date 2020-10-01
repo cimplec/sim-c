@@ -1,0 +1,14 @@
+Description:-
+-----------
+
+(1 or 2 lines of description)
+
+Bug in:-
+------
+
+(lexical analyzer or parser or symbol table or compiler)
+
+Steps to reproduce:-
+------------------
+
+(List out the steps to reproduce the bug)
