@@ -1,0 +1,12 @@
+n = 11
+count = 0 
+for i in range(n):
+  if n % (i+1) == 0:
+    if(count >=3):
+      break
+    count+=1
+
+if count >=3:
+  print("Not a Prime Number")
+else:
+  print("Prime Number")
