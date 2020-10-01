@@ -1,0 +1,22 @@
+MAIN
+  var n = 3
+  var i = 0
+  var j = 0
+  while(i<n)
+  {
+    j = 0
+    while(j<n)
+    {
+      if(i<=j)
+      {
+        print("1 ")
+      }
+      else{
+      print("  ")
+      }
+      j++
+    }
+    print("\n")
+    i++
+  }
+END_MAIN
