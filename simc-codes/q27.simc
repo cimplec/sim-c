@@ -1,0 +1,27 @@
+// Sum of factorial of digits of a number.
+MAIN
+    var n = input("Input number : ", "i")
+    var digit
+    var sum = 0
+    if(n==0){
+        sum = 1
+    }
+    else{
+            while(n>0)
+            {
+                digit=n%10
+                var f = 1
+                var k = digit+1
+                var i = 1
+                while(i < k) {
+                    f = f*i
+                    i=i+1
+                }
+                sum = sum + f
+                n=n/10
+            }
+            
+    }
+    print("Sum of factorial of digits of the number is : {sum}")
+END_MAIN
+
