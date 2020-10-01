@@ -45,7 +45,7 @@ https://cimplec.github.io/docs/
 Le seguenti risorse sono un buon posto per conoscere meglio simC: -
 
 1) Scrivi codice in C? Semplifica la tua vita con sim-C <a href="https://dev.to/cimplec/writing-code-in-c-simplify-your-life-with-sim-c-2dkj">Dev.to</a>, <a href="https://medium.com/oss-build/writing-code-in-c-simplify-your-life-with-sim-c-9dd98f882bf8">Medium</a>.
-2) Iniziare con sim-C<a href="https://dev.to/cimplec/getting-started-with-sim-c-4iek">Dev.to</a>, <a href="https://medium.com/oss-build/getting-started-with-sim-c-1397ee539877">Medium</a>.
+2) Iniziare con sim-C <a href="https://dev.to/cimplec/getting-started-with-sim-c-4iek">Dev.to</a>, <a href="https://medium.com/oss-build/getting-started-with-sim-c-1397ee539877">Medium</a>.
 
 Oltre a questi post del blog, puoi anche consultare i <a href="https://cimplec.github.io/docs"> documenti ufficiali </a>.
 
