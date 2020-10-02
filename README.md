@@ -1,11 +1,10 @@
-
 # sim-C
 
 <p align="center">
   <img src="./logo.png" height="200">
 </p>
 
-[![GitHub](https://img.shields.io/github/license/cimplec/sim-c)](https://github.com/cimplec/sim-c/blob/master/LICENSE)  ![GitHub stars](https://img.shields.io/github/stars/cimplec/sim-c?style=plastic)  ![GitHub contributors](https://img.shields.io/github/contributors/cimplec/sim-c)  ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)  ![GitHub last commit](https://img.shields.io/github/last-commit/cimplec/sim-c)
+[![GitHub](https://img.shields.io/github/license/cimplec/sim-c)](https://github.com/cimplec/sim-c/blob/master/LICENSE)  ![GitHub stars](https://img.shields.io/github/stars/cimplec/sim-c?style=plastic)  ![GitHub contributors](https://img.shields.io/github/contributors/cimplec/sim-c)  ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)  ![GitHub last commit](https://img.shields.io/github/last-commit/cimplec/sim-c)  ![GitHub issues](https://img.shields.io/github/issues/cimplec/sim-c?color=darkgreen)  ![GitHub closed issues](https://img.shields.io/github/issues-closed/cimplec/sim-c?color=red)  ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/cimplec/sim-c?color=darkred)
 
 # Hacktoberfest 2020
 
@@ -71,3 +70,9 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 - [Dhairya Jain](https://github.com/dhairyaj)
 - [Pranshul Dobriyal](https://github.com/PranshulDobriyal)
 - [Aayush Agarwal](https://github.com/Aayush-99)
+
+## Featured Contributors
+
+List of contributors who contributed in a some features of simC
+
+- [YJDoc2](https://github.com/YJDoc2) - <a href="https://cimplec.github.io/docs/doc.html#rawc">Raw C code</a> support.
