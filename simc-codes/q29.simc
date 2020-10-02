@@ -1,0 +1,35 @@
+//Calculate value of nCx
+
+MAIN
+
+    //Take input of the n and x to calculate nCx
+    var n = input("Input value of n in nCx : ", "i")
+    var x = input("Input value of x in nCx : ", "i")
+
+    var i = 1
+    var nfact = 1
+    while(i<=n){
+        nfact = nfact*i
+        i++
+    }
+
+    var nminusx = n-x
+    var nminusxfact = 1
+    var j = 1
+    while(j<=nminusx){
+        nminusxfact = nminusxfact*j
+        j++
+    }
+
+    var k = 1
+    var xfact = 1
+    while(k<=x){
+        xfact = xfact*k
+        k++
+    }
+
+    var ncx = nfact/(nminusxfact*xfact)
+
+    print("Value of nCx is: {ncx}")
+
+END_MAIN
