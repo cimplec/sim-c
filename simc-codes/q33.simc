@@ -1,0 +1,12 @@
+MAIN
+   var n
+      var i=1 
+      var s = 0.0
+     n=input("Enter Range of Number: ","i") 
+     while(i<=n){ 
+     s = s + 1/i
+     i++
+     }
+     print("Sum is %f")
+     print(s) 
+END_MAIN
