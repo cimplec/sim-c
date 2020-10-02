@@ -1,0 +1,26 @@
+MAIN
+    var n = input("Enter a num: ","i")
+
+    var a = 1
+        if(n==1){
+            a = 0
+        }
+        else{
+            var root = n^0.5
+            var i = 2
+            while(i <= root) {
+                if(n%i == 0){
+                    a = 0
+                    break
+                }
+                i = i+1
+            }
+        }
+
+    if(a == 0){
+        print("{n} is not prime")
+    }
+    else{
+        print("{n} is prime")
+    }
+END_MAIN
