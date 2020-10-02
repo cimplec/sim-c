@@ -1,0 +1,21 @@
+// to find greatest of three numbers
+
+MAIN
+
+	//Take input of the three numbers
+    var n1 = input("Input first number : ", "i")
+    var n2 = input("Input second number : ", "i")
+    var n3 = input("Input third number : ", "i")
+    
+    //Compare the three numbers pairwise and print the maximum among them
+    if(n1>=n2 && n1>=n3){
+    	print("Maximum of the three numbers is: {n1}")
+    }
+    else if(n2>=n1 && n2>=n3){
+    	print("Maximum of the three numbers is: {n2}")
+    }
+    else{
+    	print("Maximum of the three numbers is: {n3}")
+    }
+
+END_MAIN
