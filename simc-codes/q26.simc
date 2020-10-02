@@ -1,0 +1,15 @@
+// to find factorial of a number without recursion
+
+MAIN
+
+	//Take input of the number whose factorial is to be calculated
+    var n = input("Input number : ", "i")
+    var i = 1
+    var factorialofn = 1
+    while(i<=n){
+        factorialofn = factorialofn*i;
+        i++
+    }
+    print("Factorial of n is: {factorialofn}")
+
+END_MAIN
