@@ -1,0 +1,50 @@
+MAIN
+	var num = input("Enter a number:\t","i")
+	var count =0
+	var i =1
+	var flag =0
+	while(i<=num){
+		if(num % i == 0){
+			count = count + 1
+		}
+	i = i+1
+	}
+	if(count>2){
+		flag =1
+	}
+	if(flag==1){
+		var sumofdigits =0
+		i = num
+		while(i!=0){
+			sumofdigits = sumofdigits + (i%10)
+			i = i/10
+		}
+		var sumofprime = 0
+		var prime = 2
+		i = num
+		var tempsum = 0
+		var j
+		while(i != 1){
+            while(i % prime == 0 && prime <= i){
+            	tempsum = 0
+        		j = prime
+				while(j!=0){
+					tempsum = tempsum + (j%10)
+					j = j/10
+				}
+		    	sumofprime = sumofprime + tempsum;
+                i /= prime;
+            }
+            prime++;
+        }
+        if(sumofdigits==sumofprime){
+        	print("Smith Number")
+        }
+        else{
+        	print("Not a Smith Number")
+        }
+	}
+	else{
+		print("Not a Smith Number")
+	}
+END_MAIN
