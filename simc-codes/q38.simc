@@ -1,0 +1,21 @@
+MAIN
+	// Finding hypotenuse of a triangle using Pythagoras Theorem
+	var perp = input("Enter the length of the perpendicular of the triangle:\t","f")
+	var base = input("Enter the length of the base of the triangle:\t","f")
+    var num1=perp^2
+	var num2=base^2
+	var num3=num1+num2
+	// Finding the square root of the sum of squares of the perpendicular and base
+	var sqrt=num3/2
+	var temp=0
+	var v1
+	
+	while(sqrt!=temp ) {
+   	 	temp=sqrt
+		
+		v1=(num3/temp + temp)
+		sqrt=v1/2
+	}
+	print("The length of the hypotenuse of the triangle is = {sqrt}")
+END_MAIN
+
