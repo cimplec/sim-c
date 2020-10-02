@@ -1,0 +1,7 @@
+ //Compute perimeter of a rectangle
+MAIN
+  var width = 5
+  var length = 7
+  var perimeter = 2*(length + width)
+  print("Perimeter = {perimeter}")
+END_MAIN
