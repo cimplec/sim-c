@@ -1,7 +1,0 @@
-MAIN
-	//print("Test1\n")
-	var i = input("Type something: ", "i")
-	//print("You typed ")
-	//print(i)
-	//print("\n")
-END_MAIN

@@ -42,4 +42,3 @@ def run():
     compile(op_codes, c_filename, table)
 
     print("\033[92mC code generated at %s!" % c_filename)
-    print("DEBUG VERSION 1.0")
