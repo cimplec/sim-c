@@ -40,3 +40,5 @@ def run():
 
     # Compile to C code
     compile(op_codes, c_filename, table)
+
+    print("\033[92mC code generated at filename!")
