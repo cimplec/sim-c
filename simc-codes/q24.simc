@@ -1,0 +1,21 @@
+//To find least of three numbers
+
+MAIN
+
+	//Take input of the three numbers
+    var n1 = input("Input the first number : ", "i")
+    var n2 = input("Input the second number : ", "i")
+    var n3 = input("Input the third number : ", "i")
+    
+    //Compare the three numbers pairwise and print the least among them
+    if(n1<=n2 && n1<=n3){
+    	print("Least of the three numbers is: {n1}")
+    }
+    else if(n2<=n1 && n2<=n3){
+    	print("Least of the three numbers is: {n2}")
+    }
+    else{
+    	print("Least of the three numbers is: {n3}")
+    }
+
+END_MAIN
