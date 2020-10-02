@@ -1,0 +1,29 @@
+MAIN
+	// Determines if a number is a Kaprekar number
+	// A list of Kaprekar numbers can be found here: https://oeis.org/A006886
+	// First get all of the parameters from the user
+	print("Kaprekar Number Test\n")
+	var power = input("Power: ", "i")
+	var n = input("Number you want to test: ", "i")
+	
+	// Next, find the values for the Kaprekar function
+	var beta_1 = n^2
+	var beta_2 = (10^power)
+	var beta = beta_1 % beta_2
+	var alpha_1 = n^2 - beta
+	var alpha_2 = 10^power
+	var alpha = alpha_1/alpha_2
+	
+	// Finally, calculate and compare the result
+	if (alpha+beta == n) {
+		print(n)
+		print(" is a ")
+		print(power)
+		print("-Kaprekar number\n")
+	} else {
+		print(n)
+		print(" is not a ")
+		print(power)
+		print("-Kaprekar number\n")
+	}
+END_MAIN
