@@ -23,6 +23,9 @@ def check_include(opcodes):
         # If opcode is of type print, then it requires stdio.h to be included
         if opcode.type == "print":
             includes.append("#include <stdio.h>")
+            
+        if "scanf(" in opcode.val:
+            includes.append("#include <stdio.h>")
 
         if "pow(" in opcode.val:
             includes.append("#include <math.h>")
