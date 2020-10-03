@@ -1,0 +1,6 @@
+MAIN
+	var i = input("Test: ", "s")
+	print("You entered ")
+	print(i)
+	print("\n")
+END_MAIN
