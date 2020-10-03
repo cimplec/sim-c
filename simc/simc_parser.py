@@ -538,13 +538,8 @@ def for_statement(tokens, i, table, func_ret_type):
     word_to_op = {"plus": "+", "minus": "-", "multiply": "*", "divide": "/"}
 
     # Check if number follows operator
-    check_if(
-        tokens[i + 7].type,
-        "number",
-        "Expected value for change",
-        tokens[i + 7].line_num,
-    )
-
+    expression(tokens,i+7,table,"Expected value for change",expect_paren=False)
+    
     # Get required values
     var_name, _, _ = table.get_by_id(tokens[i].val)
     table.symbol_table[tokens[i].val][1] = "int"
@@ -1306,7 +1301,7 @@ def parse(tokens, table):
                     tokens, i, table, func_ret_type
                 )
                 op_codes.append(unary_opcode)
-            elif tokens[i+1].type in ["to","by"]:
+            elif tokens[i+1].type in ["to","by"] or tokens[i-2].type =='by':
                 i+=1
             else:
                 assign_opcode, i, func_ret_type = assign_statement(
