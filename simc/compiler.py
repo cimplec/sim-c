@@ -27,7 +27,7 @@ def check_include(opcodes):
         # If the opcode is a statement of type input, then it requires stdio.h to be included
         if len(opcode.val.split("---")) >= 3:
             includes.append("#include <stdio.h>")
-            print(opcode.value)
+            print(opcode.val)
 
         if "pow(" in opcode.val:
             includes.append("#include <math.h>")
