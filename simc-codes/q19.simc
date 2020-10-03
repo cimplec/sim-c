@@ -1,0 +1,31 @@
+MAIN
+	// Convert a binary number to a decimal number
+	
+	// Read in the binary number and count its digits
+	var num = input("Enter a binary number: ", "i")
+	var digs = 0
+	var tmp = num
+	while (tmp > 0) {
+		digs = digs+1
+		tmp = tmp/10
+	}
+	
+	// Generate the binary result
+	var val = 1
+	var result = 0
+	tmp = num
+	while (tmp > 0) {
+		if (tmp % 10 > 0) {
+			result = result + val
+		}
+		val = val * 2
+		tmp = tmp / 10
+	}
+	
+	// Print the result
+	print(num)
+	print(" in binary is ")
+	print(result)
+	print(" in decimal\n")
+
+END_MAIN
