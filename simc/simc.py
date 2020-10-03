@@ -18,7 +18,7 @@ from .compiler import compile
 
 def run():
     filename = ""
-    if(len(sys.argv) == 2):
+    if(len(sys.argv) >= 2):
         filename = sys.argv[1]
 
         if "." not in filename or filename.split(".")[-1] != "simc":
@@ -35,8 +35,18 @@ def run():
     # Get tokens from lexical_analyzer
     tokens = lexical_analyze(filename, table)
 
+    # Option to check out tokens
+    if len(sys.argv) > 2 and sys.argv[2] == 'token':
+        for token in tokens:
+            print(token)
+
     # Get opcodes from parser
     op_codes = parse(tokens, table)
+
+    # Option to check out opcodes
+    if len(sys.argv) > 2 and sys.argv[2] == 'opcode':
+        for op_code in op_codes:
+            print(op_code)
 
     # Compile to C code
     compile(op_codes, c_filename, table)
