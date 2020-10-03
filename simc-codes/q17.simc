@@ -1,0 +1,18 @@
+MAIN
+	// Multiply the digits of a number together
+	var num = input("Enter a number: ", "i")
+	var result = 1
+	var temp = num
+	if (num == 0) {		// Manage the special case if the user enters 0
+		result = 0
+	}
+	while (temp > 0) {
+		result = result * (temp % 10)
+		temp = temp / 10
+	}
+	print("If you multiply all of the digits in ")
+	print(num)
+	print(", you get ")
+	print(result)
+	print("\n")
+END_MAIN
