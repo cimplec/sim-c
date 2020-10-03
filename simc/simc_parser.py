@@ -524,18 +524,14 @@ def for_statement(tokens, i, table, func_ret_type):
     check_if(tokens[i + 1].type, "in", "Expected in keyword", tokens[i + 1].line_num)
 
     # Check if number follows in keyword
-    check_if(
-        tokens[i + 2].type, "number", "Expected starting value", tokens[i + 2].line_num
-    )
+    expression(tokens,i+2,table,"Expected starting value",expect_paren=False)
 
     # Check if to keyword follows number
     check_if(tokens[i + 3].type, "to", "Expected to keyword", tokens[i + 3].line_num)
 
     # Check if number follows in keyword
-    check_if(
-        tokens[i + 4].type, "number", "Expected ending value", tokens[i + 4].line_num
-    )
-
+    expression(tokens,i+4,table,"Expected ending value",expect_paren=False)
+    
     # Check if by keyword follows number
     check_if(tokens[i + 5].type, "by", "Expected by keyword", tokens[i + 5].line_num)
 
@@ -1310,6 +1306,8 @@ def parse(tokens, table):
                     tokens, i, table, func_ret_type
                 )
                 op_codes.append(unary_opcode)
+            elif tokens[i+1].type in ["to","by"]:
+                i+=1
             else:
                 assign_opcode, i, func_ret_type = assign_statement(
                     tokens, i + 1, table, func_ret_type
