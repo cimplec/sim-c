@@ -1,9 +1,9 @@
 
 
 int main() {
-	int a;
-	printf("Enter a number: ");
-	scanf("%d", &a);
+	
+	printf("Hacktober 2020 ");
+	
 
 	return 0;
 }
