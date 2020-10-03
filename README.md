@@ -76,3 +76,4 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 List of contributors who contributed in a some features of simC
 
 - [YJDoc2](https://github.com/YJDoc2) - <a href="https://cimplec.github.io/docs/doc.html#rawc">Raw C code</a> support.
+- [lu](https://github.com/YJDoc2) - <a href="https://cimplec.github.io/docs/doc.html#forloop">Fix for loops</a> to use variables.
