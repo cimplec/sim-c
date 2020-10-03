@@ -1,0 +1,23 @@
+
+MAIN
+
+	// Taking Input from user
+
+	var year = input("Input the year : " , "i")
+
+	// Return true if year is a multiple 
+	// 0f 4 and not multiple of 100. 
+	// OR year is multiple of 400. 
+
+	if((year%4==0  &&  year%100 !=0) ||  year%400=0){
+
+		print("Yes , It is a leap year!")
+	}
+
+	else{
+
+		print("No , It is not a leap year!")
+	}
+
+END_MAIN
+
