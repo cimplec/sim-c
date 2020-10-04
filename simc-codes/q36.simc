@@ -1,0 +1,42 @@
+// Question :
+// Print the area of triangle using heron's formula.
+// Example : (source : https://en.wikipedia.org/wiki/Heron's_formula#Example)
+// The area of the triangle with sides A = 4, B = 13, C = 15 is 24
+
+// Used to have sqrt
+BEGIN_C
+#include <math.h>
+END_C
+
+// sqrt wrapper function
+fun square_root(value) {
+    var result = 0.0
+
+BEGIN_C
+    result = sqrt(value);
+END_C
+
+    return result
+}
+
+MAIN
+    // User input
+    print("Enter sides of the ABC triangle")
+    var side_a = input("Enter side A : ", "d")
+    var side_b = input("Enter side B : ", "d")
+    var side_c = input("Enter side C : ", "d")
+
+    // Heron's formula
+    // area = sqrt(s * (s - a) * (s - b) * (s - c))
+    var semi_perimeter = side_a + side_b + side_c
+    semi_perimeter /= 2
+
+    var squared_area = semi_perimeter
+    squared_area *= semi_perimeter - side_a
+    squared_area *= semi_perimeter - side_b
+    squared_area *= semi_perimeter - side_c
+
+    var tri_area = square_root(squared_area)
+
+    print("The area is {tri_area}")
+END_MAIN
