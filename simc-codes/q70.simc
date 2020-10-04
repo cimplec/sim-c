@@ -1,0 +1,15 @@
+MAIN
+//This is a simple script to compare two numbers.
+var n1 = input("Input Number1 : ", "i")
+var n2 = input("Input Number2 : ", "i")
+
+if(n1 == n2){
+  print("Both numbers are equal")
+}
+else if(n1 > n2) {
+  print("{n1} is greater than {n2}")
+}
+else{
+  print("{n1} is less than {n2}")
+}
+END_MAIN
