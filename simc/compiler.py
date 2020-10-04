@@ -23,6 +23,10 @@ def check_include(opcodes):
         # If opcode is of type print, then it requires stdio.h to be included
         if opcode.type == "print":
             includes.append("#include <stdio.h>")
+            
+        # If the opcode is a statement of type input, then it requires stdio.h to be included
+        if len(opcode.val.split("---")) >= 3:
+            includes.append("#include <stdio.h>")
 
         if "pow(" in opcode.val:
             includes.append("#include <math.h>")
@@ -113,7 +117,7 @@ def compile(opcodes, c_filename, table):
                 dtype = get_data_type[val[2]]
                 placeholder = get_placeholder[val[2]]
                 code += "\t" + dtype + " " + str(val[0]) + ";\n"
-                code += "\t" + 'printf("' + str(val[1]) + '");\n'
+                if (val[1] != ''): code += "\t" + 'printf("' + str(val[1]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder
                 if "*" in dtype:
                     code += '", ' + str(val[0]) + ");\n"
@@ -183,7 +187,7 @@ def compile(opcodes, c_filename, table):
                 # If the statement is of type input
                 dtype = get_data_type[val[3]]
                 placeholder = get_placeholder[val[3]]
-                code += "\t" + 'printf("' + str(val[2]) + '");\n'
+                if (val[2] != ''): code += "\t" + 'printf("' + str(val[2]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder + '", &' + str(val[0]) + ");\n"
 
         # If opcode is of type ptr_only_assign then generate an assignment statement
