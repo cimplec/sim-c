@@ -419,15 +419,15 @@ def lexical_analyze(filename, table):
         elif source_code[i] == "&":
             if source_code[i+1] == "&":
                 tokens.append(Token("and", "", line_num))
-            elif source_code[i-1] != "&":
+                i += 2
+            else:
                 tokens.append(Token("address_of", "", line_num))
-            i += 1
+                i += 1
 
         # Identifying 'or' token
         elif source_code[i] == "|":
-            if source_code[i+1] == "|":
-                tokens.append(Token("or", "", line_num))
-            i +=1
+            tokens.append(Token("or", "", line_num))
+            i += 2
 
         # Identifying divide_equal or divide token
         elif source_code[i] == "/":
