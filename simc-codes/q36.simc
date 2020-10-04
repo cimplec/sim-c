@@ -1,5 +1,7 @@
 // Question :
 // Print the area of triangle using heron's formula.
+// Example : (source : https://en.wikipedia.org/wiki/Heron's_formula#Example)
+// The area of the triangle with sides A = 4, B = 13, C = 15 is 24
 
 // Used to have sqrt
 BEGIN_C
