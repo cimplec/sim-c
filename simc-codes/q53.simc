@@ -1,0 +1,17 @@
+MAIN
+    // Compute the area of a rhombus, given its diagonals
+    // The diagonals are float inputs
+
+    // Get the two diagonals
+    var p = input("First diagonal : ", "f")
+    var q = input("Second diagonal : ", "f")
+
+    // Verify that the diagonals are positive
+    if(p>=0 && q>=0) {
+        var area = p*q/2
+
+        print("Area of the rhombus ({p}, {q}) is {area}")
+    } else {
+        print("Diagonals cannot be negative")
+    }
+END_MAIN
