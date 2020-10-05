@@ -142,14 +142,9 @@ def function_definition_statement(tokens, i, table, func_ret_type):
     Grammar
     =======
     function_definition_statement   -> fun id([formal_params,]*) { body }
-    formal_params                   -> expr
+    formal_params                   -> id
     body                            -> statement
-    expr                            -> string | number | id | operator
-    string                          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
-    quote                           -> "
-    number                          -> [0-9]+
     id                              -> [a-zA-Z_]?[a-zA-Z0-9_]*
-    operator                        -> + | - | * | /
     """
 
     # Check if identifier follows fun
@@ -170,10 +165,13 @@ def function_definition_statement(tokens, i, table, func_ret_type):
     )
 
     # Check if expression follows ( in function statement
-    op_value, op_type, i, func_ret_type = expression(
-        tokens, i + 2, table, "", True, True, func_ret_type=func_ret_type
-    )
-    op_value_list = op_value.replace(" ", "").replace(")", "").split(",")
+
+    # op_value, op_type, i, func_ret_type = expression(
+    #     tokens, i + 2, table, "", True, True, func_ret_type=func_ret_type
+    # )
+    # op_value_list = op_value.replace(" ", "").replace(")", "").split(",")
+
+    op_value_list, i = function_parameters(tokens, i + 2, table)
 
     # Check if ) follows expression in function
     check_if(
@@ -228,6 +226,51 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         func_name,
         func_ret_type,
     )
+
+
+def function_parameters(
+        tokens,
+        i,
+        table):
+    """
+    Parse function parameters
+
+    Params
+    ======
+    tokens  (list)          = List of tokens
+    i       (int)           = Current index in list of tokens
+    table   (SymbolTable)   = Symbol table constructed holding information about identifiers and constants
+
+    Returns
+    =======
+    parameters  (list)  = List of parameters (= list of ids)
+    i           (int)   = Current index in list of tokens
+
+    """
+    parameters = []
+
+    while True:
+        token = tokens[i]
+        i += 1
+        if token.type == "id":
+            parameter, _, _ = table.get_by_id(token.val)
+            parameters.append(parameter)
+        elif token.type == "comma":
+            pass
+        else:
+            check_if(token.type,
+                     "right_paren",
+                     "Right parentheses expected",
+                     token.line_num)
+            break
+
+    token = tokens[i]
+    check_if(token.type,
+             "call_end",
+             "End of call expected",
+             token.line_num)
+
+    return parameters, i
 
 
 def expression(
