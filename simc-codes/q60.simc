@@ -1,0 +1,8 @@
+MAIN
+    // User input taking radius as input, constant pi is declared in the code itself
+	var radius = input("Enter a Radius: ", "f")
+	var pi = 3.14159
+	var circumference = 2 * pi * radius
+
+	print("Circumference of Circle with Radius {radius} is {circumference}")
+END_MAIN
