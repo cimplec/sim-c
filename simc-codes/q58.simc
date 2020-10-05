@@ -1,0 +1,14 @@
+// task of this problem to find average of 7 numbers when 
+// sum of six numbers and seventh number is provided to us 
+
+MAIN
+	
+	var avg_of_six_numbers = 45
+	var seventh_number = 21
+
+	var sum_of_six_numbers = avg_of_six_numbers * 6		// since average of 6 numbers are given ((ie a1+a2+a3+a4+a5+a6) / 6 = 45) therefore sum of 6 numbers is 45 * 6
+	var sum_of_seven_numbers = sum_of_six_numbers + seventh_number		// we can add seventh number to the sum ie(sum of 7 numbers), dividing it with 7 will give us the needed average
+	var result = sum_of_seven_numbers / 7
+	print("Area of 7 numbers is {result} ")
+
+END_MAIN
