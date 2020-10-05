@@ -1,0 +1,17 @@
+// Calculate Cost Price when loss percentage and selling price are given
+
+MAIN
+	var loss = input("Enter the percentage loss incurred: ", "i")
+	var sell_price = input("Enter the selling price: ", "i")
+	var cost_price
+	var deno
+
+	if(loss >= 100){
+		print("Percentage loss cannot be greater than or equal to 100")
+	}
+	else{
+		deno = 100 - loss
+		cost_price = 100*sell_price/deno
+		print("The Cost Price is: {cost_price}")
+	}
+END_MAIN
