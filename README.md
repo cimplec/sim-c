@@ -77,3 +77,5 @@ List of contributors who contributed in some features or major bugs of simC:-
 
 - [YJDoc2](https://github.com/YJDoc2) - <a href="https://cimplec.github.io/docs/doc.html#rawc">Raw C code</a> support.
 - [lucasace](https://github.com/lucasace) - <a href="https://cimplec.github.io/docs/doc.html#forloop">Fix for loops</a> to use variables.
+- [Martianmellow12](https://github.com/Martianmellow12) - Provide <a href="https://cimplec.github.io/docs/doc.html#inp">input without prompt and type specification</a>
+- [nanoy42](https://github.com/nanoy42) - <a href="https://cimplec.github.io/docs/doc.html#logicalop">Fix logical operators</a>.
