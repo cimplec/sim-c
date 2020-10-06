@@ -1,29 +1,23 @@
 MAIN
     // User input takes a binary number as input 
-	// Program to convert a decimal number to its binary representation
-	var oct_num = input("Enter a Number in its octal  representation: ", "i")
-	var dec_num = 0
+	var dec_num = input("Enter a Number: ", "i")
+	var bin_num = 0
 	var lsb = 0
 	var counter = 0
-	var temp_oct = oct_num		// for presentation purpose in print statement
+	var temp_dec = dec_num		// for presentation purpose in print statement
 	
 	
 	// working
-	// the octal number is converted in a single single bit and is then worked upon (starting from lsb [Least significant bit (rightmost)])
+	// the decimal number is converted in a single single bit and is then worked upon (starting from lsb [Least significant bit (rightmost)])
 	// the bit is first isolated, converted into decimal by multiplying 8 ^ position of the bit and added to the decimal number
 	// the binary number is then divided so that the lsb is shifted to right by one position
 	
-	while(oct_num > 0) {
-		lsb = oct_num % 10
-		if (lsb > 7) {
-			print("Not a valid Octal Number")
-			break
-		} 
-		dec_num = dec_num + lsb * 8 ^ counter
-		oct_num = oct_num / 10
+	while(dec_num > 0) {
+		lsb = dec_num % 2
+		bin_num = bin_num + lsb * 10 ^ counter
+		dec_num = dec_num / 2
 		counter = counter + 1
 	}
-	if(lsb < 8 && temp_oct != 0){
-		print("{temp_oct} in Octal format is {dec_num}")
-	}
+	print("{temp_dec} in Binary format is {bin_num}")
+		
 END_MAIN
