@@ -1,0 +1,23 @@
+MAIN
+    // User input takes a binary number as input 
+	var dec_num = input("Enter a Number: ", "i")
+	var bin_num = 0
+	var lsb = 0
+	var counter = 0
+	var temp_dec = dec_num		// for presentation purpose in print statement
+	
+	
+	// working
+	// the decimal number is converted in a single single bit and is then worked upon (starting from lsb [Least significant bit (rightmost)])
+	// the bit is first isolated, converted into decimal by multiplying 8 ^ position of the bit and added to the decimal number
+	// the binary number is then divided so that the lsb is shifted to right by one position
+	
+	while(dec_num > 0) {
+		lsb = dec_num % 2
+		bin_num = bin_num + lsb * 10 ^ counter
+		dec_num = dec_num / 2
+		counter = counter + 1
+	}
+	print("{temp_dec} in Binary format is {bin_num}")
+		
+END_MAIN

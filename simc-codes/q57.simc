@@ -1,0 +1,16 @@
+//Divide two numbers
+
+MAIN
+    var num = input("Input numerator: ", "i")
+    var denom = input("Input denominator: ", "i")
+    var res
+
+    if(denom != 0) {
+        res = num / denom
+        print("The division output is: {res}")
+    } else {
+        print("Denominator cannot be zero")
+    }
+    
+
+END_MAIN

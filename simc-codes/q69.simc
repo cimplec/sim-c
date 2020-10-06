@@ -1,0 +1,36 @@
+MAIN
+    // User input takes a binary number as input 
+	var bin_num = input("Enter a Binary Number: ", "i")
+	var dec_num = 0
+	var lsb = 0
+	var counter = 0
+	var temp_bin = bin_num		// for presentation purpose in print statement
+	
+	
+	// working
+	// the binary number is converted in a single single bit and is then worked upon (starting from lsb [Least significant bit (rightmost)])
+	// the bit is first isolated, converted into decimal by multiplying 2 ^ position of the bit and added to the decimal number
+	// the binary number is then divided so that the lsb is shifted to right by one position
+	
+	while(bin_num > 0) {
+		lsb = bin_num % 10
+		dec_num = dec_num + lsb * 2 ^ counter
+		bin_num = bin_num / 10
+		counter = counter + 1
+	}
+	
+	// working
+	// this while loop works similar to the above one 
+	// only difference here is the base is changed from 10 to 8 [for octal format]
+	// and the result is filled from right most position 
+	
+	var result = 0
+	counter = 0
+	while(dec_num > 0) {
+		result = result + dec_num % 8 * 10 ^ counter
+		dec_num = dec_num / 8
+		counter = counter + 1
+	}
+	
+	print("{temp_bin} in Octal format is {result}")
+END_MAIN
