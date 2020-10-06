@@ -1,0 +1,19 @@
+MAIN
+    var deciNum = 33
+     var octalNum = 0
+    var countval = 1
+    var dNo = deciNum
+    while (deciNum != 0) {
+
+        // decimals remainder is calculated
+        var remainder = deciNum % 8
+ 
+        // storing the octalvalue
+        octalNum += remainder * countval
+
+        // storing exponential value
+        countval = countval * 10
+        deciNum /= 8
+    }
+    print(octalNum)
+END_MAIN
