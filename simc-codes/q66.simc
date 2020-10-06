@@ -14,11 +14,15 @@ MAIN
 	
 	while(oct_num > 0) {
 		lsb = oct_num % 10
+		if (lsb > 7) {
+			print("Not a valid Octal Number")
+			break
+		} 
 		dec_num = dec_num + lsb * 8 ^ counter
 		oct_num = oct_num / 10
 		counter = counter + 1
 	}
-	
-	print("{temp_oct} in Octal format is {dec_num}")
-	
+	if(lsb < 8 && temp_oct != 0){
+		print("{temp_oct} in Octal format is {dec_num}")
+	}
 END_MAIN
