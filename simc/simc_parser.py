@@ -141,8 +141,9 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     Grammar
     =======
-    function_definition_statement   -> fun id([formal_params,]*) { body }
-    formal_params                   -> id
+    function_definition_statement   -> fun id([formal_param,]*) { body }
+    formal_params                   -> id ('=' default_value)
+    default_value                   -> number || string
     body                            -> statement
     id                              -> [a-zA-Z_]?[a-zA-Z0-9_]*
     """
@@ -166,12 +167,7 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     # Check if expression follows ( in function statement
 
-    # op_value, op_type, i, func_ret_type = expression(
-    #     tokens, i + 2, table, "", True, True, func_ret_type=func_ret_type
-    # )
-    # op_value_list = op_value.replace(" ", "").replace(")", "").split(",")
-
-    op_value_list, i = function_parameters(tokens, i + 2, table)
+    parameters, i = function_parameters(tokens, i + 2, table)
 
     # Check if ) follows expression in function
     check_if(
@@ -214,14 +210,15 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         error("Expected } after function body", tokens[i].line_num)
 
     # Add the identifier types to function's typedata
+    parameter_names = [p[0] for p in parameters]
     table.symbol_table[func_idx][2] = (
-        "function---" + "---".join(op_value_list)
-        if len(op_value_list) > 0 and len(op_value_list[0]) > 0
+        "function---" + "---".join(parameter_names)
+        if len(parameter_names) > 0 and len(parameter_names[0]) > 0
         else "function"
     )
 
     return (
-        OpCode("func_decl", func_name + "---" + "&&&".join(op_value_list), ""),
+        OpCode("func_decl", func_name + "---" + "&&&".join(parameter_names), ""),
         ret_idx - 1,
         func_name,
         func_ret_type,
@@ -243,34 +240,102 @@ def function_parameters(
 
     Returns
     =======
-    parameters  (list)  = List of parameters (= list of ids)
+    parameters  (list)  = List of parameters (= list of (ids, default))
     i           (int)   = Current index in list of tokens
 
     """
     parameters = []
+    default_val_required = False
 
-    while True:
-        token = tokens[i]
+    param_info, i = function_parameter(tokens,
+                                       i,
+                                       table,
+                                       default_val_required)
+    if param_info is not None:
+
+        parameters.append(param_info)
+        _, default_val = param_info
+        default_val_required = default_val is not None
+
+        while tokens[i].type == "comma":
+            i += 1
+            param_info, i = function_parameter(tokens,
+                                               i,
+                                               table,
+                                               default_val_required)
+            if param_info is not None:
+                parameters.append(param_info)
+                if not default_val_required:
+                    _, default_val = param_info
+                    default_val_required = default_val is not None
+            else:
+                error("Parameter expected after comma", tokens[i].line_num)
+
+        check_if(tokens[i].type,
+                 "right_paren",
+                 "Right parentheses expected",
+                 tokens[i].line_num)
         i += 1
-        if token.type == "id":
-            parameter, _, _ = table.get_by_id(token.val)
-            parameters.append(parameter)
-        elif token.type == "comma":
-            pass
-        else:
-            check_if(token.type,
-                     "right_paren",
-                     "Right parentheses expected",
-                     token.line_num)
-            break
 
-    token = tokens[i]
-    check_if(token.type,
-             "call_end",
-             "End of call expected",
-             token.line_num)
+        check_if(tokens[i].type,
+                 "call_end",
+                 "End of call expected",
+                 tokens[i].line_num)
 
     return parameters, i
+
+
+def function_parameter(
+        tokens,
+        i,
+        table,
+        default_val_required):
+    """
+    Parse function parameter
+
+    Params
+    ======
+    tokens  (list)              = List of tokens
+    i       (int)               = Current index in list of tokens
+    table   (SymbolTable)       = Symbol table constructed holding information about identifiers and constants
+    default_val_required (bool) = Default value is required
+
+    Returns
+    =======
+    (parameter, default_val_id?)    (tuple?) = Parameter and optional default value id or none
+    i                               (int)    = Current index in list of tokens
+
+    """
+    if tokens[i].type != "id":
+        return None, i
+
+    parameter, _, _ = table.get_by_id(tokens[i].val)
+    i += 1
+
+    default_val = None
+
+    if default_val_required:
+        check_if(tokens[i].type,
+                 "assignment",
+                 "Default value expected for parameter {}".format(parameter),
+                 tokens[i].line_num)
+        i += 1
+        if tokens[i].type in ["number", "string"]:
+            default_val = tokens[i].val
+            i += 1
+        else:
+            error("Only numbers and strings are allowed as default arguments",
+                  tokens[i].line_num)
+    elif tokens[i].type == "assignment":
+        i += 1
+        if tokens[i].type in ["number", "string"]:
+            default_val = tokens[i].val
+            i += 1
+        else:
+            error("Only numbers and strings are allowed as default arguments",
+                  tokens[i].line_num)
+
+    return (parameter, default_val), i
 
 
 def expression(
