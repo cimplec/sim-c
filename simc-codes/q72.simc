@@ -1,0 +1,11 @@
+MAIN
+    var sides = input("Enter number of sides: ", "i")
+
+    if (sides < 3) {
+        print("Invalid number of sides.\n")
+    } else {
+        var temp = sides - 2.0
+        var internal_angle = temp * 180 / sides
+        print("Internal angle is {internal_angle} degrees.\n")
+    }
+END_MAIN
