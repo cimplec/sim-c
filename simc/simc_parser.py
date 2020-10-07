@@ -1350,6 +1350,14 @@ def parse(tokens, table):
             op_codes.append(for_opcode)
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
+            
+            # If \n follows ) then skip all the \n characters
+            if tokens[i + 1].type == "newline":
+                i += 1
+                while tokens[i].type == "newline":
+                    i += 1
+                i -= 1
+            
             check_if(
                 tokens[i + 1].type,
                 "left_brace",
@@ -1384,6 +1392,14 @@ def parse(tokens, table):
             op_codes.append(exit_opcode)
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
+            
+            # If \n follows else then skip all the \n characters
+            if tokens[i + 1].type == "newline":
+                i += 1
+                while tokens[i].type == "newline":
+                    i += 1
+                i -= 1
+                
             # If the next token is if, then it is else if
             if tokens[i + 1].type == "if":
                 if_opcode, i, func_ret_type = if_statement(
