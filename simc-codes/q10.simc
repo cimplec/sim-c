@@ -4,10 +4,10 @@ MAIN
   var rows = 5         
   var i = 0
   var j = 0
-  while(i<=n)
+  while(i<=rows)
   {
     j = 0
-    
+
     //printing empty space
     while(j<i)
     {
@@ -17,7 +17,7 @@ MAIN
     j = 0
 
     //printing the pattern
-    while(j < n-i)
+    while(j < rows-i)
     {
       print("*")
       j++
