@@ -308,6 +308,17 @@ def function_parameters(
     i           (int)   = Current index in list of tokens
 
     """
+    if tokens[i].type == "right_paren":
+
+        i += 1
+
+        check_if(tokens[i].type,
+                 "call_end",
+                 "End of call expected",
+                 tokens[i].line_num)
+
+        return [], i
+
     parameters = []
     default_val_required = False
 
@@ -345,6 +356,10 @@ def function_parameters(
                  "call_end",
                  "End of call expected",
                  tokens[i].line_num)
+
+    else:
+        error("Function parameters must be identifiers",
+              tokens[i].line_num)
 
     return parameters, i
 
