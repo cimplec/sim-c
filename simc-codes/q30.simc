@@ -1,0 +1,19 @@
+
+MAIN
+	// Calculate the sum of series: x^1/1 - x^2/2 + x^3/3 ..
+  var x = input("Enter the variable x : ", "i")
+	var num = input("Enter the limit of the series: ", "i")
+  var sum = 0
+  var calc = 1
+  for i in 0 to num by +1 {
+  calc = calc*x
+  if(i%2==0) {
+  sum = sum + calc/(i+1)
+  }
+  else{
+  sum = sum - calc/(i+1)
+  }
+  }
+	print("Sum of the series is : ")
+	print(sum)
+END_MAIN
