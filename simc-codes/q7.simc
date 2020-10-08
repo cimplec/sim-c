@@ -1,0 +1,26 @@
+MAIN
+//Lower left triangle pattern
+  var rows = 5
+  var i = 0
+  var j = 0
+  while(i<=rows)
+  { 
+    j = 0
+    //printing the pattern
+    while(j<i)
+    {
+      print("*")
+      j++
+    }
+    j = 0
+
+    //printing empty space
+    while(j < rows-i)
+    {
+      print(" ")
+      j++
+    }
+    print("\n")
+    i++
+  }
+END_MAIN
