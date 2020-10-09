@@ -1,0 +1,15 @@
+MAIN
+	var num1 = input("Enter value of first number : ", "i" )
+	var num2 =  input("Enter value of second number : ", "i" )
+	var temp
+
+    //swapping the numbers using a temp varianble
+	temp = num1
+	num1 = num2
+	num2 = temp
+
+	print("After swapping first number is = {num1}")
+
+	print("\nAfter swapping second number is = {num2}")
+
+END_MAIN
