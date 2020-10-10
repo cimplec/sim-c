@@ -1,0 +1,17 @@
+MAIN
+   // Initialize our variables
+   var first_variable = 10
+   var second_variable = 15
+
+   // Make the first variable equal the sum of the two
+   first_variable += second_variable
+
+   // Make the second variable equal the first, by subtracting it from the sum
+   second_variable = first_variable - second_variable
+
+   // Make the first variable be the second, by subtracting the original first which is now second_variable, from itself, the sum
+   first_variable -= second_variable
+
+   // Print output
+   print("After the switch the first variable is {first_variable} and the second is {second_variable}")
+END_MAIN
