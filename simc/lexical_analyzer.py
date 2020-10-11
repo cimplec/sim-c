@@ -133,7 +133,9 @@ def string_val(source_code, i, table, line_num, start_char='"'):
 
     # Determine the type of data
     type = "char"
-    if len(string_constant) > 1:
+    escape_sequences  = ['\\\\','\\0','\\n','\\a','\\b','\\e',
+                        '\\f','\\r','\\t','\\v','\\?']
+    if len(string_constant) > 1 and string_constant not in escape_sequences:
         type = "string"
 
     # Put appropriate quote
