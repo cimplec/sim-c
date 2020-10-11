@@ -1,0 +1,23 @@
+MAIN
+
+    var min = 1
+    var max = 99
+
+    print("Odd numbers from {min} to {max}:\n")
+
+    var num = min
+    do {
+      if (num % 2 != 0) {	
+        print("{num} ")
+      }
+
+      num += 1
+
+      // Optional: break line every 5 numbers for nicer formatting
+      if (num % 10 == 0) {	
+        print("\n")
+      }
+
+    } while(num <= max)
+    
+END_MAIN

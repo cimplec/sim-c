@@ -1,0 +1,18 @@
+//Print Area of Trapezium.
+
+MAIN
+	var a = input("Input shorter parallel side length: ", "i")
+	var b = input("Input larger parallel side length: ", "i")
+	var h = input("Input perpendicular distance between parallel sides: ", "i")
+    var area
+    var num1
+
+	if(h<=0){
+        print("Height cannot be 0 or negative")
+    }
+    else{
+        num1 = (a+b)
+        area = num1*h/2
+    	print("Area of trapezium is : {area}")
+    }    
+END_MAIN

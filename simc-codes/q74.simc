@@ -1,0 +1,10 @@
+// Question :
+// Calculate and print the Volume of Cone given height and base radius
+// The area of the triangle with sides A = 4, B = 13, C = 15 is 24
+MAIN
+  var pi = 3.1415
+  var height = input("Enter the height of the cone ","i")
+  var base_radius = input("Enter the radius of the base of the cone ","i")
+  var volume = 1/3 * pi * base_radius * base_radius * height
+  print("Volume of the cone is = {volume} units")
+END_MAIN

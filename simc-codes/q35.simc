@@ -1,0 +1,30 @@
+// to find the roots of a quadratic equation
+
+MAIN
+
+	
+	// Taking input values a,b,c from user for equation ax^2 + bx + c
+
+	var a = input("Enter the coefficient of x^2: " , "f")
+	var b = input("Enter the coefficient of x: " , "f")
+	var c = input("Enter the constant: " , "f")
+
+	// calculating determinant
+
+	var d = b^2 - 4*a*c
+
+	if(d < 0){
+		print("No solution exists")
+	}
+
+	else{
+
+		var x1 = (-1*b + d^0.5)/2*a
+
+		var x2 = (-1*b - d^0.5)/2*a
+
+		print("The roots of the equations are {x1} and {x2}")
+
+	}
+
+END_MAIN

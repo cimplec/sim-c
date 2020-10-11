@@ -1,0 +1,10 @@
+MAIN
+    // User input [taking radius as input, declaring pi in the code itself, would be directly imported from math helper class]
+	var radius = input("Enter a Radius: ", "i")
+	var pi = 3.14159
+
+	var area = radius * radius * pi		// area = (pi * (r ^ 2))
+	
+	print("Area of circle with Radius {radius} is {area} ")
+
+END_MAIN

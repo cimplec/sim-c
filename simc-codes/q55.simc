@@ -1,0 +1,30 @@
+// Check if two numbers are coprime or not.
+
+MAIN
+	var num1 = input("Input first number: ", "i")
+	var num2 = input("Input second number: ", "i")
+	var hcf = 0
+	var i = 1
+	if(num1 <= num2){
+        while(i <= num1){
+        	if(num1%i == 0 && num2%i ==0){
+        		hcf = i
+        	}
+        	i++
+        }
+    }
+    else{
+        while(i <= num2){
+        	if(num1%i == 0 && num2%i ==0){
+        		hcf = i
+        	}
+        	i++
+        }
+    }    
+    if(hcf == 1){
+    	print("The numbers are Coprime")
+    }
+    else{
+    	print("The numbers are not Coprime")
+    }
+END_MAIN

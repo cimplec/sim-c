@@ -1,0 +1,17 @@
+MAIN
+	// Check if the number is a palindrome
+	var num = input("Enter a number: ", "i")
+	var temp1 = num
+	var temp2 = 0
+	while (num > 0) {
+		temp2 = temp2 * 10 + (num % 10)
+		num = num / 10
+	}
+
+  if(temp1 == temp2) {
+	print("Number is palindrome ")
+  }
+	else {
+  print("Number is not a palindrome")
+  }
+END_MAIN

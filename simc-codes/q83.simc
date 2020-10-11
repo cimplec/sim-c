@@ -1,0 +1,19 @@
+MAIN
+   // Declare and initialize the dividend and divisor, note here I use floats to show that it works with them, but it will work with integers aswell
+   var dividend = 15.3
+   var divisor = 3.2
+   
+   // Declare and initialize what will be the whole part of the division, in other words the integer quotient
+   var integer_quotient = 1
+   
+   // Since sim-c is dynamically typed, adding the following line would convert integer_quotient to a float, and since sim-c does not have any type casting we must use the built in c type casting.
+   BEGIN_C
+    integer_quotient = dividend / divisor;
+   END_C
+   
+   // Now since we have the truncated answer, we simply multiply that by the divisor, and subtract from the dividend
+   var remainder = dividend - divisor*integer_quotient
+   
+   // Print the remainder out
+   print("{dividend} modulo {divisor} is {remainder}")
+END_MAIN

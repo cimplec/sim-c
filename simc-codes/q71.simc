@@ -1,0 +1,48 @@
+MAIN
+    // User input taking a valid month input 
+	// uses switch case to check the input and ouputs the month
+	
+	var month = input("Enter a number to find the corresponding month: ", "i")
+	
+	switch (month) {
+		case 1 :
+			print("{month}st Month of the Year is January")
+			break
+		case 2 :
+			print("{month}nd Month of the Year is February")
+			break
+		case 3:
+				print("{month}rd Month of the Year is March")
+				break
+		case 4 :
+			print("{month}th Month of the Year is April")
+			break	
+		case 5 :
+			print("{month}th Month of the Year is May")
+			break
+		case 6 :
+			print("{month}th Month of the Year is June")
+			break	
+		case 7 :
+			print("{month}th Month of the Year is July")
+			break
+		case 8 :
+			print("{month}th Month of the Year is August")
+			break	
+		case 9 :
+			print("{month}th Month of the Year is September")
+			break
+		case 10 :
+			print("{month}th Month of the Year is October")
+			break	
+		case 11 :
+			print("{month}th Month of the Year is November")
+			break
+		case 12 :
+			print("{month}th Month of the Year is December")
+			break	
+		default :
+			print("{month} is not a valid Month")
+			break
+	}	
+END_MAIN
