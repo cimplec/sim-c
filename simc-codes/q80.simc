@@ -1,0 +1,13 @@
+MAIN
+    var num1 = input("Enter value of first number : ", "i" )
+	var num2 =  input("Enter value of second number : ", "i" )
+	var num3 = input("Enter value of third number : ", "i" )
+	var sum = num1+num2
+	if (sum == num3) {
+        print("The sum of first 2 numbers is equal to the third.  sum = {num3}")
+    } else {
+        print("The sum of first 2 numbers is not equal to third, {num1} + {num2} = {sum}.  Required = {num3}")
+    }
+
+
+END_MAIN
