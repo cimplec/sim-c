@@ -1,0 +1,16 @@
+MAIN
+    var phone_number = input("Enter the phone number : ", "i")
+    var digits = 0
+
+    while (phone_number != 0) {
+        phone_number /= 10;
+        digits = digits + 1;
+    }
+
+    if (digits==10) {
+      print("Phone number is valid (10 digits)")
+    } else {
+      print("Phone number with {digits} is invalid (10 required)")
+    }
+
+END_MAIN
