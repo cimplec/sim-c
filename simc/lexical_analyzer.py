@@ -121,19 +121,37 @@ def string_val(source_code, i, table, line_num, start_char='"'):
     i += 1
 
     # Loop until we get a non-digit character
-    while source_code[i] != start_char:
+    if start_char == "'":
+        if source_code[i]=='\\' and source_code[i+1]=="'":
+            string_constant+=(source_code[i]+source_code[i+1])
+            if source_code[i+2]!=start_char:
+                error("Unterminated string!",line_num)
+            i+=2
+        else:
+            while source_code[i] != start_char:
+                if source_code[i] == "\0":
+                    error("Unterminated string!", line_num)
+                string_constant += source_code[i]
+                i += 1
+    elif start_char == '"':
+      while source_code[i]!= start_char:
         if source_code[i] == "\0":
             error("Unterminated string!", line_num)
-
         string_constant += source_code[i]
-        i += 1
+        if source_code[i]=='\\' and source_code[i-1]!='\\' and source_code[i+1]=='"':
+            string_constant+=source_code[i+1]
+            i+=2
+        else:
+            i+=1
 
     # Skip the " character so that it does not loop back to this function incorrectly
     i += 1
 
     # Determine the type of data
     type = "char"
-    if len(string_constant) > 1:
+    escape_sequences  = ['\\\\','\\0','\\n','\\a','\\b','\\e',
+                        '\\f','\\r','\\t','\\v','\\?','\\\'','\\\"']
+    if len(string_constant) > 1 and string_constant not in escape_sequences:
         type = "string"
 
     # Put appropriate quote
