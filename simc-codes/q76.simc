@@ -1,0 +1,7 @@
+MAIN
+var n = input("Enter a number : ", "i")
+var val2 = n * 11
+var val3 = n * 111
+var result = n + val2 + val3
+print("{n} + {val2} + {val3} = {result}")
+END_MAIN
