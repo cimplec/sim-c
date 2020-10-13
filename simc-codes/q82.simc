@@ -1,0 +1,11 @@
+MAIN
+    var a = input("Enter a Number: ", "i") 
+    var factCount = 0 
+	for i in 1 to a by +1{     
+	  if(a%i == 0){
+		factCount++ 
+	  }
+	}
+    print("Number of factors for the given number are : ")
+    print(factCount)
+END_MAIN
