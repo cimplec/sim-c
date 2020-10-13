@@ -1,0 +1,56 @@
+MAIN
+	// Binary to Hexadecimal conversion
+  var a = input("Enter a string :", "s")
+  var number=0
+  var extract = 0
+  var temp = 0
+  var count = 0
+  var power2 = 0
+  var digitExtract = 0
+  print("The Hexadecimal number is :")
+  while(*a!='\0') {
+    var digit = 1000
+    extract = 0
+    number = 0
+  while(digit>0){
+   if(*a == '0'){
+     temp=0
+   }
+   else{
+     temp=1
+   }
+   extract+= temp *digit
+   a++;
+   digit/=10
+  }
+  count = 0
+  while(extract>0){
+    power2 = 2^count
+    digitExtract = extract%10
+    number  = number + power2*digitExtract
+    extract = extract/10
+    count++
+  }
+  if(number == 10){
+  print("A")
+  }
+  else if(number == 11){
+  print("B")
+  }
+  else if(number == 12){
+  print("C")
+  }
+  else if(number == 13){
+  print("D")
+  }
+  else if(number == 14){
+  print("E")
+  }
+  else if(number == 15){
+  print("F")
+  }
+  else{
+  print(number)
+  }
+  }
+END_MAIN
