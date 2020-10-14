@@ -1,16 +1,16 @@
 MAIN
-	/*
-	Print numbers in a user provide range that are divisible
-	by either 3 or 7 but not by both
-	*/
+    /*
+    Print numbers in a user provide range that are divisible
+    by either 3 or 7 but not by both
+    */
     var left = input("Enter an integer to represent start of range: ", "i")
-	var right = input("Enter an integer to represent end of range: ", "i")
+    var right = input("Enter an integer to represent end of range: ", "i")
 
-	for i in left to right by +1{     
-	  if(i%3==0 || i%7==0){
-	  	if(i%21!=0){
-	  		print("{i}\n")
-	  	}
-	  }
-	}
+    for i in left to right by +1 {     
+        if(i%3==0 || i%7==0) {
+            if(i%21!=0){
+                print("{i}\n")
+            }
+        }
+    }
 END_MAIN
