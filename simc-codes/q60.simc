@@ -4,5 +4,5 @@ MAIN
 	var pi = 3.14159
 	var circumference = 2 * pi * radius
 
-	print("Circumference of Circle with Radius {radius} is {circumference}")
+	print("Circumference of Circle with radius {radius} is {circumference}")
 END_MAIN
