@@ -7,7 +7,6 @@ MAIN
 	  	if(i%21!=0){
 	  		print("{i}\n")
 	  	}
-		 
 	  }
 	}
 END_MAIN
