@@ -1,4 +1,8 @@
 MAIN
+	/*
+	Print numbers in a user provide range that are divisible
+	by either 3 or 7 but not by both
+	*/
     var left = input("Enter an integer to represent start of range: ", "i")
 	var right = input("Enter an integer to represent end of range: ", "i")
 
