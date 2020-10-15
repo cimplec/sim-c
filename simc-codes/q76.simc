@@ -1,0 +1,14 @@
+MAIN
+    /*
+    Given a user input positive integer n between 0 and 9,
+    print n + nn + nnn
+    Example: 
+    	n = 5
+    	n + nn + nnn = 5 + 55 + 555 = 615
+    */
+    var n1 = input("Enter a positive integer between 0 and 9: ", "i")
+    var n2 = n1*11
+    var n3 = n1*111
+    var ans = n1 + n2 + n3
+    print("{n1} + {n2} + {n3} = {ans}")
+END_MAIN
