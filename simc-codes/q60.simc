@@ -1,6 +1,11 @@
 MAIN
-    // User input taking radius as input, constant pi is declared in the code itself
-	var radius = input("Enter a Radius: ", "f")
+    /* 
+    Given a radius provided by user, print the circumference of a circle.
+    Note: Currently, pi is defined here as a constant. When PI (and other 
+    constanst) are available from math library, this code can take the value
+    of PI from there.
+    */
+	var radius = input("Enter a Radius: ", "i")
 	var pi = 3.14159
 	var circumference = 2 * pi * radius
 
