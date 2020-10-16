@@ -1,3 +1,7 @@
+fun hello() {
+  return 10
+}
+
 MAIN
   var a = input("Enter a number: ", "i")
 END_MAIN

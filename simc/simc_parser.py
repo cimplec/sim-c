@@ -1700,8 +1700,10 @@ def parse(tokens, table):
             i += 1
 
     # Errors that may occur after parsing loop
-    if main_fn_count != 0:
-        error("MAIN not ended with END_MAIN", tokens[i - 1].line_num + 1)
+    if main_fn_count > 0:
+        error("No matching END_MAIN for MAIN", tokens[i - 1].line_num + 1)
+    elif main_fn_count < 0:
+        error("No matching MAIN for END_MAIN", tokens[i-1].line_num + 1)
 
     # Return opcodes
     return op_codes
