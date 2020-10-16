@@ -1,0 +1,9 @@
+MAIN
+	print("Conversion from km/h to m/h")
+
+	var kmph = input("Enter speed value in km/h  : ", "f" )
+	var mph =  kmph * 0.621371
+	
+	print("the speed in m/h : {mph}")
+
+END_MAIN
