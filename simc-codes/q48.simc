@@ -1,0 +1,10 @@
+//To check if a phone number is valid
+MAIN
+    //Take input of the number whose factors are to be calculated
+    var n = input("Input number : ", "d")
+    if (n >= 1000000000 && n <= 9999999999) {
+	print("Valid Phone Number")
+    } else {
+	print("Invalid Phone Number")
+    }
+END_MAIN
