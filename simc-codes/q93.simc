@@ -1,0 +1,10 @@
+MAIN
+    /*
+    Convert degree celsius to fahrenheit
+    Examples: 
+    	1. 37 Celsius = 98.60 Fahrenheit
+    */
+    var celsius = input("Enter temperature in Celsius: ", "f")
+    var fahrenheit = celsius*1.8 + 32
+    print("{celsius} Celsius: {fahrenheit} Fahrenheit")
+END_MAIN
