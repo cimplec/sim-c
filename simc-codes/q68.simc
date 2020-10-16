@@ -1,0 +1,18 @@
+//Convert binary number to hexadecimal
+MAIN
+    //Take input as the binary number as a double
+    var binaryval = input("Input number : ", "i")
+    var hexadecimalval = 0
+    var i = 1
+    var remainder = 0
+    while (binaryval != 0) {
+	remainder = binaryval % 10
+	hexadecimalval = hexadecimalval + remainder * i
+	i = i * 2
+	binaryval = binaryval / 10
+    }
+    BEGIN_C
+	printf("Equivalent hexadecimal value: %lX\n", hexadecimalval);
+    END_C
+
+END_MAIN
