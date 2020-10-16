@@ -7,4 +7,3 @@ MAIN
 	print("the speed in m/h : {mph}")
 
 END_MAIN
-END_MAIN
