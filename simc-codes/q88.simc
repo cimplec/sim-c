@@ -1,0 +1,15 @@
+MAIN
+    /*
+    Given a user provided positive integer as age in years, determine
+    if the user is eligible to vote (18 < age < 65)
+    Examples: 
+    	1. age = 18, Eligible to vote: No
+    	2. age = 19, Eligible to vote: Yes
+    */
+    var age = input("Enter age in years (a positive integer): ", "i")
+    var result = "No"
+    if (age > 18 && age < 65) {
+        result = "Yes"
+    }
+    print("Age: {age}, Eligible to vote: {result}")
+END_MAIN
