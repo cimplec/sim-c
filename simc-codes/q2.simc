@@ -1,7 +1,7 @@
 MAIN
 // taking input from the user
-var number1 = input(“Enter first number : “, “f”)
-var number2 = input(“Enter second number : “, “f”)
+var number1 = input("Enter first number : ", "f")
+var number2 = input("Enter second number : ", "f")
 var sum=0 
 
 
