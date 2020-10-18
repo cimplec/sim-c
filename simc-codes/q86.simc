@@ -1,0 +1,16 @@
+//to print Fibonacci Series
+MAIN
+var term1 = 0
+var  term2 = 1
+var  nextTerm = 0
+var max_value = input("Enter maximum number : ","i") //maximum value upto which series is to be printed
+print("Fibonacci series : {term1}, {term2}")
+nextTerm = term1+term2
+while(nextTerm <= max_value){
+print(", {nextTerm}")
+term1 = term2
+term2 = nextTerm
+nextTerm = term1 + term2
+}
+print("\n");
+END_MAIN
