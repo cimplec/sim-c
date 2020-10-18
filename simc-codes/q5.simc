@@ -1,5 +1,5 @@
 MAIN
-var num = input(“Enter a number : “, “i”)
+var num = input("Enter a number : ", "i")
 
 var sum = 0
 
