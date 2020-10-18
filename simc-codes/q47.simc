@@ -1,0 +1,41 @@
+MAIN
+    var a = input("Enter first number : ", "i")
+    var b = input("Enter second number : ", "i")
+	var c
+	var max
+	var min
+
+	// Handle special cases
+	if (a == 0 && b == 0){
+		print("Numbers must not be all zero!")
+		exit(0)
+	}
+	if (a == 0 || b == 0){
+		c = a + b
+		print("GCD = {c}")
+		exit(0)
+	}
+	if (a == b){
+		print("GCD = {a}")
+		exit(0)
+	}
+	
+	//Sort numbers
+    if (a > b){
+        max = a
+		min = b
+    }	
+    else{
+        max = a
+		min = b
+    }
+	
+	// Euklidian Algorithm
+	do {
+		c = max % min
+		max = min
+		min = c
+	} while (c != 0)
+	
+	print("GCD = {max}")
+END_MAIN
