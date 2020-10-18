@@ -1,3 +1,3 @@
 import simc
 
-__version__ = "0.1-alpha-1"
+__version__ = "0.1-alpha-2"
