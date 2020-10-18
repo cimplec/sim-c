@@ -86,6 +86,9 @@ def compile(opcodes, c_filename, table):
     # Check if function body has started or not
     outside_main = True
 
+    # Check if the function has returned or not
+    has_returned = False
+
     # Loop through all opcodes
     for opcode in opcodes:
         code = ""
@@ -268,9 +271,12 @@ def compile(opcodes, c_filename, table):
         elif opcode.type == "MAIN":
             code += "\nint main() {\n"
             outside_main = False
+            has_returned = False
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "END_MAIN":
-            code += "\n\treturn 0;\n}"
+            if not has_returned:
+                code += "\n\treturn 0;"
+            code += "\n}\n"
             outside_code, ccode = compile_func_main_code(
                 outside_code, ccode, outside_main, code
             )
@@ -321,6 +327,7 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type return then generate return statement
         elif opcode.type == "return":
             code += "\n\treturn " + opcode.val + ";\n"
+            has_returned = True
         # If opcode is of type break then generate break statement
         elif opcode.type == "break":
             code += "\tbreak;\n"
