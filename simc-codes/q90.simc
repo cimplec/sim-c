@@ -1,0 +1,8 @@
+MAIN
+    print("Ireland flag\n")
+
+    for i in 1 to 4 by +1 {
+        print("@@@------###\n")
+    }
+
+END_MAIN
