@@ -1,0 +1,20 @@
+//to print Fibonacci Series numbers at even places
+MAIN
+var term1 = 0
+var  term2 = 1
+var  nextTerm = 0
+var max_term = input("Enter  number of terms : ","i") //number of terms to be calculated
+print("Fibonacci series :{term2}")
+nextTerm = term1+term2
+var term_position = 3
+while(term_position <= max_term){
+if(term_position % 2 == 0){
+print(", {nextTerm}")
+}
+term1 = term2
+term2 = nextTerm
+nextTerm = term1 + term2
+term_position += 1
+}
+print("\n");
+END_MAIN
