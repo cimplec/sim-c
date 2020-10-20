@@ -1,0 +1,25 @@
+MAIN
+    var N = input("Enter the number: ","i")
+    var i=0
+    var count=0
+    while(count<N){
+        var int_count=0
+        var a=(1.0/3)
+        var m=(i^a)
+        m=m+1
+        var j=1
+        var k=0
+        for j in 1 to m by +1{
+            for k in j to m by +1{
+                if(j*j*j + k*k*k == i && j!=k){
+                    int_count=int_count+1
+                }
+            }
+        }
+        if(int_count==2){
+            count=count+1
+            print("{count} {i} \n")
+        }
+        i=i+1
+    }
+END_MAIN
