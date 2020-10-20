@@ -1,0 +1,19 @@
+MAIN
+    var x = input("Enter the number: ","i")
+    var cnt=0
+    var i=1
+    var sqN=(x^0.5)
+    sqN=sqN+1
+    for i in 1 to sqN by +1{
+        if(x % i == 0){
+                if(x / i == i){
+                    cnt=cnt+1
+                }
+                else{
+                    cnt=cnt+2
+                }
+            }
+        }
+    print("The total factors of {x} is/ are {cnt}")
+END_MAIN
+
