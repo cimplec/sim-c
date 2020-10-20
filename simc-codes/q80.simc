@@ -1,0 +1,13 @@
+MAIN
+    var x = input("Enter first number: ","i")
+    var y = input("Enter second number: ","i")
+    var z = input("Enter third number: ","i")
+
+
+    if(x+y==z){
+        print("{z} is equal to {x} + {y}")
+    }
+    else{
+        print("{z} is not equal to {x} + {y}")
+    }
+END_MAIN
