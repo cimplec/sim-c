@@ -1,0 +1,20 @@
+MAIN
+    var n = input("Enter the number : ", "i" )
+    var i=1
+    var j=1
+    var check=0
+    for i in 1 to n by +1 {     
+        for j in 1 to n by +1 {     
+            if(i * i + j * j == n){
+                check=check+1
+            } 
+        } 
+    }
+
+    if(check==0){
+        print("{n} is scarcely a sum of two whole squares")
+    }
+    else{
+        print("{n} is a sum of two whole squares")
+    }
+END_MAIN

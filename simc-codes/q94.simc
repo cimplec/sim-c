@@ -1,0 +1,19 @@
+MAIN
+    /*
+    Convert cm to inch and foot
+    Examples: 
+    	1 cm = 0.393701 inch or 0.0328084 foot
+    */
+    var Cm = input("enter the lenght : ", "f")
+    if (Cm < 0){
+        print("ERROR please enter the lenght again")
+	}
+    else if (Cm == 0){
+        print("0 cm = 0 inch or 0 foot")
+	}
+    else {
+        var Inch = Cm / 2.54
+        var Foot = Cm / 30.48
+        print("{Cm} cm = {Inch} inch or {Foot} foot")
+        }
+END_MAIN
