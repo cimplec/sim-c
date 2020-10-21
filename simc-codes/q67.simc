@@ -1,0 +1,14 @@
+MAIN
+var decimal_no = input("Enter a number :", "i")
+var initial_val = decimal_no //saving initial value for output
+var octal_no = 0 
+var place = 1
+while(decimal_no != 0){
+
+octal_no  += decimal_no % 8*place //digit for consecutive places added
+place *= 10 // move to next place
+decimal_no /= 8 
+
+}
+print("{initial_val} in octal = {octal_no}\n")
+END_MAIN
