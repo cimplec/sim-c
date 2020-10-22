@@ -1,0 +1,16 @@
+/*
+    sim-C 
+
+    Concatenate two string
+
+    2020-Oct-21
+
+    Obs: at this stage, memory alocation was not available, as len() function or others utilities.
+*/
+
+MAIN
+    var question = "What is sim-C?"
+    var answer   = "sim-C a high-level front end for C which creates a dynamically typed syntax for C." 
+
+    print("{question}{answer}")
+END_MAIN
