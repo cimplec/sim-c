@@ -1,0 +1,11 @@
+# Find the square root of a number - pgm in python3
+
+import math
+
+n = input()
+k = math.sqrt(float(n))
+
+if k == int(k):
+	print(int(k))
+else:
+	print(k)
