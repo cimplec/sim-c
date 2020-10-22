@@ -10,10 +10,10 @@ MAIN
     var n = input("Enter a number ", "f")
     
     /* using conditional (if else), relational(>,<) and logical(&&) operator to judge the value */
-    /* and printing with variables embedded in strings */
+    /* and printing the strings */
     if (n>0 && n<1){
-        print("{n} lies in between 0 and 1")
+        print("Lies in between 0 and 1")
 	}else{
-        print("{n} does not lies in between 0 and 1")
+        print("Does not lies in between 0 and 1")
     }
 END_MAIN
