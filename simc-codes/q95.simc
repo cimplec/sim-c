@@ -1,0 +1,19 @@
+MAIN
+    /*
+    Test if a two variables strictly lie between 0 and 1.
+    Examples: 
+    	0.1 lies in between 0 and 1
+        1 does not lies in between 0 and 1
+        1.1 does not lies between 0 and 1 
+    */
+    /* taking float as input */
+    var n = input("Enter a number ", "f")
+    
+    /* using conditional (if else), relational(>,<) and logical(&&) operator to judge the value */
+    /* and printing with variables embedded in strings */
+    if (n>0 && n<1){
+        print("{n} lies in between 0 and 1")
+	}else{
+        print("{n} does not lies in between 0 and 1")
+    }
+END_MAIN
