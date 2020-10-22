@@ -1,0 +1,46 @@
+/*
+  sim-C
+
+  Question:
+
+  In a class there are 50% students study English, 
+  30% study Hindi, 
+  25% study foreign language, 
+  10% study english with foreign language, 
+  find the percentage of students who study hindi with foreign language, 
+  if no one studies all the three subjects at a time
+
+  Resolution:
+
+  en: only English
+  hi: only Hindi
+  fl: only foreign language
+  no: no language(disjoint from others)
+
+  en_hi : English and Hindi
+  en_fl : English and foreign 
+  hi_fl : Hindi and foreign
+
+  en_hi_fl : en + hi + fl = 0%
+  en_fl : 10%
+
+  From the statment: 
+
+  (1) 100% = en + hi + fl + en_hi + en_fl + hi_fl + no
+  (2) 40%  = en_hi + en 
+  (3) 30%  = en_hi + hi + hi_fl
+  (4) 15%  = hi_fl + fl 
+
+  Put (2) and (4) into (1)
+  100% = (en_hi + en) + (hi_fl + fl) + (en_fl) + hi + no = 40% + 15% + 10% + hi + no
+  
+  (5) 35% = hi + no
+
+  But we can count seven unknown variables to discover, there is no other equation.
+
+  The problem has no solution.
+
+*/
+MAIN
+  print("There are seven unknowns (three single-language, three double-language, and one no-language), which are all non-negative percentages. However there is only five simultaneous equations.")
+END_MAIN
