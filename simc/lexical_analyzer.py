@@ -463,7 +463,9 @@ def lexical_analyze(filename, table):
             # to check if it is a multi line comment
             elif source_code[i + 1] == "*":
                 i += 2
-                while source_code[i] != "*" and source_code[i + 1] != "/":
+                while source_code[i:i+2] != "*/":
+                    if(source_code[i] == "\n"):
+                        line_num += 1
                     comment_str += str(source_code[i])
                     i += 1
                 tokens.append(Token("multi_line_comment", comment_str, line_num))
