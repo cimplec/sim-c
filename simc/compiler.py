@@ -24,6 +24,12 @@ def check_include(opcodes):
         if opcode.type == "print":
             includes.append("#include <stdio.h>")
             
+        if opcode.type == "clrscr" or "getch":
+            includes.append("#include <conio.h>")
+            
+        if opcode.type == "delay" or "Sleep":
+            includes.append("#include <dos.h>")
+            
         # If the opcode is a statement of type input, then it requires stdio.h to be included
         if len(opcode.val.split("---")) >= 3:
             includes.append("#include <stdio.h>")
