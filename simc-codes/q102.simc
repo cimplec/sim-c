@@ -1,0 +1,16 @@
+MAIN
+/*
+We can multiply two numbers by adding 2nd number times 1st number
+Ex.
+a*b = a+a+a.... b times
+*/
+
+var a = input("Enter 1st number","i")
+var b = input("Enter 2nd number","i")
+var result = 0
+for i in 1 to b by +1{
+	result = result + a
+}
+
+print("The multiplication is : {result}")
+END_MAIN
