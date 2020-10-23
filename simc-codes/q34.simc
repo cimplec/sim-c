@@ -1,0 +1,52 @@
+/*
+    sim-C 
+
+    Concatenate two string
+
+    2020-Oct-21
+
+    Obs: at this stage, memory alocation was not available, as len() function or others utilities.
+*/
+
+MAIN
+    // The two string that will be concatenate
+    var question = "What is sim-C?"
+    var answer   = "sim-C a high-level front end for C which creates a dynamically typed syntax for C." 
+    
+    // the result string from concatenation
+    var output = "                         
+    
+    // auxiliary variable to process string A and B                                                                                                "
+    var i = 0
+    var j = 0
+    
+    // C was used to access the string
+    BEGIN_C
+    // buffer
+    char out[500];
+    
+    // go thorugh first string and copy into buffer(out)
+    while(1) {
+            if(question[i]=='\0') 
+                break;
+            out[i] = (char)question[i];
+        i += 1;
+    }
+
+    // go thorugh second string and copy into buffer(out)
+    while(1) {
+            if(answer[j]=='\0')  {
+                out[i] = 0;
+                break;
+            }
+            out[i] = (char)answer[j];
+        i += 1;
+        j += 1;
+    }
+
+    // pass buffer to the result string
+    output = out;
+    END_C
+
+    print(output)
+END_MAIN
