@@ -129,13 +129,13 @@ def string_val(source_code, i, table, line_num, start_char='"'):
             i+=2
         else:
             while source_code[i] != start_char:
-                if source_code[i] == "\0":
+                if source_code[i] == "\0" or source_code[i] == "\n":
                     error("Unterminated string!", line_num)
                 string_constant += source_code[i]
                 i += 1
     elif start_char == '"':
       while source_code[i]!= start_char:
-        if source_code[i] == "\0":
+        if source_code[i] == "\0" or source_code[i] == "\n":
             error("Unterminated string!", line_num)
         string_constant += source_code[i]
         if source_code[i]=='\\' and source_code[i-1]!='\\' and source_code[i+1]=='"':
@@ -468,6 +468,7 @@ def lexical_analyze(filename, table):
                         line_num += 1
                     comment_str += str(source_code[i])
                     i += 1
+                i += 2
                 tokens.append(Token("multi_line_comment", comment_str, line_num))
                 comment_str = ""
             else:
