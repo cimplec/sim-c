@@ -1,0 +1,37 @@
+//Convert Hexadecimal to Decimal
+
+MAIN
+
+    var decnum=0
+    var i=0
+    var len=0
+    var rem=0
+
+    //C used to declare and use array for hexadecimal to decimal conversion.
+    BEGIN_C
+        char hexnum[20];
+        printf("Enter any Hexadecimal Number: ");
+        scanf("%s", hexnum);
+        while(hexnum[i]!='\0')
+        {
+            len++;
+            i++;
+        }
+        len--;
+        i=0;
+        while(len>=0)
+        {
+            rem = hexnum[len];
+            if(rem>=48 && rem<=57)
+                rem = rem-48;
+            else if(rem>=65 && rem<=90)
+                rem = rem-55;
+            
+            decnum = decnum + (rem*pow(16, i));
+            len--;
+            i++;
+        }
+    END_C
+    print("Decimal Value is {decnum}")
+
+END_MAIN
