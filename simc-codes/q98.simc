@@ -1,0 +1,17 @@
+MAIN
+
+    var a = input("Enter value of the first term : ", "f" )
+    var r = input("Enter value of the common ratio : ", "f" )
+    var n = input("Enter value of total number of terms : ", "f" )
+
+    var sum=0.0
+    var power = r^n
+    r=r-1
+    sum= power -1
+    sum = sum* a
+    sum= sum/r
+
+    print("The final value is {sum}")
+
+END_MAIN
+
