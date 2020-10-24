@@ -1,0 +1,26 @@
+#include <stdio.h>
+
+int main() {
+	// Lower right triangle pattern 
+	int rows = 5;
+	int i = 0;
+	int j = 0;
+	while(i <= rows) {
+	j = 0;
+	// printing empty space 
+	while(j < rows - i) {
+	printf("%c", ' ');
+	j++;
+	}
+	j = 0;
+	// printing the pattern 
+	while(j < i) {
+	printf("%c", '*');
+	j++;
+	}
+	printf("%c", '\n');
+	i++;
+	}
+
+	return 0;
+}
