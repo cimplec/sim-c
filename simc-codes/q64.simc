@@ -1,0 +1,40 @@
+//Convert Decimal to HexaDecimal
+
+MAIN
+
+    var n = input("Enter the number : ", "i" )
+    var temp=0
+    var i=0
+
+    //C used to declare and use array for hexadecimal conversion.
+    BEGIN_C
+    char hexaDeciNum[100]; 
+    while(n!=0) 
+	{ 
+		temp = 0; 
+		
+		temp = n % 16; 
+		
+		if(temp < 10) 
+		{ 
+			hexaDeciNum[i] = temp + 48; 
+			i++; 
+		} 
+		else
+		{ 
+			hexaDeciNum[i] = temp + 55; 
+			i++; 
+		} 
+		
+		n = n/16; 
+	} 
+	
+    printf("Hexadecimal value is: ");
+	// printing hexadecimal number array in reverse order 
+	for(int j=i-1; j>=0; j--) 
+		printf("%c",hexaDeciNum[j]); 
+
+    END_C
+
+
+END_MAIN
