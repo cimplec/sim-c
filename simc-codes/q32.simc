@@ -1,0 +1,20 @@
+MAIN
+
+    var x = input("Enter value of the base : ", "f" )
+    var n = input("Enter value of the range : ", "f" )
+
+    var i=1
+    var total= x
+    var multi = x
+    n= n+1
+    var multi_temp=1.0
+
+    for i in 1 to n by +1{
+        multi_temp=multi/i
+        total = total + multi_temp
+        multi = multi* x;
+    }
+
+    print("The final value is {total}")
+
+END_MAIN
