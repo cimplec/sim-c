@@ -1,0 +1,16 @@
+MAIN
+    var string1 = input()  
+    var string2 = input()
+    print("First String is : {string1}")
+    print("Second String is : {string2}")
+    BEGIN_C
+    int len1 = 0;
+    int len2 = 0;
+    while(string1[len1]!='\0') len1++;
+    while(string2[len2]!='\0') len2++;
+    char result[len1+len2];
+    for(int i=0;i<len1;i++) result[i] = string1[i];
+    for(int i=0;i<len2;i++) result[i+len1] = string2[i];
+    printf("Concatenated String is : %s", result);
+    END_C
+END_MAIN
