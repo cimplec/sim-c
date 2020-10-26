@@ -189,6 +189,12 @@ def keyword_identifier(source_code, i, table, line_num):
         value += source_code[i]
         i += 1
 
+    #Check if value is a math constant or not
+    if value in ["PI","E","inf","NaN"]:
+        return Token("number",
+                     table.entry(value, "double", "constant"),
+                     line_num) , i
+
     # Check if value is keyword or not
     if is_keyword(value):
         return Token(value, "", line_num), i

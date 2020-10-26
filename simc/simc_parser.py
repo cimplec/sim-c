@@ -454,6 +454,9 @@ def expression(
     # Mapping for precedence checking (double > float > int)
     type_to_prec = {"int": 3, "float": 4, "double": 5}
 
+    #Mapping simc constant name to c constant name
+    math_constants = {"PI":"M_PI", "E":"M_E" , "inf":"INFINITY", "NaN":"NAN"}
+    
     # Loop until expression is not parsed completely
     while i < len(tokens) and tokens[i].type in [
         "number",
@@ -563,7 +566,7 @@ def expression(
                     else op_type
                 )
             elif type == "double":
-                op_value += str(value)
+                op_value += math_constants.get(str(value),str(value))
                 op_type = (
                     type_to_prec["double"]
                     if type_to_prec["double"] > op_type

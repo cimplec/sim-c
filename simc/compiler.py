@@ -18,6 +18,9 @@ def check_include(opcodes):
     # List of includes
     includes = []
 
+    #List of math constants
+    math_func_const = ["M_PI", "M_E", "pow(" , "INFINITY","NAN"]
+
     # Loop through all opcodes
     for opcode in opcodes:
         # If opcode is of type print, then it requires stdio.h to be included
@@ -28,7 +31,7 @@ def check_include(opcodes):
         if len(opcode.val.split("---")) >= 3:
             includes.append("#include <stdio.h>")
 
-        if "pow(" in opcode.val:
+        if any(math in opcode.val for math in math_func_const):
             includes.append("#include <math.h>")
 
     # Return string representation of unique elements of includes list separated by newline characters
