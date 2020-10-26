@@ -1,17 +1,32 @@
 // Calculate modulo of two numbers without using the inbuilt modulo operator (%), second method.
+// A == (A/B)*B + (A%B)
 MAIN 
     var numerator = input("Numerator: ", "i")
     var divisor = input("Divisor: ", "i")
     var rest = numerator
+    var abs_divisor = divisor
+    
+    // Load the abs value for divisor
+    if(divisor < 0) {
+        abs_divisor = -divisor
+    } 
 
+    // The zero is not defined for division
     if(divisor == 0) {
-        print("Divisor is not define in zero.\n")
+        print("Divisor is not defined in zero.\n")
         return 0
     }
 
+    // Calculate the division A/B
+    var divided =  rest/divisor
+
     // The division of A/B is equivalent to subtract B from A until A is greater or equal to B.
-    while(rest > divisor) {     
-        rest -= divisor
+    rest = rest - (divided*divisor)
+    
+    // 
+    if(rest < 0) {       
+        rest = rest + abs_divisor
     }
+    
     print("The remain of {numerator} MOD({divisor}) = {rest}\n")
 END_MAIN
