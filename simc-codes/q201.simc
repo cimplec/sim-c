@@ -1,0 +1,17 @@
+// Calculate modulo of two numbers without using the inbuilt modulo operator (%), second method.
+MAIN 
+    var numerator = input("Numerator: ", "i")
+    var divisor = input("Divisor: ", "i")
+    var rest = numerator
+
+    if(divisor == 0) {
+        print("Divisor is not define in zero.\n")
+        return 0
+    }
+
+    // The division of A/B is equivalent to subtract B from A until A is greater or equal to B.
+    while(rest > divisor) {     
+        rest -= divisor
+    }
+    print("The remain of {numerator} MOD({divisor}) = {rest}\n")
+END_MAIN
