@@ -1,0 +1,103 @@
+// *
+// sim-C
+// 
+// Question:
+// 
+// In a class there are 50% students study English, 
+// 30% study Hindi, 
+// 25% study foreign language, 
+// 10% study english with foreign language, 
+// find the percentage of students who study hindi with foreign language, 
+// if no one studies all the three subjects at a time
+// 
+// Resolution:
+// 
+// en: only English
+// hi: only Hindi
+// fl: only foreign language
+// no: no language(disjoint from others)
+// 
+// en_hi : English and Hindi
+// en_fl : English and foreign 
+// hi_fl : Hindi and foreign
+// 
+// en_hi_fl : en + hi + fl = 0%
+// en_fl : 10%
+// 
+// From the statment: 
+// 
+// (1) 100% = en + hi + fl + en_hi + en_fl + hi_fl + no
+// (2) 40%  = en_hi + en 
+// (3) 30%  = en_hi + hi + hi_fl + hi
+// (4) 15%  = hi_fl + fl 
+// 
+// Put (2) and (4) into (1)
+// 100% = (en_hi + en) + (hi_fl + fl) + (en_fl) + hi + no = 40% + 15% + 10% + hi + no
+// 
+// (5) 35% = hi + no
+// 
+// Next follow a trick to discover which students is not studyng any langueges(no)
+// 
+// Suppose n = 100 is an arbitary number of students. Then it is possible distribute the students such that
+// the restrictions are satified and conclude then the total students must be 85%.
+// 
+// Note, it does not matter thaat the numbers is correct distributed yet. You can note that this arrange satifies
+// the initial restriction and with that we infer quantity of no.
+//
+// en: 30
+// hi: 15
+// fl: 20
+// no: no language(disjoint from others)
+// 
+// en_hi : 10
+// en_fl : 10 
+// hi_fl : 0
+// 
+// en_hi_fl : 0
+// total : 85
+// 
+// no  = (n - all students of langues) / n
+// 
+// This says that the total number of students who does not study language is 15%!
+// no = (100 - 85) / 100 = 15%
+// 
+// From (5) => hi = 20%
+// 
+// Now, the equations can solve all the unknow variables.
+// 
+// From (3) with (no) => (6) en_hi + fl_hi = 10%
+// 
+// The sum of en + en_fl + en_hi + en_fl + hi + fl + fl_hi= 85
+// 
+// We add en_hi in both sides:
+// 
+// en + en_fl + (2*en_hi + en_fl + hi) + fl + fl_hi = 85 + en_hi
+// 
+// As (6) and (3) fl + 2*en_hi + fl_hi = 25%
+// 
+// So en + en_fl + hi - en_hi = 60
+// 
+// hi and en_fl are know as 20% and 10%
+// 
+// Finally, en - en_hi = 30%
+// 
+// With that, we conclude that
+// en + en_hi = 40%
+// +
+// en - en_hi = 30%
+// -----------------  
+// en = 35% => en_hi = 5%
+// 
+// en_hi + fl_hi = 10% => fl_hi = 5% 
+// 
+// Answer: fl_hi = 5% 
+//
+
+MAIN
+  var n_students = input("Enter number of students : ","i")
+  var fl_hi = 0.05*n_students
+  print("The number of students learning Foreign Language and Hindi is {fl_hi}\n")
+END_MAIN
+
+ 
+ 
