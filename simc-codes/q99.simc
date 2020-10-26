@@ -1,0 +1,16 @@
+MAIN
+    //harmonic mean of two numbers num1 and num2 
+    var num1 = input("Enter the first value: ", "f")
+    var num2 = input("Enter the second value: ", "f")
+
+    var product = num1*num2 
+    var sum = num1 + num2
+
+    /* 
+    harmonic mean is 2*num1*num2/(num1+num2)
+    */
+    product = 2*product
+    var ans = product/sum
+
+    print("Harmonic mean of {num1} and {num2} is {ans}")
+END_MAIN
