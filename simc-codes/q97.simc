@@ -1,0 +1,33 @@
+/*
+    sim-c
+    
+    The Aritmetic Progressing is a sequence that start at a1( and each following term is increase by d    
+
+    the Sum of an Aritmetic Progressing is given by:
+
+    Sn = n/2(2*a1 + (n-1)*d)
+*/
+MAIN
+
+    print("Welcome to sim-C, give a range to sum up!\n")
+
+    var init = input("Enter first term of the progression : ","i")  // a1
+    var step  = input("Enter step of the progression : ", "i")      // d
+    var n = input("Enter the number of the term: ", "i")            // n
+    var result = 0;
+
+    var prog =  step*(n-1)
+    var range = 0.0
+
+    // the division made in C to cast to double
+    BEGIN_C
+    range = n / (double)2;
+    END_C
+
+    var first = 2*init
+
+    // AP (Aritmetic Progressing)
+    result = range*(first + prog)
+    print("The sum of all terms until n = {result}\n")
+
+END_MAIN

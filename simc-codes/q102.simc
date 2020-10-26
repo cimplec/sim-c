@@ -1,0 +1,18 @@
+MAIN
+
+/*
+    We can multiply two numbers by adding 2nd number times 1st number
+*/
+
+var a = input("Enter 1st element: ","i")
+var b = input("Enter 2nd element: ","i")
+var result = 0
+
+
+
+for i in 0 to b by +1 {
+    result += a
+}
+
+print(result)
+END_MAIN
