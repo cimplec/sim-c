@@ -1,8 +1,0 @@
-import sys
-
-from simc.simc import run
-
-if(len(sys.argv) == 2):
-  run(sys.argv[1])
-else:
-  print("\033[91mError: please provide simc file path")
