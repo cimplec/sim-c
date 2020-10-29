@@ -1,0 +1,13 @@
+MAIN
+
+var n = input("Input the numerator : " , "i")
+var d = input("Input the denominator : " , "i")
+var i = 0
+while(n>=d){
+  n-=d
+  i++
+}
+print(i)
+print("remainder: {d}")
+
+END_MAIN
