@@ -8,6 +8,6 @@ while(n>=d){
   i++
 }
 print(i)
-print("remainder: {d}")
+print("remainder: {n}")
 
 END_MAIN
