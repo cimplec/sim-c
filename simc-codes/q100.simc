@@ -1,0 +1,9 @@
+MAIN
+    var x = input("Enter first number: ","i")
+    var lcm = input("Enter the L.C.M: ","i")
+    var hcf = input("Enter the H.C.F: ","i")
+    var y = lcm*hcf
+    y=y/x
+
+    print("The second number is {y}")
+END_MAIN
