@@ -1,0 +1,25 @@
+MAIN
+
+var num1 = input("Enter Frist Number : ", "i")
+var num2 = input("Enter Second Number : ", "i")
+
+
+var sh = 0
+var n = num1
+
+if(num1 > num2 && num1 % num2 == 0)
+{
+    while(n != 0)
+        {
+            n -= num2
+            sh += 1
+        }
+
+        print("{num1} / {num2} = {sh}\n")
+}
+else
+{
+    print("Error")
+}
+
+END_MAIN
