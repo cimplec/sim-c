@@ -77,7 +77,7 @@ def check_if_statment(tokens, brace_used, i):
 
     if(found_code >= 2):
         error("Expected only one instructions before 'else'", tokens[i].line_num);
-        
+
 
 def function_call_statement(tokens, i, table, func_ret_type):
     """
@@ -920,7 +920,8 @@ def if_statement(tokens, i, table, func_ret_type):
     Returns
     =======
     OpCode, int: The opcode for the assign code and the index after parsing if statement
-
+    brace_used, boolean: Indicate if brace was used
+    
     Grammar
     =======
     if_statement -> if(condition) { body }
@@ -967,20 +968,19 @@ def if_statement(tokens, i, table, func_ret_type):
     # Check if { follows ) in if statement
     ret_idx = 0
     brace_used = True
-
-    if(query_check_if(
-        tokens[i + 1].type,
-        "left_brace",
-        "Expected { before if body",
-        tokens[i + 1].line_num,
-    )):
+    if(tokens[i + 1].type == "left_brace"):
         # Loop until } is reached
         i += 2
         ret_idx = i
         found_right_brace = False
         while i < len(tokens) and tokens[i].type != "right_brace":
+            # If there a else before right brace, the sintax is not right
+            if(tokens[i].type in ["else", "left_brace"]):
+                break
+
             if found_right_brace:
                 found_right_brace = True
+                break
             i += 1
 
         # If right brace found at end
