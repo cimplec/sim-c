@@ -26,6 +26,59 @@ def check_if(given_type, should_be_types, msg, line_num):
         error(msg, line_num)
 
 
+def query_check_if(given_type, should_be_types, msg, line_num):
+    """
+    Check if type matches what it should be, then return true otherwise return false
+
+    Params
+    ======
+    given_type      (string)      = Type of token to be checked
+    should_be_types (string/list) = Type(s) to be compared with
+    msg             (string)      = Error message to print in case some case fails
+    line_num        (int)         = Line number
+    """
+
+    # Convert to list if type is string
+    if type(should_be_types) == str:
+        should_be_types = [should_be_types]
+
+    # If the given_type is not part of should_be_types then throw error and exit
+    if given_type not in should_be_types:
+        return False;
+    return True;
+
+
+def check_if_statment(tokens, brace_used, i):
+    """
+        Check if there is only one instruction before a if without braces otherwise throw an error and exit
+
+        Params
+        ======
+        brace_used      (boolean)      = Indicate if last if used braces
+        i (int) = indice of token
+    """ 
+    
+    # command that will count 
+    command_list = ["assignment", "increment", "decrement", "plus_equal", "minus_equal", "multiply_equal", "divide_equal", "modulus_equal", "exit"] 
+    
+    # Count codes found before "if"
+    found_code = 0
+    
+    while(brace_used == False and i >= 0 and found_code < 2):
+        if(tokens[i].type == "if"):
+            break
+
+        if(tokens[i].type == "var"):
+            error("Variable can not be created in this scope.", tokens[i].line_num)
+        
+        if OpCode.opcode2dig(OpCode, tokens[i].type) > 0 or tokens[i].type in command_list:
+            found_code += 1
+        i -= 1
+
+    if(found_code >= 2):
+        error("Expected only one instructions before 'else'", tokens[i].line_num);
+        
+
 def function_call_statement(tokens, i, table, func_ret_type):
     """
     Parse function calling statement
@@ -864,7 +917,6 @@ def if_statement(tokens, i, table, func_ret_type):
     tokens      (list) = List of tokens
     i           (int)  = Current index in token
     table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-
     Returns
     =======
     OpCode, int: The opcode for the assign code and the index after parsing if statement
@@ -913,31 +965,41 @@ def if_statement(tokens, i, table, func_ret_type):
         i -= 1
 
     # Check if { follows ) in if statement
-    check_if(
+    ret_idx = 0
+    brace_used = True
+
+    if(query_check_if(
         tokens[i + 1].type,
         "left_brace",
         "Expected { before if body",
         tokens[i + 1].line_num,
-    )
+    )):
+        # Loop until } is reached
+        i += 2
+        ret_idx = i
+        found_right_brace = False
+        while i < len(tokens) and tokens[i].type != "right_brace":
+            if found_right_brace:
+                found_right_brace = True
+            i += 1
 
-    # Loop until } is reached
-    i += 2
-    ret_idx = i
-    found_right_brace = False
-    while i < len(tokens) and tokens[i].type != "right_brace":
-        if found_right_brace:
+        # If right brace found at end
+        if i != len(tokens) and tokens[i].type == "right_brace":
             found_right_brace = True
-        i += 1
 
-    # If right brace found at end
-    if i != len(tokens) and tokens[i].type == "right_brace":
-        found_right_brace = True
+        # If right brace is not found then produce error
+        if not found_right_brace:
+            error("Expected } after if body", tokens[i].line_num)
+    # The if does not use braces
+    else:
+        ret_idx = i 
+        brace_used = False
+        
+        # Check if there's a else 
+        if tokens[i + 1].type == "else":
+            error("error: expected primary-expression before ‘else’", tokens[i+1].line_num)
 
-    # If right brace is not found then produce error
-    if not found_right_brace:
-        error("Expected } after if body", tokens[i].line_num)
-
-    return OpCode("if", op_value[:-1]), ret_idx - 1, func_ret_type
+    return OpCode("if", op_value[:-1]), ret_idx - 1, brace_used, func_ret_type
 
 
 def switch_statement(tokens, i, table, func_ret_type):
@@ -1453,6 +1515,9 @@ def parse(tokens, table):
     # Brace count
     brace_count = 0
 
+    # Brace Used
+    brace_used = True
+
     # If function return type could not be figured out during return then do it while calling
     func_ret_type = {}
 
@@ -1572,7 +1637,7 @@ def parse(tokens, table):
             op_codes.append(while_opcode)
         # If token is of type if then generate if opcode
         elif tokens[i].type == "if":
-            if_opcode, i, func_ret_type = if_statement(
+            if_opcode, i, brace_used, func_ret_type = if_statement(
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(if_opcode)
@@ -1597,12 +1662,12 @@ def parse(tokens, table):
                 
             # If the next token is if, then it is else if
             if tokens[i + 1].type == "if":
-                if_opcode, i, func_ret_type = if_statement(
+                if_opcode, i, brace_used, func_ret_type = if_statement(
                     tokens, i + 2, table, func_ret_type
                 )
                 if_opcode.type = "else_if"
                 op_codes.append(if_opcode)
-            # Otherwise it is else
+            # Otherwise test if it is else with brace
             elif tokens[i + 1].type == "left_brace":
                 op_codes.append(OpCode("else", "", ""))
 
@@ -1612,8 +1677,31 @@ def parse(tokens, table):
                 # If if_count is negative then the current else is extra
                 if if_count < 0:
                     error("Else does not match any if!", tokens[i].line_num)
+                
+                # Check if there is only one instruction before a if without braces
+                check_if_statment(tokens, brace_used, i)
 
                 i += 1
+            # Otherewise it is else without brace
+            else:
+                op_codes.append(OpCode("else", "", ""))
+
+                # Decrement if count on encountering if, to make sure there aren't extra else conditions
+                if_count -= 1
+                
+                # If if_count is negative then the current else is extra
+                if if_count < 0:
+                    error("Else does not match any if!", tokens[i].line_num)
+
+                # Two instructions "else" must not be followed withou an statment 
+                if tokens[i + 1].type == "else":
+                    error("Else does not match any if!", tokens[i + 1].line_num)
+
+                # Check if there is only one instruction before a if without braces
+                check_if_statment(tokens, brace_used, i)
+
+                i += 1
+
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             beg_idx = i + 1
