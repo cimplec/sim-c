@@ -95,7 +95,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     # Parse the arguments
     op_value, op_type, i, func_ret_type = expression(
         tokens,
-        i + 2,
+        i + 1,
         table,
         "",
         True,
@@ -103,6 +103,8 @@ def function_call_statement(tokens, i, table, func_ret_type):
         expect_paren=True,
         func_ret_type=func_ret_type,
     )
+    # op_value start in 1 because it should start with "params)" not "(params)"
+    op_value = op_value[1:]
     op_value_list = op_value.replace(" ", "").split(",")
     op_value_list = (
         op_value_list if len(op_value_list) > 0 and len(op_value_list[0]) > 0 else []
@@ -477,7 +479,6 @@ def expression(
     string, string, int: The expression, datatype of the expression and the current index in source
                          code after parsing
     """
-
     # Initial values
     op_value = ""
     op_type = -1
@@ -488,6 +489,9 @@ def expression(
     #Mapping simc constant name to c constant name
     math_constants = {"PI":"M_PI", "E":"M_E" , "inf":"INFINITY", "NaN":"NAN"}
     
+    # Count paren
+    count_paren = 0
+
     # Loop until expression is not parsed completely
     while i < len(tokens) and tokens[i].type in [
         "number",
@@ -578,7 +582,6 @@ def expression(
 
                     # Replace all {} in string
                     value = value.replace("{", "").replace("}", "")
-
                 op_value += value
                 op_type = 0 if typedata == "constant" else 1
             elif type == "char":
@@ -642,12 +645,12 @@ def expression(
                 "power": ""
             }
 
-            if (
-                expect_paren
-                and tokens[i].type == "right_paren"
-                and tokens[i + 1].type in ["newline", "left_brace"]
-            ):
-                break
+            # if (
+            #     expect_paren
+            #     and tokens[i].type == "right_paren"
+            #     and tokens[i + 1].type in ["newline", "left_brace"]
+            # ):
+            #     break
 
             if tokens[i].type == "power":
                 # Fetch information from symbol table for first operand
@@ -661,10 +664,23 @@ def expression(
                 op_value += f"pow({value_first}, {value_second})"
 
                 i += 1
+            elif tokens[i].type == "left_paren":
+                # if(tokens[i-1].type != "id"):
+                count_paren += 1;
+                op_value += word_to_op[tokens[i].type]
+            elif tokens[i].type == "right_paren":
+                count_paren -= 1;
+
+                if count_paren < 0:
+                    error("Found unexpected ‘)’ in expression", tokens[i].line_num)
+                op_value += word_to_op[tokens[i].type]
             else:
                 op_value += word_to_op[tokens[i].type]
 
         i += 1
+
+    if count_paren > 0:
+        error("Expected ‘)’ before end of expression", tokens[i].line_num)
 
     # If expression is empty then throw an error
     if op_value == "" and not accept_empty_expression:
@@ -693,7 +709,6 @@ def expression(
         dtype_to_prec = {"i": 3, "f": 4, "d": 5, "s": 1}
         op_value = str(p_msg) + "---" + str(dtype)
         op_type = dtype_to_prec[dtype]
-
     # Return the expression, type of expression, and current index in source codes
     return op_value, op_type, i, func_ret_type
 
@@ -833,7 +848,7 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
     # check if expression follows ( in while statement
     op_value, _, i, func_ret_type = expression(
         tokens,
-        i + 1,
+        i,
         table,
         "Expected expression inside while statement",
         func_ret_type=func_ret_type,
@@ -858,14 +873,14 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
 
         # Check if { follows ) in while statement
         check_if(
-            tokens[i + 1].type,
+            tokens[i].type,
             "left_brace",
             "Expected { before while loop body",
-            tokens[i + 1].line_num,
+            tokens[i].line_num,
         )
 
         # Loop until } is reached
-        i += 2
+        i += 1
         ret_idx = i
         found_right_brace = False
         while i < len(tokens) and tokens[i].type != "right_brace":
@@ -881,9 +896,9 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
         if not found_right_brace:
             error("Expected } after while loop body", tokens[i].line_num)
 
-        return OpCode("while", op_value[:-1]), ret_idx - 1, func_ret_type
+        return OpCode("while", op_value[1:-1]), ret_idx - 1, func_ret_type
     else:
-        return OpCode("while_do", op_value[:-1]), i + 1, func_ret_type
+        return OpCode("while_do", op_value[1:-1]), i + 1, func_ret_type
 
 
 def if_statement(tokens, i, table, func_ret_type):
@@ -922,7 +937,7 @@ def if_statement(tokens, i, table, func_ret_type):
     # check if expression follows ( in if statement
     op_value, op_type, i, func_ret_type = expression(
         tokens,
-        i + 1,
+        i,
         table,
         "Expected expression inside if statement",
         func_ret_type=func_ret_type,
@@ -944,22 +959,21 @@ def if_statement(tokens, i, table, func_ret_type):
         i -= 1
 
     # Check if { follows ) in if statement
-    ret_idx = 0
-    brace_used = True
-    if(tokens[i + 1].type == "left_brace"):
-        # Loop until } is reached
-        i += 2
-        ret_idx = i
-        found_right_brace = False
-        while i < len(tokens) and tokens[i].type != "right_brace":
-            # If there a else before right brace, the sintax is not right
-            if(tokens[i].type in ["else", "left_brace"]):
-                break
+    check_if(
+        tokens[i].type,
+        "left_brace",
+        "Expected { before if body",
+        tokens[i].line_num,
+    )
 
-            if found_right_brace:
-                found_right_brace = True
-                break
-            i += 1
+    # Loop until } is reached
+    i += 1
+    ret_idx = i 
+    found_right_brace = False
+    while i < len(tokens) and tokens[i].type != "right_brace":
+        if found_right_brace:
+            found_right_brace = True
+        i += 1
 
         # If right brace found at end
         if i != len(tokens) and tokens[i].type == "right_brace":
@@ -977,7 +991,7 @@ def if_statement(tokens, i, table, func_ret_type):
         if tokens[i + 1].type == "else":
             error("error: expected primary-expression before ‘else’", tokens[i+1].line_num)
 
-    return OpCode("if", op_value[:-1]), ret_idx - 1, brace_used, func_ret_type
+    return OpCode("if", op_value[1:-1]), ret_idx - 1, func_ret_type
 
 
 def switch_statement(tokens, i, table, func_ret_type):
@@ -988,7 +1002,7 @@ def switch_statement(tokens, i, table, func_ret_type):
 
     op_value, _, i, func_ret_type = expression(
         tokens,
-        i + 1,
+        i,
         table,
         "Expected expression inside switch statement",
         func_ret_type=func_ret_type,
@@ -1002,13 +1016,13 @@ def switch_statement(tokens, i, table, func_ret_type):
     )
 
     check_if(
-        tokens[i + 1].type,
+        tokens[i].type,
         "left_brace",
         "Expected { after switch statement",
         tokens[i].line_num,
     )
 
-    return OpCode("switch", op_value[:-1], ""), i + 1, func_ret_type
+    return OpCode("switch", op_value[1:-1], ""), i, func_ret_type
 
 
 def case_statement(tokens, i, table, func_ret_type):
@@ -1069,7 +1083,7 @@ def print_statement(tokens, i, table, func_ret_type):
     # Check if expression follows ( in print statement
     op_value, op_type, i, func_ret_type = expression(
         tokens,
-        i + 1,
+        i,
         table,
         "Expected expression inside print statement",
         func_ret_type=func_ret_type,
@@ -1084,7 +1098,7 @@ def print_statement(tokens, i, table, func_ret_type):
         4: '"%f", ',
         5: '"%lf", ',
     }
-    op_value = prec_to_type[op_type] + op_value[:-1]
+    op_value = prec_to_type[op_type] + op_value[1:-1]
 
     # Check if print statement has closing )
     check_if(
@@ -1441,7 +1455,7 @@ def exit_statement(tokens, i, table, func_ret_type):
     # check if expression follows ( in exit statement
     op_value, _, i, func_ret_type = expression(
         tokens,
-        i + 1,
+        i,
         table,
         "Expected expression inside exit statement",
         func_ret_type=func_ret_type,
@@ -1455,7 +1469,7 @@ def exit_statement(tokens, i, table, func_ret_type):
         tokens[i - 1].line_num,
     )
 
-    return OpCode("exit", op_value[:-1]), i, func_ret_type
+    return OpCode("exit", op_value[1:-1]), i, func_ret_type
 
 
 def parse(tokens, table):
@@ -1619,7 +1633,6 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(if_opcode)
-
             # Increment if count on encountering if
             if_count += 1
         # If token is of type exit then generate exit opcode
@@ -1683,10 +1696,10 @@ def parse(tokens, table):
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             beg_idx = i + 1
-            if tokens[i + 1].type not in ["id", "number", "string"]:
+            if tokens[i + 1].type not in ["id", "number", "string", "left_paren"]:
                 op_value = ""
                 op_type = 6
-                i += 2
+                i += 1
             else:
                 op_value, op_type, i, func_ret_type = expression(
                     tokens,
