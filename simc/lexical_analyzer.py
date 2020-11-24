@@ -313,9 +313,6 @@ def lexical_analyze(filename, table):
 
     # Parantheses checker for detecting function call
     parantheses_count = 0
-
-    # Indicate start of expression
-    expression_active = False
     
     # To store comment string
     comment_str = ""
