@@ -378,7 +378,6 @@ def lexical_analyze(filename, table):
             i += 1
         # Identifying end of expression
         elif source_code[i] == "\n":
-            # tokens.append(Token("right_paren", "", line_num))
             if parantheses_count == 0:
                 tokens.append(Token("call_end", "", line_num))
             else:
