@@ -233,14 +233,6 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     parameters, i = function_parameters(tokens, i + 2, table)
 
-    # Check if ) follows expression in function
-    check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after function params list",
-        tokens[i - 1].line_num,
-    )
-
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
         i += 1
@@ -348,10 +340,6 @@ def function_parameters(
             else:
                 error("Parameter expected after comma", tokens[i].line_num)
 
-        check_if(tokens[i].type,
-                 "right_paren",
-                 "Right parentheses expected",
-                 tokens[i].line_num)
         i += 1
 
         check_if(tokens[i].type,
@@ -814,21 +802,13 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
         tokens[i].line_num,
     )
 
-    # check if expression follows ( in while statement
+    # check if expression follows "(expression)" in while statement
     op_value, _, i, func_ret_type = expression(
         tokens,
         i,
         table,
         "Expected expression inside while statement",
         func_ret_type=func_ret_type,
-    )
-
-    # check if ) follows expression in while statement
-    check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in while statement",
-        tokens[i - 1].line_num,
     )
 
     # If while is not part of do-while
@@ -903,7 +883,7 @@ def if_statement(tokens, i, table, func_ret_type):
         tokens[i].line_num,
     )
 
-    # check if expression follows ( in if statement
+    # check if expression follows "(expression)" partner in if statement
     op_value, op_type, i, func_ret_type = expression(
         tokens,
         i,
@@ -912,13 +892,6 @@ def if_statement(tokens, i, table, func_ret_type):
         func_ret_type=func_ret_type,
     )
     op_value_list = op_value.replace(" ", "").split(",")
-    # check if ) follows expression in if statement
-    check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in if statement",
-        tokens[i - 1].line_num,
-    )
 
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
@@ -937,15 +910,6 @@ def if_statement(tokens, i, table, func_ret_type):
 
     # Loop until } is reached
     i += 1
-    ret_idx = i 
-    found_right_brace = False
-    while i < len(tokens) and tokens[i].type != "right_brace":
-        if found_right_brace:
-            found_right_brace = True
-        i += 1
-
-    # Loop until } is reached
-    i += 2
     ret_idx = i
     found_right_brace = False
     while i < len(tokens) and tokens[i].type != "right_brace":
@@ -972,13 +936,6 @@ def switch_statement(tokens, i, table, func_ret_type):
         table,
         "Expected expression inside switch statement",
         func_ret_type=func_ret_type,
-    )
-
-    check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in switch",
-        tokens[i - 1].line_num,
     )
 
     check_if(
@@ -1046,7 +1003,7 @@ def print_statement(tokens, i, table, func_ret_type):
         tokens[i].line_num,
     )
 
-    # Check if expression follows ( in print statement
+    # Check if expression follows "(expression)" patner in print statement
     op_value, op_type, i, func_ret_type = expression(
         tokens,
         i,
@@ -1065,14 +1022,6 @@ def print_statement(tokens, i, table, func_ret_type):
         5: '"%lf", ',
     }
     op_value = prec_to_type[op_type] + op_value[1:-1]
-
-    # Check if print statement has closing )
-    check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in print statement",
-        tokens[i - 1].line_num,
-    )
 
     # Return the opcode and i+1 (the token after print statement)
     return OpCode("print", op_value), i + 1, func_ret_type
@@ -1418,7 +1367,7 @@ def exit_statement(tokens, i, table, func_ret_type):
         tokens[i].line_num,
     )
 
-    # check if expression follows ( in exit statement
+    # check if expression follows "(expression)" partner in exit statement
     op_value, _, i, func_ret_type = expression(
         tokens,
         i,
@@ -1427,13 +1376,6 @@ def exit_statement(tokens, i, table, func_ret_type):
         func_ret_type=func_ret_type,
     )
     op_value_list = op_value.replace(" ", "").split(",")
-    # check if ) follows expression in exit statement
-    check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in exit statement",
-        tokens[i - 1].line_num,
-    )
 
     return OpCode("exit", op_value[1:-1]), i, func_ret_type
 
