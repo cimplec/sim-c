@@ -313,7 +313,7 @@ def lexical_analyze(filename, table):
 
     # Parantheses checker for detecting function call
     parantheses_count = 0
-
+    
     # To store comment string
     comment_str = ""
 
@@ -358,9 +358,9 @@ def lexical_analyze(filename, table):
             tokens.append(token)
 
         # Identifying left paren token
+
         elif source_code[i] == "(":
-            if tokens[-1].type == "id" or parantheses_count > 0:
-                parantheses_count += 1
+            parantheses_count += 1
             tokens.append(Token("left_paren", "", line_num))
             i += 1
 
@@ -368,13 +368,20 @@ def lexical_analyze(filename, table):
         elif source_code[i] == ")":
             if parantheses_count > 0:
                 parantheses_count -= 1
-
-            tokens.append(Token("right_paren", "", line_num))
-
-            if parantheses_count == 0:
-                tokens.append(Token("call_end", "", line_num))
+                tokens.append(Token("right_paren", "", line_num))
+            else:
+               error("Parentheses does not match.", line_num);
 
             i += 1
+        # Identifying end of expression
+        elif source_code[i] == "\n":
+            if parantheses_count == 0:
+                tokens.append(Token("call_end", "", line_num))
+            else:
+                error("Parentheses does not match.", line_num);
+
+            i += 1
+            line_num += 1
 
         # Identifying left brace token
         elif source_code[i] == "{":
