@@ -369,6 +369,11 @@ def lexical_analyze(filename, table):
             if parantheses_count > 0:
                 parantheses_count -= 1
                 tokens.append(Token("right_paren", "", line_num))
+
+                # End of expression is a right parentheses followed of a new line or left brace
+                if source_code[i + 1] == "\n" or source_code[i + 1] == left_brace:
+                    tokens.append(Token("call_end", "", line_num))
+
             else:
                error("Parentheses does not match.", line_num);
 
@@ -376,7 +381,7 @@ def lexical_analyze(filename, table):
         # Identifying end of expression
         elif source_code[i] == "\n":
             if parantheses_count == 0:
-                tokens.append(Token("call_end", "", line_num))
+                tokens.append(Token("newline", "", line_num))
             else:
                 error("Parentheses does not match.", line_num);
 
@@ -391,12 +396,6 @@ def lexical_analyze(filename, table):
         # Identifying right brace token
         elif source_code[i] == "}":
             tokens.append(Token("right_brace", "", line_num))
-            i += 1
-
-        # Identifying newline token
-        elif source_code[i] == "\n":
-            tokens.append(Token("newline", "", line_num))
-            line_num += 1
             i += 1
 
         # Identifying assignment token or equivalence token
