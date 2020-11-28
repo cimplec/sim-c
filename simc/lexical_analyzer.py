@@ -371,12 +371,11 @@ def lexical_analyze(filename, table):
                 tokens.append(Token("right_paren", "", line_num))
 
                 # Read spaces between next code
-                while source_code[i+1] is " ":
+                while source_code[i + 1] is " ":
                     i += 1
 
                 # End of expression is a right parentheses followed of a new line or left brace
-                if source_code[i + 1] == "\n" or source_code[i + 1] == "left_brace":
-                    print("LEX: " + source_code[i + 1])
+                if source_code[i + 1] == "\n" or source_code[i + 1] == "{":
                     tokens.append(Token("call_end", "", line_num))
 
             else:
