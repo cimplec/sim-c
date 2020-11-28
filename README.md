@@ -67,3 +67,4 @@ List of contributors who contributed in some features or major bugs of simC (Thi
 - [Martianmellow12](https://github.com/Martianmellow12) - Provide <a href="https://cimplec.github.io/docs/doc.html#inp">input without prompt and type specification</a>
 - [nanoy42](https://github.com/nanoy42) - <a href="https://cimplec.github.io/docs/doc.html#logicalop">Fix logical operators</a>.
 - [ThomasBollmeier](https://github.com/ThomasBollmeier) - <a href="https://cimplec.github.io/docs/doc.html#fndefargs">Functions with default arguments</a> support and fix formal parameters issue. 
+- [Math-O5](https://github.com/Math-O5) - Fix closing parentheses, Add parentheses check.
