@@ -374,7 +374,7 @@ def lexical_analyze(filename, table):
                 while source_code[i + 1] is " ":
                     i += 1
 
-                # End of expression is a right parentheses followed of a new line or left brace
+                # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
                 if source_code[i + 1] == "\n" or source_code[i + 1] == "{":
                     tokens.append(Token("call_end", "", line_num))
 
@@ -542,8 +542,6 @@ def lexical_analyze(filename, table):
         # Otherwise increment the index
         else:
             i += 1
-
-    # tokens.append(Token("call_end", "", line_num))
     
     # Return the generated tokens
     return tokens
