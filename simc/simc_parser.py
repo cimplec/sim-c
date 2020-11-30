@@ -302,10 +302,10 @@ def function_parameters(
 
         i += 1
 
-        check_if(tokens[i].type,
-                 "call_end",
-                 "End of call expected",
-                 tokens[i].line_num)
+        # check_if(tokens[i].type,
+        #          "call_end",
+        #          "End of call expected",
+        #          tokens[i].line_num)
 
         return [], i
 
@@ -342,10 +342,10 @@ def function_parameters(
                  tokens[i].line_num)
         i += 1
 
-        check_if(tokens[i].type,
-                 "call_end",
-                 "End of call expected",
-                 tokens[i].line_num)
+        # check_if(tokens[i].type,
+        #          "call_end",
+        #          "End of call expected",
+        #          tokens[i].line_num)
 
     else:
         error("Function parameters must be identifiers",
@@ -818,10 +818,10 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
 
         # Check if { follows ) in while statement
         check_if(
-            tokens[i].type,
+            tokens[i + 1].type,
             "left_brace",
             "Expected { before while loop body",
-            tokens[i].line_num,
+            tokens[i + 1].line_num,
         )
 
         # Loop until } is reached
@@ -902,10 +902,10 @@ def if_statement(tokens, i, table, func_ret_type):
 
     # Check if { follows ) in if statement
     check_if(
-        tokens[i].type,
+        tokens[i + 1].type,
         "left_brace",
         "Expected { before if body",
-        tokens[i].line_num,
+        tokens[i + 1].line_num,
     )
 
     # Loop until } is reached
@@ -946,10 +946,10 @@ def switch_statement(tokens, i, table, func_ret_type):
     )
 
     check_if(
-        tokens[i].type,
+        tokens[i + 1].type,
         "left_brace",
         "Expected { after switch statement",
-        tokens[i].line_num,
+        tokens[i + 1].line_num,
     )
 
     return OpCode("switch", op_value[1:-1], ""), i, func_ret_type
@@ -1423,9 +1423,10 @@ def parse(tokens, table):
 
     # Loop through all the tokens
     i = 0
-    while i <= len(tokens) - 1:
-        # If token is raw c type
 
+    while i <= len(tokens) - 1:
+
+        # If token is raw c type
         if tokens[i].type == "RAW_C":
             op_codes.append(OpCode("raw",tokens[i].val))
             i += 1
