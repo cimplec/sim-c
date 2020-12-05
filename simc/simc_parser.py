@@ -1,8 +1,8 @@
 # Module to import some helper functions
-from global_helpers import error
+from .global_helpers import error
 
 # Module to import OpCode class
-from op_code import OpCode
+from .op_code import OpCode
 
 
 def check_if(given_type, should_be_types, msg, line_num):
