@@ -1,5 +1,5 @@
 # Module to import OpCode class
-from .op_code import OpCode
+from op_code import OpCode
 
 
 def check_include(opcodes):
@@ -98,6 +98,12 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
             code = "\tprintf(%s);\n" % opcode.val
+        # If opcode is of type typeof then generate a typeof statement
+        if opcode.type == "typeof":
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+
+            code = '\t"%s";\n' % dtype
         # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":
             code = ""
