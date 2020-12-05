@@ -43,7 +43,8 @@ def is_keyword(value):
         "case",
         "default",
         "BEGIN_C",
-        "END_C"
+        "END_C",
+        "array"
     ]
 
 
@@ -231,6 +232,7 @@ def keyword_identifier(source_code, i, table, line_num):
         "if",
         "static",
         "while",
+        "array"
     ]
 
     # Check if identifier is a keyword in class
