@@ -1,8 +1,8 @@
 # Module to import some helper functions
-from .global_helpers import error
+from global_helpers import error
 
 # Module to import OpCode class
-from .op_code import OpCode
+from op_code import OpCode
 
 
 def check_if(given_type, should_be_types, msg, line_num):
@@ -481,6 +481,7 @@ def expression(
         "address_of",
         "right_shift",
         "left_shift",
+        "typeof"
     ]:
         # Check for function call
         if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
@@ -562,6 +563,14 @@ def expression(
                 error("Cannot find the type of %s" % value, tokens[i].line_num)
             elif type == "var" and accept_unkown:
                 op_value += str(value)
+        elif tokens[i].type == "typeof" and tokens[i + 1].type == "left_paren" and tokens[i + 3].type == "right_paren":
+            if (not tokens[i+2].type == "id"):
+                error("typeof operator expects a variable")
+            # op_code, _, _= typeof_statement(tokens, i + 1, table, func_ret_type)
+            _, dtype, _ = table.get_by_id(tokens[i + 2].val)
+            op_type = 1
+            op_value = '"%s"' % dtype
+            i+=3
         elif tokens[i].type in ["newline", "call_end"]:
             break
         else:
@@ -1085,7 +1094,6 @@ def var_statement(tokens, i, table, func_ret_type):
     if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
         # Store the index of identifier
         id_idx = i
-
         # Check if expression follows = in var statement
         op_value, op_type, i, func_ret_type = expression(
             tokens,
@@ -1385,6 +1393,58 @@ def exit_statement(tokens, i, table, func_ret_type):
 
     return OpCode("exit", op_value[1:-1]), i, func_ret_type
 
+def typeof_statement(tokens, i, table, func_ret_type):
+    """
+    Parse typeof statement
+    Params
+    ======
+    tokens        (list)        = List of tokens
+    i             (int)         = Current index in token
+    table         (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+    func_ret_type (string)      = Function return type
+    Returns
+    =======
+    OpCode, int: The opcode for the typeof code and the index after parsing typeof statement
+    Grammar
+    =======
+    typeof_statement -> typeof(id)
+    expr            -> string | number | id | operator
+    string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+    quote           -> "
+    number          -> [0-9]+
+    id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
+    operator        -> + | - | * | /
+    """
+
+    # Check if ( follows typeof statement
+    check_if(
+        tokens[i].type,
+        "left_paren",
+        "Expected ( after typeof statement",
+        tokens[i].line_num,
+    )
+
+    # Check if expression follows ( in typeof statement
+    op_value, op_type, i, func_ret_type = expression(
+        tokens,
+        i,
+        table,
+        "Expected expression inside typeof statement",
+        func_ret_type=func_ret_type,
+    )
+
+    # op_value = op_value[1:-1]
+
+    # Check if typeof statement has closing )
+    check_if(
+        tokens[i - 1].type,
+        "right_paren",
+        "Expected ) after expression in typeof statement",
+        tokens[i - 1].line_num,
+    )
+
+    # Return the opcode and i+1 (the token after typeof statement)
+    return OpCode("typeof", op_value), i + 1, func_ret_type
 
 def parse(tokens, table):
     """
@@ -1397,7 +1457,7 @@ def parse(tokens, table):
     list: The list of opcodes
     Grammar
     =======
-    statement -> print_statement | var_statement | assign_statement | function_definition_statement
+    statement -> print_statement | var_statement | assign_statement | function_definition_statement | typeof_statement
     """
 
     # List of opcodes
@@ -1438,6 +1498,12 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(print_opcode)
+        # If token is of type typeof then generate typeof opcode
+        elif tokens[i].type == "typeof":
+            typeof_opcode, i, func_ret_type = typeof_statement(
+                tokens, i + 1, table, func_ret_type
+            )
+            op_codes.append(typeof_opcode)
         # If token is of type var then generate var opcode
         elif tokens[i].type == "var":
             var_opcode, i, func_ret_type = var_statement(
