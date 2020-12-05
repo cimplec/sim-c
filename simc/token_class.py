@@ -100,6 +100,7 @@ class Token:
             "exit": 34,
             "left_shift": 35,
             "right_shift": 36,
+            "typeof": 37,
         }
 
         return dic.get(str_type, 0)
