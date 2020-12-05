@@ -63,6 +63,7 @@ class OpCode:
             "ptr_assign": 10,
             "ptr_only_assign": 11,
             "unary": 12,
-            "raw":13
+            "raw":13,
+            "typeof":14,
         }
         return dic.get(str_type, 0)
