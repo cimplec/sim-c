@@ -14,7 +14,7 @@ def error(msg, line_num):
 
     # Prints the error to screen in red color and then exits tokenizer
     print("\033[91m[Line %d] Error: %s" % (line_num, msg))
-    print(" \033[m")
+    print(" \033[m", end='')
     sys.exit()
 
 
