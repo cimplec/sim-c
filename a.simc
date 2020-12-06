@@ -1,4 +1,0 @@
-var a = input("Enter a number: ", "i")
-print(a)
-print(PI)
-var b = 2
