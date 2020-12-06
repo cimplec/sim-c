@@ -16,6 +16,10 @@
   <img src="./simc-pipeline.png">
 </p>
 
+## Discussion
+
+<p align="justify">For doubts related to implementation of a feature or to know more about future releases join the official subreddit - <a href="https://www.reddit.com/r/cimplec/">r/cimplec</a>.
+
 ## Start Contributing
 
 <p align="justify">sim-C which has a highly intuitive codebase, you'll be ready to contribute in no time!

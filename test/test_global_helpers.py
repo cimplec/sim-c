@@ -3,7 +3,7 @@ import sys
 
 sys.path.append("..")
 
-from global_helpers import *
+from simc.global_helpers import *
 
 
 class TestGlobalHelpers(unittest.TestCase):
