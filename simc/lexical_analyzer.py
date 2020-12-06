@@ -370,8 +370,12 @@ def lexical_analyze(filename, table):
                 parantheses_count -= 1
                 tokens.append(Token("right_paren", "", line_num))
 
-                # End of expression is a right parentheses followed of a new line or left brace
-                if source_code[i + 1] == "\n" or source_code[i + 1] == left_brace:
+                # Read spaces between next code
+                while source_code[i + 1] is " ":
+                    i += 1
+
+                # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
+                if source_code[i + 1] == "\n" or source_code[i + 1] == "{":
                     tokens.append(Token("call_end", "", line_num))
 
             else:
@@ -538,6 +542,6 @@ def lexical_analyze(filename, table):
         # Otherwise increment the index
         else:
             i += 1
-
+    
     # Return the generated tokens
     return tokens
