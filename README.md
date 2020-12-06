@@ -6,10 +6,6 @@
 
 [![GitHub](https://img.shields.io/github/license/cimplec/sim-c)](https://github.com/cimplec/sim-c/blob/master/LICENSE)  ![GitHub stars](https://img.shields.io/github/stars/cimplec/sim-c?style=plastic)  ![GitHub contributors](https://img.shields.io/github/contributors/cimplec/sim-c)  ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)  ![GitHub last commit](https://img.shields.io/github/last-commit/cimplec/sim-c)  ![GitHub issues](https://img.shields.io/github/issues/cimplec/sim-c?color=darkgreen)  ![GitHub closed issues](https://img.shields.io/github/issues-closed/cimplec/sim-c?color=red)  ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/cimplec/sim-c?color=darkred)
 
-# Hacktoberfest 2020
-
-Hacktoberfest 2020 is here. Contributions are now welcome. Please go through [CONTRIBUTING.md](./CONTRIBUTING.md) and the instructions in readme [Contribute](#contribute). We look forward for your contributions.
-
 ## What is sim-C?
 
 <p align="justify">Often people have trouble programming in C (especially beginners) due to its low level syntax and unavailability of stable third party libraries. We present sim-C a high-level front end for C which creates a dynamically typed syntax for C. User can write code in this high level syntax and then compile it to optimized C code. sim-C does not process the code and simply translates it to C thus, there is no possibility of the code running slowly. So, with sim-C users can write code faster using the high level syntax and at the same time be able to harness the power and speed of a C program. Let us make C cool again.</p>
@@ -19,6 +15,10 @@ Hacktoberfest 2020 is here. Contributions are now welcome. Please go through [CO
 <p align="center">
   <img src="./simc-pipeline.png">
 </p>
+
+## Discussion
+
+<p align="justify">For doubts related to implementation of a feature or to know more about future releases join the official subreddit - <a href="https://www.reddit.com/r/cimplec/">r/cimplec</a>.
 
 ## Start Contributing
 
@@ -49,16 +49,7 @@ The following resources are a good place to get to know more about simC:-
 1) Writing code in C? Simplify your life with sim-C <a href="https://dev.to/cimplec/writing-code-in-c-simplify-your-life-with-sim-c-2dkj">Dev.to</a>, <a href="https://medium.com/oss-build/writing-code-in-c-simplify-your-life-with-sim-c-9dd98f882bf8">Medium</a>.
 2) Getting Started with sim-C <a href="https://dev.to/cimplec/getting-started-with-sim-c-4iek">Dev.to</a>, <a href="https://medium.com/oss-build/getting-started-with-sim-c-1397ee539877">Medium</a>.
 
-Apart from these blog posts, you can also checkout the <a href="https://cimplec.github.io/docs">official docs</a>.
-
-### Instructions for first time contributors/beginner level contributors for question related issues during HACKTOBERFEST
-
-- Start working on the issues once you are assigned to them. Head over to the issue and comment that you want it to be assigned to you. Once the maintainer assigns the issue to you, start working on it. Issues will be assigned on a First Come First Serve (FCFS) basis.
-- Once the issue is assigned, you have one week (7 Days) to submit the PR. Failing to do so will get the issue reassigned to someone else. As each issue related to questions are being assigned to single contributor at a time, we sincerely hope that you cooperate with us.
-- If you create a PR without the issue being assigned to you, the PR will be marked spam as you are not adhering to the rules.   
-- The simC code that you write has to placed in the location simc-codes directory. If not found in the right place, our maintainers would write a comment to the PR as a warning and if the correct location is still not provided on the resubmission, the PR would be marked spam for not adhering to the rules.
-
-Before moving further please go through the rules in [CONTRIBUTING.md](./CONTRIBUTING.md)   
+Apart from these blog posts, you can also checkout the <a href="https://cimplec.github.io/docs">official docs</a>.  
 
 ## License
 
@@ -80,3 +71,4 @@ List of contributors who contributed in some features or major bugs of simC (Thi
 - [Martianmellow12](https://github.com/Martianmellow12) - Provide <a href="https://cimplec.github.io/docs/doc.html#inp">input without prompt and type specification</a>
 - [nanoy42](https://github.com/nanoy42) - <a href="https://cimplec.github.io/docs/doc.html#logicalop">Fix logical operators</a>.
 - [ThomasBollmeier](https://github.com/ThomasBollmeier) - <a href="https://cimplec.github.io/docs/doc.html#fndefargs">Functions with default arguments</a> support and fix formal parameters issue. 
+- [Math-O5](https://github.com/Math-O5) - Fix closing parentheses, Add parentheses check.

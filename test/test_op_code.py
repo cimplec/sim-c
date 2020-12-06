@@ -3,7 +3,7 @@ import sys
 
 sys.path.append("..")
 
-from op_code import OpCode
+from simc.op_code import OpCode
 
 
 class TestOpCodeClass(unittest.TestCase):

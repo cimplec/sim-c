@@ -313,7 +313,7 @@ def lexical_analyze(filename, table):
 
     # Parantheses checker for detecting function call
     parantheses_count = 0
-
+    
     # To store comment string
     comment_str = ""
 
@@ -358,9 +358,9 @@ def lexical_analyze(filename, table):
             tokens.append(token)
 
         # Identifying left paren token
+
         elif source_code[i] == "(":
-            if tokens[-1].type == "id" or parantheses_count > 0:
-                parantheses_count += 1
+            parantheses_count += 1
             tokens.append(Token("left_paren", "", line_num))
             i += 1
 
@@ -368,13 +368,29 @@ def lexical_analyze(filename, table):
         elif source_code[i] == ")":
             if parantheses_count > 0:
                 parantheses_count -= 1
+                tokens.append(Token("right_paren", "", line_num))
 
-            tokens.append(Token("right_paren", "", line_num))
+                # Read spaces between next code
+                while source_code[i + 1] is " ":
+                    i += 1
 
-            if parantheses_count == 0:
-                tokens.append(Token("call_end", "", line_num))
+                # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
+                if source_code[i + 1] == "\n" or source_code[i + 1] == "{":
+                    tokens.append(Token("call_end", "", line_num))
+
+            else:
+               error("Parentheses does not match.", line_num);
 
             i += 1
+        # Identifying end of expression
+        elif source_code[i] == "\n":
+            if parantheses_count == 0:
+                tokens.append(Token("newline", "", line_num))
+            else:
+                error("Parentheses does not match.", line_num);
+
+            i += 1
+            line_num += 1
 
         # Identifying left brace token
         elif source_code[i] == "{":
@@ -384,12 +400,6 @@ def lexical_analyze(filename, table):
         # Identifying right brace token
         elif source_code[i] == "}":
             tokens.append(Token("right_brace", "", line_num))
-            i += 1
-
-        # Identifying newline token
-        elif source_code[i] == "\n":
-            tokens.append(Token("newline", "", line_num))
-            line_num += 1
             i += 1
 
         # Identifying assignment token or equivalence token
@@ -532,6 +542,6 @@ def lexical_analyze(filename, table):
         # Otherwise increment the index
         else:
             i += 1
-
+    
     # Return the generated tokens
     return tokens
