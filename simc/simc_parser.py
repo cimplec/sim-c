@@ -1396,7 +1396,7 @@ def array_statement(tokens, i, table, func_ret_type):
         # Map datatype to appropriate datatype in C
         prec_to_type = {
             0: "string",
-            1: "string",
+            1: "char*",
             2: "char",
             3: "int",
             4: "float",
