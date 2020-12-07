@@ -101,6 +101,8 @@ class Token:
             "left_shift": 35,
             "right_shift": 36,
             "array": 37,
+            "left_bracket": 38,
+            "right_bracket": 39,
         }
 
         return dic.get(str_type, 0)
