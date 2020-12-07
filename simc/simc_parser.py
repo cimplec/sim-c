@@ -446,7 +446,8 @@ def array_assignment(
 
     # Check if identifier follows for keyword
     check_if(tokens[i].type, "left_brace", "Expected  {", tokens[i].line_num)
-    
+    op_value += "{"
+
     # Loop until values expected or expression is not correctly
     while i < len(tokens)-1:
         
@@ -456,27 +457,29 @@ def array_assignment(
 
         # If is a new line, go to next
         if(tokens[i].type == "newline"):
+            op_value += "\n"
             i += 1
             continue 
 
         # Check end  of expression, stop loop
         if(tokens[i].type == "right_brace"):
+            op_value += "}"
             break
         
         # Check for comma before next element
         if expected_comma and tokens[i].type == "comma":
             expected_comma = False
+            op_value += ","
             i += 1
             continue
-        elif expected_comma:
-            error("HERE: Unexpected value, expected values properly separed by comma", tokens[i].line_num);
+        elif expected_comma or (expected_comma is False and tokens[i].type == "comma"):
+            error("Expected values properly separed by comma", tokens[i].line_num);
 
         # If token is identifier or constant
         if tokens[i].type in ["number", "string", "id"]:
             # Fetch information from symbol table
             value, type, typedata = table.get_by_id(tokens[i].val)
 
-            print(typed + ' ' + type)
             # Check if there is more than one type in initializers
             if(count_values > 1 and type != typed):
                 error("Too many types in initializers", tokens[i].line_num)
@@ -511,17 +514,10 @@ def array_assignment(
                     else op_type
                 )
             elif type in ["var", "declared"]:
-                print("DO SOMETHING Var ", tokens[i].type)
-            #     error("Cannot find the type of %s" % value, tokens[i].line_num)
-            # elif type == "var" and accept_unkown:
-            #     op_value += str(value)
-
+                error("Cannot find the type of %s" % value, tokens[i].line_num)
+        
             # Expected comma 
-            expected_comma != True
-
-        # Expected comma
-        # else:
-        #     error("Values must be properly separed by comma", tokens[i].line_num);
+            expected_comma = True
 
         count_values += 1
         i += 1
@@ -571,6 +567,9 @@ def expression(
 
     #Mapping simc constant name to c constant name
     math_constants = {"PI":"M_PI", "E":"M_E" , "inf":"INFINITY", "NaN":"NAN"}
+
+    # count parentheses
+    count_paren = 0
 
     # Loop until expression is not parsed completely
     while i < len(tokens) and tokens[i].type in [
@@ -1400,7 +1399,7 @@ def array_statement(tokens, i, table, func_ret_type):
         return (
             OpCode(
                 "array_assign",
-                table.symbol_table[tokens[id_idx].val][0] + "---" + op_value,
+                table.symbol_table[tokens[id_idx].val][0] + "---" + str(num_field_expec) + "---" + op_value,
                 prec_to_type[op_type],
             ),
             i,
@@ -1410,7 +1409,7 @@ def array_statement(tokens, i, table, func_ret_type):
         error("Invalid Syntax for declaration", tokens[i].line_num)
     else:
         # Get the value from symbol table by id
-        value, type, _ = table.get_by_id(tokens[i].val)
+        value, type, _ = table.get_by_id(tokens[id_idx].val)
 
         # If already declared then throw error
         if type in [
@@ -1426,10 +1425,9 @@ def array_statement(tokens, i, table, func_ret_type):
             error("Variable %s already declared" % value, tokens[i].line_num)
 
         # Set declared
-        table.symbol_table[tokens[i].val][1] = "declared"
+        table.symbol_table[tokens[id_idx].val][1] = "declared"
 
-        print("DEBUG: ", value)
-        return OpCode("array_no_assign", value), i + 1
+        return (OpCode("array_no_assign", value + "---" + str(num_field_expec)), i, func_ret_type)
 
 
 def assign_statement(tokens, i, table, func_ret_type):
