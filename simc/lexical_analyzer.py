@@ -404,6 +404,16 @@ def lexical_analyze(filename, table):
             tokens.append(Token("right_brace", "", line_num))
             i += 1
 
+        # Identifying left bracket token
+        elif source_code[i] == "[":
+            tokens.append(Token("left_bracket", "", line_num))
+            i += 1
+
+        # Identifying right bracket token
+        elif source_code[i] == "]":
+            tokens.append(Token("right_bracket", "", line_num))
+            i += 1
+            
         # Identifying assignment token or equivalence token
         elif source_code[i] == "=":
             if source_code[i + 1] != "=":
