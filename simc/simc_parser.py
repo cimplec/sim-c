@@ -475,10 +475,17 @@ def array_assignment(
         elif expected_comma or (expected_comma is False and tokens[i].type == "comma"):
             error("Expected values properly separed by comma", tokens[i].line_num);
 
+            
         # If token is identifier or constant
         if tokens[i].type in ["number", "string", "id"]:
             # Fetch information from symbol table
             value, type, typedata = table.get_by_id(tokens[i].val)
+      
+            # Check if there is more than one type in initializers
+            if(count_values > 1 and type != typed):
+                error("Too many types in initializers", tokens[i].line_num)
+            else:
+                typed = type
 
             # Check for function call
             if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
@@ -493,15 +500,8 @@ def array_assignment(
                 typed = type
                 print("AQui " + typed )
                 i -= 1
-            # Check if there is more than one type in initializers
-            elif(count_values > 1 and type != typed):
-                error("Too many types in initializers", tokens[i].line_num)
-            else:
-                typed = type
-
             # Process element assigned
-            # TODO: check if constant has type
-            if type == "string" and typedata == "constant":
+            elif type == "string" and typedata == "constant":
                 op_value += value
                 op_type = 1
             elif type == "char":
