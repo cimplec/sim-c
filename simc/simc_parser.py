@@ -440,9 +440,6 @@ def expression(
 
     #Mapping simc constant name to c constant name
     math_constants = {"PI":"M_PI", "E":"M_E" , "inf":"INFINITY", "NaN":"NAN"}
-    
-    # Count paren
-    count_paren = 0
 
     # Loop until expression is not parsed completely
     while i < len(tokens) and tokens[i].type in [
@@ -1170,13 +1167,12 @@ def array_statement(tokens, i, table, func_ret_type):
     tokens      (list) = List of tokens
     i           (int)  = Current index in token
     table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-    func_ret_type (string) = Function return type
     Returns
     =======
-    OpCode, int: The opcode for the var_assign/var_no_assign code and the index after parsing var statement
+    OpCode, int: The opcode for the array_assign/array_no_assign code and the index after parsing var statement
     Grammar
     =======
-    var_statement   -> var id [= expr]?
+    array_statement   -> array id [= expr]?
     expr            -> string | number | id | operator
     string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
     quote           -> "
@@ -1185,11 +1181,51 @@ def array_statement(tokens, i, table, func_ret_type):
     operator        -> + | - | * | /
     """
 
-    is_ptr, count_ast, i = check_ptr(tokens, i)
-    # Check if identifier is present after var
-    check_if(tokens[i].type, "id", "Expected id after var keyword", tokens[i].line_num)
+    # Numbers of fildes to initialize in array
+    num_field_expec = -1
 
-    # Tokens that are not accepted after declaration of a variable
+    # Store the index of identifier
+    id_idx = i
+
+    # Check if identifier is present after var
+    check_if(tokens[i].type, "id", "Expected id after array keyword", tokens[i].line_num)
+
+     # Check if array statement has opening [ (left_bracket)
+    check_if(
+        tokens[i + 1].type,
+        "left_bracket",
+        "Expected [ after expression in array statement",
+        tokens[i + 1].line_num,
+    )
+
+    # Check if array statement has number defined 
+    check_if(
+        tokens[i + 2].type,
+        "number",
+        "Expected integer number after expression in array statement",
+        tokens[i + 2].line_num,
+    )
+
+    # Fetch information from symbol table
+    value, type, _ = table.get_by_id(tokens[i + 2].val)
+
+    if(type == "int"):
+        num_field_expec = int(value)
+    else:
+        error("Expected integer number after expression in array statement", tokens[i + 2].line_num)
+
+    # Check if array statement has closing ] (right_bracket)
+    check_if(
+        tokens[i + 3].type,
+        "right_bracket",
+        "Expected ] after expression in array statement",
+        tokens[i + 3].line_num,
+    )
+
+    # Position indice to end of array declaration (right bracket)
+    i += 3
+
+    # Tokens that are not accepted after declaration of a array
     invalid_tokens = [
         "plus_equal",
         "minus_equal",
@@ -1204,87 +1240,65 @@ def array_statement(tokens, i, table, func_ret_type):
         "equal",
         "not_equal",
     ]
-    # # Check if variable is also initialized
-    # if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
-    #     # Store the index of identifier
-    #     id_idx = i
+    # Check if array is also initialized
+    if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
+        
+        # Check if expression follows = in array statement
+        op_value, op_type, i = array_assignment(
+            tokens,
+            i + 2,
+            table,
+            num_field_expec,
+            "Required expression after assignment operator",
+        )
 
-    #     # Check if expression follows = in var statement
-    #     op_value, op_type, i, func_ret_type = expression(
-    #         tokens,
-    #         i + 2,
-    #         table,
-    #         "Required expression after assignment operator",
-    #         expect_paren=False,
-    #         func_ret_type=func_ret_type,
-    #     )
-
-    #     # Map datatype to appropriate datatype in C
-    #     prec_to_type = {
-    #         0: "string",
-    #         1: "string",
-    #         2: "char",
-    #         3: "int",
-    #         4: "float",
-    #         5: "double",
-    #     }
+        # Map datatype to appropriate datatype in C
+        prec_to_type = {
+            0: "string",
+            1: "string",
+            2: "char",
+            3: "int",
+            4: "float",
+            5: "double",
+        }
 
         # Modify datatype of the identifier
-        # table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
+        table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
 
-    #     if is_ptr:
-    #         return (
-    #             OpCode(
-    #                 "ptr_assign",
-    #                 table.symbol_table[tokens[id_idx].val][0]
-    #                 + "---"
-    #                 + op_value
-    #                 + "---"
-    #                 + str(count_ast),
-    #                 prec_to_type[op_type],
-    #             ),
-    #             i,
-    #             func_ret_type,
-    #         )
-    #     else:
-    #         # Return the opcode and i (the token after var statement)
-    #         return (
-    #             OpCode(
-    #                 "var_assign",
-    #                 table.symbol_table[tokens[id_idx].val][0] + "---" + op_value,
-    #                 prec_to_type[op_type],
-    #             ),
-    #             i,
-    #             func_ret_type,
-    #         )
-    # elif i + 1 < len(tokens) and tokens[i + 1].type in invalid_tokens:
-    #     error("Invalid Syntax for declaration", tokens[i].line_num)
-    # else:
-    # Get the value from symbol table by id
-    value, type, _ = table.get_by_id(tokens[i].val)
+        # Return the opcode and i (the token after var statement)
+        return (
+            OpCode(
+                "array_assign",
+                table.symbol_table[tokens[id_idx].val][0] + "---" + op_value,
+                prec_to_type[op_type],
+            ),
+            i,
+            op_type,
+        )
+    elif i + 1 < len(tokens) and tokens[i + 1].type in invalid_tokens:
+        error("Invalid Syntax for declaration", tokens[i].line_num)
+    else:
+        # Get the value from symbol table by id
+        value, type, _ = table.get_by_id(tokens[i].val)
 
-    # If already declared then throw error
-    if type in [
-        "declared",
-        "int",
-        "char",
-        "float",
-        "double",
-        "string",
-        "char *",
-        "char*",
-    ]:
-        error("Variable %s already declared" % value, tokens[i].line_num)
+        # If already declared then throw error
+        if type in [
+            "declared",
+            "int",
+            "char",
+            "float",
+            "double",
+            "string",
+            "char *",
+            "char*",
+        ]:
+            error("Variable %s already declared" % value, tokens[i].line_num)
 
-    # Set declared
-    table.symbol_table[tokens[i].val][1] = "declared"
+        # Set declared
+        table.symbol_table[tokens[i].val][1] = "declared"
 
-    #     # Return the opcode and i+1 (the token after var statement)
-    #     if is_ptr:
-    #         return OpCode("ptr_no_assign", value), i + 1, func_ret_type
-
-    print("DEBUG: ", value)
-    return OpCode("array_no_assign", value), i + 1, func_ret_type
+        print("DEBUG: ", value)
+        return OpCode("array_no_assign", value), i + 1
 
 
 def assign_statement(tokens, i, table, func_ret_type):
