@@ -3,7 +3,7 @@ import sys
 
 sys.path.append('..')
 
-from symbol_table import SymbolTable
+from simc.symbol_table import SymbolTable
 
 class TestSymbolTableClass(unittest.TestCase):
 
