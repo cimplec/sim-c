@@ -498,7 +498,6 @@ def array_assignment(
                 type_to_prec = {"char*": 1, "char": 2, "int": 3, "float": 4, "double": 5}
                 op_type = type_to_prec[table.get_by_id(table.get_by_symbol(val[0]))[1]]
                 typed = type
-                print("AQui " + typed )
                 i -= 1
             # Process element assigned
             elif type == "string" and typedata == "constant":
@@ -1699,13 +1698,6 @@ def parse(tokens, table):
 
     # If function return type could not be figured out during return then do it while calling
     func_ret_type = {}
-
-    # DEBUG
-    print("Tokens:", end=' ')
-    for j in range(len(tokens)-1):
-        print(tokens[j].type, end=' ')
-    print(' ')
-    # DEBUG
 
     # Loop through all the tokens
     i = 0
