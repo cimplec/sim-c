@@ -480,8 +480,21 @@ def array_assignment(
             # Fetch information from symbol table
             value, type, typedata = table.get_by_id(tokens[i].val)
 
+            # Check for function call
+            if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
+                fun_opcode, i, func_ret_type = function_call_statement(
+                    tokens, i, table, {}
+                )
+                val = fun_opcode.val.split("---")
+                params = val[1].split("&&&")
+                op_value += val[0] + "(" + ", ".join(params) + ")"
+                type_to_prec = {"char*": 1, "char": 2, "int": 3, "float": 4, "double": 5}
+                op_type = type_to_prec[table.get_by_id(table.get_by_symbol(val[0]))[1]]
+                typed = type
+                print("AQui " + typed )
+                i -= 1
             # Check if there is more than one type in initializers
-            if(count_values > 1 and type != typed):
+            elif(count_values > 1 and type != typed):
                 error("Too many types in initializers", tokens[i].line_num)
             else:
                 typed = type
@@ -515,10 +528,9 @@ def array_assignment(
                 )
             elif type in ["var", "declared"]:
                 error("Cannot find the type of %s" % value, tokens[i].line_num)
-        
+
             # Expected comma 
             expected_comma = True
-
         count_values += 1
         i += 1
 
