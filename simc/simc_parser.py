@@ -529,11 +529,11 @@ def expression(
                         _, type, _ = table.get_by_id(table.get_by_symbol(var))
                         if type == "var":
                             error("Unknown variable %s" % var, tokens[i].line_num)
-                        value = value.replace(var, type_to_fs[type])
+                        value = value.replace('{'+var+'}', type_to_fs[type])
                         value += ", " + var
 
                     # Replace all {} in string
-                    value = value.replace("{", "").replace("}", "")
+                        value = value.replace("{", "").replace("}", "")
                 op_value += value
                 op_type = 0 if typedata == "constant" else 1
             elif type == "char":
