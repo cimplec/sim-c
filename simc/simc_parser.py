@@ -539,7 +539,7 @@ def expression(
                         value += ", " + var
 
                     # Replace all {} in string
-                        value = value.replace("{", "").replace("}", "")
+                    value = value.replace("{", "").replace("}", "")
                 op_value += value
                 op_type = 0 if typedata == "constant" else 1
             elif type == "char":
