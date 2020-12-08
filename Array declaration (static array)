@@ -1,0 +1,6 @@
+import array
+arr_1=array.array('i',[])
+arr_2=array.array('i',[1,2,5,3,9,2,1,5,3])
+print("The array after assignment is : ")
+for i in range(0,9):
+    print(arr_2[i])
