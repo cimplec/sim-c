@@ -375,7 +375,7 @@ def lexical_analyze(filename, table):
                     i += 1
 
                 # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
-                if source_code[i + 1] == "\n" or source_code[i + 1] == "{"  or source_code[i + 1] == ",":
+                if source_code[i + 1] in ["\n", "{", "}", ","]:
                     tokens.append(Token("call_end", "", line_num))
 
             else:
