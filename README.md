@@ -19,6 +19,10 @@
 ## Discussion
 
 <p align="justify">For doubts related to implementation of a feature or to know more about future releases join the official subreddit - <a href="https://www.reddit.com/r/cimplec/">r/cimplec</a>.
+  
+## New Developers
+
+<p align="justify">New developers can join simC New Devs slack channel where they can get help from core developers on their issues, link to the slack channel - <a href="https://join.slack.com/t/sim-cnewdevs/shared_invite/zt-jgfthwau-V0INVtZQAaZ4RERZbE2lGg">simC New Devs Slack</a></p>
 
 ## Start Contributing
 
