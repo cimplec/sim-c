@@ -448,6 +448,11 @@ def array_initializer(
     check_if(tokens[i].type, "left_brace", "Expected  {", tokens[i].line_num)
     op_value += "{"
 
+    max_length_array = 2**32 
+   
+    if num_field_expec != '':
+        max_length_array = int(num_field_expec)
+
     # Loop until values expected or expression is not correctly
     while i < len(tokens)-1:
         
@@ -457,7 +462,7 @@ def array_initializer(
             break
         
         # The values overflow size of declared array
-        if(count_values > num_field_expec):
+        if(count_values > max_length_array):
             error("Too many initializers ", tokens[i].line_num)    
 
         # If is a new line, go to next
@@ -489,7 +494,7 @@ def array_initializer(
 
             # Check for function call
             if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
-                fun_opcode, i, func_ret_type = function_call_statement(
+                fun_opcode, i, _ = function_call_statement(
                     tokens, i, table, {}
                 )
                 val = fun_opcode.val.split("---")
@@ -1177,9 +1182,9 @@ def print_statement(tokens, i, table, func_ret_type):
     return OpCode("print", op_value), i + 1, func_ret_type
 
 
-def var_statement(tokens, i, table, func_ret_type, num_field_expec=-1):
+def var_statement(tokens, i, table, func_ret_type):
     """
-    Parse variable declaration [/initialization] statement
+    Parse variable and array declaration [/initialization] statement
     Params
     ======
     tokens      (list) = List of tokens
@@ -1232,7 +1237,10 @@ def var_statement(tokens, i, table, func_ret_type, num_field_expec=-1):
 
     # Check if it is a array initializer
     if tokens[i + 1].type == "left_bracket":
-
+        
+        # Number of position allocated in array
+        num_field_expec = ''
+        
         # Store the index of identifier
         id_idx = i
 
@@ -1240,21 +1248,25 @@ def var_statement(tokens, i, table, func_ret_type, num_field_expec=-1):
         value, type, _ = table.get_by_id(tokens[i + 2].val)
 
         # Expect the number be integer
-        if(type == "int"):
-            num_field_expec = int(value)
+        if type == "int":
+            num_field_expec = value
+
+            # Check if array statement has closing ] (right_bracket)
+            check_if(
+                tokens[i + 3].type,
+                "right_bracket",
+                "Expected ] after expression in array statement",
+                tokens[i + 3].line_num,
+            )
+            # Position indice to end of array declaration (right bracket)
+            i += 3
+        elif tokens[i + 2].type == "right_bracket":
+            # Define max array length
+            num_field_expec =  ''
+            # Position indice to end of array declaration (right bracket)
+            i += 2
         else:
-            error("Expected integer number after expression in array statement", tokens[i + 2].line_num)
-
-        # Check if array statement has closing ] (right_bracket)
-        check_if(
-            tokens[i + 3].type,
-            "right_bracket",
-            "Expected ] after expression in array statement",
-            tokens[i + 3].line_num,
-        )
-
-        # Position indice to end of array declaration (right bracket)
-        i += 3
+            error("Expected integer number after expression in array statement", tokens[i + 2].line_num)  
 
         # Check if array is also initialized
         if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
@@ -1657,12 +1669,6 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(var_opcode)
-        # If token if of type array then generate array opcode
-        elif tokens[i].type == "array":
-            array_opcode, i, func_ret_type = array_statement(
-                tokens, i + 1, table, func_ret_type
-            )
-            op_codes.append(array_opcode)
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
             # If '(' follows id then it is function calling else variable assignment
