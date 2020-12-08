@@ -1,0 +1,4 @@
+MAIN
+var a_var = 42
+print("The value of a_var = {a_var}")
+END_MAIN
