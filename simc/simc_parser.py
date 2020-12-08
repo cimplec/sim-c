@@ -1228,6 +1228,9 @@ def assign_statement(tokens, i, table, func_ret_type):
         "multiply_equal": "*=",
         "divide_equal": "/=",
         "modulus_equal": "%=",
+        "bitwise_and_equal" : "&=",
+        "bitwise_xor_equal":"^=",
+        "bitwise_or_equal":"|=",
     }
     # Check if assignment operator follows identifier name
     check_if(
@@ -1239,6 +1242,9 @@ def assign_statement(tokens, i, table, func_ret_type):
             "multiply_equal",
             "divide_equal",
             "modulus_equal",
+            "bitwise_and_equal",
+            "bitwise_xor_equal",
+            "bitwise_or_equal",
         ],
         "Expected assignment operator after identifier",
         tokens[i].line_num,

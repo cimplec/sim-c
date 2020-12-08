@@ -323,7 +323,9 @@ def lexical_analyze(filename, table):
     # Loop through the source code character by character
     i = 0
     
-    # Stores whether we got a number or variable recently
+    # Stores whether we got a number or variable just before this index
+    # This is to presently differentiate between bitwise and
+    # and address of operations.
     gotNumOrVar = False
     
     while source_code[i] != "\0":
