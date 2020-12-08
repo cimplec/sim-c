@@ -669,6 +669,7 @@ def expression(
                     # Determine the type of variables and append the name of variables at the end
                     type_to_fs = {
                         "char": "%c",
+                        "char*": "%s",
                         "string": "%s",
                         "int": "%d",
                         "float": "%f",
