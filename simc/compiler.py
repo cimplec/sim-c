@@ -97,10 +97,6 @@ def compile(opcodes, c_filename, table):
         code = ""
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
-
-            if opcode.val == '"%s", i': #/# Temporary solution to the printf( ) statement on strings.
-                opcode.val = '"%s", &i' #/# Generation of opcode is flawed when it comes to strings.
-            
             code = "\tprintf(%s);\n" % opcode.val
         # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":
@@ -128,10 +124,7 @@ def compile(opcodes, c_filename, table):
                 code += "\t" + dtype + " " + str(val[0]) + ";\n"
                 if (val[1] != ''): code += "\t" + 'printf("' + str(val[1]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder
-
-                if dtype == 'char*':                            #/# Added this line
-                    code += '", &' + str(val[0]) + ");\n"       #/# Added this line
-                elif "*" in dtype:                              #/# Modified this line
+                if "*" in dtype:
                     code += '", ' + str(val[0]) + ");\n"
                 else:
                     code += '", &' + str(val[0]) + ");\n"
