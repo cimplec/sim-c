@@ -108,7 +108,6 @@ def compile(opcodes, c_filename, table):
 
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
-
             # Get the datatye of the variable
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
@@ -174,7 +173,22 @@ def compile(opcodes, c_filename, table):
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
-
+        elif opcode.type == "array_no_assign":
+            # val contains - <identifier>---<expression>, split that into a list
+            val = opcode.val.split("---")
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            # Check if dtype could be inferred or not
+            opcode.dtype = str(dtype) if dtype is not None else "not_known"
+            code += "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + ";\n"
+        elif opcode.type == "array_assign":
+            # val contains - <identifier>---<expression>, split that into a list
+            val = opcode.val.split("---")
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            # Check if dtype could be inferred or not
+            opcode.dtype = str(dtype) if dtype is not None else "not_known"
+            code += "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + " = " + val[2] + ";\n"
         # If opcode is of type ptr_no_assign then generate declaration statement
         elif opcode.type == "ptr_no_assign":
             val = opcode.val.split("---")

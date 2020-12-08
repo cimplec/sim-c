@@ -43,7 +43,7 @@ def is_keyword(value):
         "case",
         "default",
         "BEGIN_C",
-        "END_C"
+        "END_C",
     ]
 
 
@@ -387,7 +387,7 @@ def lexical_analyze(filename, table):
                     i += 1
 
                 # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
-                if source_code[i + 1] == "\n" or source_code[i + 1] == "{":
+                if source_code[i + 1] in ["\n", "{", "}", ","]:
                     tokens.append(Token("call_end", "", line_num))
 
             else:
@@ -418,6 +418,16 @@ def lexical_analyze(filename, table):
             i += 1
             got_num_or_var = False
 
+        # Identifying left bracket token
+        elif source_code[i] == "[":
+            tokens.append(Token("left_bracket", "", line_num))
+            i += 1
+
+        # Identifying right bracket token
+        elif source_code[i] == "]":
+            tokens.append(Token("right_bracket", "", line_num))
+            i += 1
+            
         # Identifying assignment token or equivalence token
         elif source_code[i] == "=":
             if source_code[i + 1] != "=":
