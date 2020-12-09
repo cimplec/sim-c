@@ -5,11 +5,11 @@ from .global_helpers import error, check_if
 from .op_code import OpCode
 
 # Import various parsing functions
-from .function_parser import function_call_statement, function_definition_statement
-from .array_parser import array_initializer
-from .loop_parser import for_statement, while_statement
-from .conditional_parser import if_statement, switch_statement, case_statement
-from .variable_parser import var_statement, assign_statement
+from .parser.function_parser import function_call_statement, function_definition_statement
+from .parser.array_parser import array_initializer
+from .parser.loop_parser import for_statement, while_statement
+from .parser.conditional_parser import if_statement, switch_statement, case_statement
+from .parser.variable_parser import var_statement, assign_statement
 
 def expression(
     tokens,
