@@ -97,7 +97,6 @@ def compile(opcodes, c_filename, table):
         code = ""
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
-            print( "OPCODE.val is: ", opcode.val ) #/#
 
             if opcode.val == '"%s", i':  # Temporary solution to the printf( ) statement being used on strings
                 opcode.val = '"%s", &i'  
