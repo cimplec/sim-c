@@ -253,6 +253,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
     operator        -> + | - | * | /
     """
+    from .simc_parser import expression
 
     # Check if the identifier is a pointer
     is_ptr = False
