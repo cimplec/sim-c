@@ -26,7 +26,7 @@ def check_if(given_type, should_be_types, msg, line_num):
 
 
 def function_call_statement(tokens, i, table, func_ret_type):
-    """
+    r"""
     Parse function calling statement
     Params
     ======
@@ -79,7 +79,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     # Check if number of actual and formal parameters match
     if num_actual_params < num_required_args:
         error(
-            "Expected at least %d arguments but got %d in function %s".format(
+            "Expected at least %d arguments but got %d in function %s" % (
                 num_required_args, num_actual_params, func_name
             ),
             tokens[i].line_num
@@ -87,7 +87,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     if num_actual_params > num_formal_params:
         error(
-            "Expected not more than %d arguments but got %d in function %s".format(
+            "Expected not more than %d arguments but got %d in function %s" % (
                 num_formal_params, num_actual_params, func_name
             ),
             tokens[i].line_num
@@ -478,7 +478,7 @@ def array_initializer(
             i += 1
             continue
         elif expected_comma or (expected_comma is False and tokens[i].type == "comma"):
-            error("Expected values properly separed by comma", tokens[i].line_num);
+            error("Expected values properly separed by comma", tokens[i].line_num)
 
             
         # If token is identifier or constant
@@ -647,7 +647,7 @@ def expression(
             # Fetch information from symbol table
             value, type, typedata = table.get_by_id(tokens[i].val)
 
-            if type == "string":
+            if type == "string" or type == "char*": 
                 # If { in string then it is a f-string
                 if "{" in value:
                     vars = []
@@ -774,10 +774,10 @@ def expression(
                 i += 1
             elif tokens[i].type == "left_paren":
                 # if(tokens[i-1].type != "id"):
-                count_paren += 1;
+                count_paren += 1
                 op_value += word_to_op[tokens[i].type]
             elif tokens[i].type == "right_paren":
-                count_paren -= 1;
+                count_paren -= 1
 
                 if count_paren < 0:
                     error("Found unexpected ‘)’ in expression", tokens[i].line_num)
@@ -916,7 +916,7 @@ def for_statement(tokens, i, table, func_ret_type):
 
 
 def while_statement(tokens, i, table, in_do, func_ret_type):
-    """
+    r"""
     Parse while statement
     Params
     ======
@@ -1003,7 +1003,7 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
 
 
 def if_statement(tokens, i, table, func_ret_type):
-    """
+    r"""
     Parse if statement
     Params
     ======
@@ -1040,7 +1040,8 @@ def if_statement(tokens, i, table, func_ret_type):
         "Expected expression inside if statement",
         func_ret_type=func_ret_type,
     )
-    op_value_list = op_value.replace(" ", "").split(",")
+    
+    #op_value_list = op_value.replace(" ", "").split(",")    #Commenting this, because this var is not being used.
     # check if ) follows expression in if statement
     check_if(
         tokens[i - 1].type,
@@ -1133,7 +1134,7 @@ def case_statement(tokens, i, table, func_ret_type):
 
 
 def print_statement(tokens, i, table, func_ret_type):
-    """
+    r"""
     Parse print statement
     Params
     ======
@@ -1196,7 +1197,7 @@ def print_statement(tokens, i, table, func_ret_type):
 
 
 def var_statement(tokens, i, table, func_ret_type):
-    """
+    r"""
     Parse variable and array declaration [/initialization] statement
     Params
     ======
@@ -1408,7 +1409,7 @@ def var_statement(tokens, i, table, func_ret_type):
         return OpCode("var_no_assign", value), i + 1, func_ret_type
 
 def assign_statement(tokens, i, table, func_ret_type):
-    """
+    r"""
     Parse assignment statement
     Params
     ======
@@ -1624,7 +1625,7 @@ def exit_statement(tokens, i, table, func_ret_type):
         "Expected expression inside exit statement",
         func_ret_type=func_ret_type,
     )
-    op_value_list = op_value.replace(" ", "").split(",")
+    #op_value_list = op_value.replace(" ", "").split(",")     #Commenting this, because this var is not being used.
     # check if ) follows expression in exit statement
     check_if(
         tokens[i - 1].type,
