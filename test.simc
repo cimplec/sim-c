@@ -1,0 +1,4 @@
+MAIN
+    var i = input( "Enter a string: ", "s" )
+    print(i)
+END_MAIN
