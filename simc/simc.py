@@ -11,7 +11,7 @@ from .symbol_table import SymbolTable
 from .lexical_analyzer import lexical_analyze
 
 # Module for using parser
-from .simc_parser import parse
+from .parser.simc_parser import parse
 
 # Module for using compiler
 from .compiler import compile
