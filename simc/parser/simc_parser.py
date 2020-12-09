@@ -1,8 +1,8 @@
 # Module to import some helper functions
-from .global_helpers import error, check_if
+from ..global_helpers import error, check_if
 
 # Module to import OpCode class
-from .op_code import OpCode
+from ..op_code import OpCode
 
 # Import various parsing functions
 from .function_parser import function_call_statement, function_definition_statement

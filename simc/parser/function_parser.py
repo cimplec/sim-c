@@ -1,6 +1,6 @@
-from .global_helpers import error, check_if
+from ..global_helpers import error, check_if
 
-from .op_code import OpCode
+from ..op_code import OpCode
 
 def function_call_statement(tokens, i, table, func_ret_type):
     """

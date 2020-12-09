@@ -1,6 +1,6 @@
-from .global_helpers import error, check_if
+from ..global_helpers import error, check_if
 
-from .op_code import OpCode
+from ..op_code import OpCode
 
 def array_initializer(
     tokens, 
