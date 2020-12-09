@@ -97,10 +97,6 @@ def compile(opcodes, c_filename, table):
         code = ""
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
-
-            if opcode.val == '"%s", i': #/# Temporary solution to the printf( ) statement on strings.
-                opcode.val = '"%s", &i' #/# Generation of opcode is flawed when it comes to strings.
-            
             code = "\tprintf(%s);\n" % opcode.val
         # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":
@@ -108,7 +104,6 @@ def compile(opcodes, c_filename, table):
 
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
-
             # Get the datatye of the variable
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
@@ -129,10 +124,7 @@ def compile(opcodes, c_filename, table):
                 code += "\t" + dtype + " " + str(val[0]) + ";\n"
                 if (val[1] != ''): code += "\t" + 'printf("' + str(val[1]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder
-
-                if dtype == 'char*':                            #/# Added this line
-                    code += '", &' + str(val[0]) + ");\n"       #/# Added this line
-                elif "*" in dtype:                              #/# Modified this line
+                if "*" in dtype:
                     code += '", ' + str(val[0]) + ");\n"
                 else:
                     code += '", &' + str(val[0]) + ");\n"
@@ -174,7 +166,22 @@ def compile(opcodes, c_filename, table):
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
-
+        elif opcode.type == "array_no_assign":
+            # val contains - <identifier>---<expression>, split that into a list
+            val = opcode.val.split("---")
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            # Check if dtype could be inferred or not
+            opcode.dtype = str(dtype) if dtype is not None else "not_known"
+            code += "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + ";\n"
+        elif opcode.type == "array_assign":
+            # val contains - <identifier>---<expression>, split that into a list
+            val = opcode.val.split("---")
+            # Get the datatye of the variable
+            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            # Check if dtype could be inferred or not
+            opcode.dtype = str(dtype) if dtype is not None else "not_known"
+            code += "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + " = " + val[2] + ";\n"
         # If opcode is of type ptr_no_assign then generate declaration statement
         elif opcode.type == "ptr_no_assign":
             val = opcode.val.split("---")
