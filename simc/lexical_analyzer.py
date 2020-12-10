@@ -191,6 +191,16 @@ def keyword_identifier(source_code, i, table, line_num):
         value += source_code[i]
         i += 1
 
+    if value == "true":
+        return Token("number",
+                     table.entry(1, "int", "constant"),
+                     line_num) , i
+        
+    if value == "false":
+        return Token("number",
+                     table.entry(0, "int", "constant"),
+                     line_num) , i
+
     #Check if value is a math constant or not
     if value in ["PI","E","inf","NaN"]:
         return Token("number",
@@ -233,8 +243,8 @@ def keyword_identifier(source_code, i, table, line_num):
         "if",
         "static",
         "while",
-        "true",
-        "false",
+        "true"
+        "false"
     ]
 
     # Check if identifier is a keyword in class
