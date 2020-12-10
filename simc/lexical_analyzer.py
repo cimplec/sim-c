@@ -191,11 +191,13 @@ def keyword_identifier(source_code, i, table, line_num):
         value += source_code[i]
         i += 1
 
+    #converts boolean const true to integer 1
     if value == "true":
         return Token("number",
                      table.entry(1, "int", "constant"),
-                     line_num) , i
+                     line_num) , i 
         
+    #converts boolean const false to integer 0 
     if value == "false":
         return Token("number",
                      table.entry(0, "int", "constant"),
