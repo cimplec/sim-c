@@ -92,9 +92,13 @@ def compile(opcodes, c_filename, table):
     # Check if the function has returned or not
     has_returned = False
 
+    #Check if we are inside a block to adjust identation
+    in_block = False
     # Loop through all opcodes
     for opcode in opcodes:
         code = ""
+        if in_block :
+            code = "\t"
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
             code = "\tprintf(%s);\n" % opcode.val
@@ -281,9 +285,11 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
             code += "{\n\t"
+            in_block = True
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
-            code += "}\n"
+            code += "\b}\n"
+            in_block = False
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "MAIN":
             code += "\nint main() {\n"
