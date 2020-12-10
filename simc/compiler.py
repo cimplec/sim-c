@@ -280,7 +280,7 @@ def compile(opcodes, c_filename, table):
             code += ");\n"
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
-            code += "{\n"
+            code += "{\n\t"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
             code += "}\n"
