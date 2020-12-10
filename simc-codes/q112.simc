@@ -1,9 +1,0 @@
-fun area_circumcircle_square( side ) {
-    return 3.14159 * side * side / 2
-}
-MAIN
-    var sideLength = input( "Enter side length: ", "f" )
-    var answer = area_circumcircle_square( sideLength )
-    print( "Area of the given Square's Circumcircle: {answer}" )
-
-END_MAIN
