@@ -11,6 +11,9 @@ from .loop_parser import for_statement, while_statement
 from .conditional_parser import if_statement, switch_statement, case_statement
 from .variable_parser import var_statement, assign_statement
 
+# Import parser constants
+from .parser_constants import OP_TOKENS, WORD_TO_OP
+
 def expression(
     tokens,
     i,
@@ -52,49 +55,7 @@ def expression(
     count_paren = 0
 
     # Loop until expression is not parsed completely
-    while i < len(tokens) and tokens[i].type in [
-        "number",
-        "input",
-        "string",
-        "id",
-        "plus",
-        "minus",
-        "multiply",
-        "power",
-        "divide",
-        "bitwise_and",
-        "bitwise_xor",
-        "bitwise_or",
-        "bitwise_and_equal",
-        "bitwise_xor_equal",
-        "bitwise_or_equal",
-        "comma",
-        "equal",
-        "not_equal",
-        "greater_than",
-        "less_than",
-        "greater_than_equal",
-        "less_than_equal",
-        "modulus",
-        "increment",
-        "decrement",
-        "plus_equal",
-        "minus_equal",
-        "multiply_equal",
-        "divide_equal",
-        "modulus_equal",
-        "power_equal",
-        "and",
-        "or",
-        "left_paren",
-        "exit",
-        "right_paren",
-        "newline",
-        "call_end",
-        "address_of",
-        "right_shift",
-        "left_shift",
-    ]:
+    while i < len(tokens) and tokens[i].type in OP_TOKENS:
         # Check for function call
         if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
             fun_opcode, i, func_ret_type = function_call_statement(
@@ -179,51 +140,6 @@ def expression(
         elif tokens[i].type in ["newline", "call_end"]:
             break
         else:
-            word_to_op = {
-                "plus": " + ",
-                "minus": " - ",
-                "multiply": " * ",
-                "divide": " / ",
-                " comma ": ", ",
-                "equal": " == ",
-                "not_equal": " != ",
-                "greater_than": " > ",
-                "less_than": " < ",
-                "greater_than_equal": " >= ",
-                "less_than_equal": " <= ",
-                "input": " scanf ",
-                "modulus": " % ",
-                "increment": " ++ ",
-                "decrement": " -- ",
-                "plus_equal": " += ",
-                "minus_equal": " -= ",
-                "multiply_equal": " *= ",
-                "divide_equal": " /= ",
-                "modulus_equal": " %= ",
-                "and": " && ",
-                "or": " || ",
-                "bitwise_and":" & ",
-                "bitwise_or":" | ",
-                "bitwise_xor":" ^ ",
-                "bitwise_and_equal":" &= ",
-                "bitwise_or_equal":" |= ",
-                "bitwise_xor_equal":" ^= ",
-                "comma": ",",
-                "left_paren": "(",
-                "right_paren": ")",
-                "address_of": "&",
-                "left_shift": " << ",
-                "right_shift": " >> ",
-                "power": ""
-            }
-
-            # if (
-            #     expect_paren
-            #     and tokens[i].type == "right_paren"
-            #     and tokens[i + 1].type in ["newline", "left_brace"]
-            # ):
-            #     break
-
             if tokens[i].type == "power":
                 # Fetch information from symbol table for first operand
                 value_first, _, _ = table.get_by_id(tokens[i-1].val)
@@ -237,17 +153,16 @@ def expression(
 
                 i += 1
             elif tokens[i].type == "left_paren":
-                # if(tokens[i-1].type != "id"):
-                count_paren += 1;
-                op_value += word_to_op[tokens[i].type]
+                count_paren += 1
+                op_value += WORD_TO_OP[tokens[i].type]
             elif tokens[i].type == "right_paren":
-                count_paren -= 1;
+                count_paren -= 1
 
                 if count_paren < 0:
                     error("Found unexpected ‘)’ in expression", tokens[i].line_num)
-                op_value += word_to_op[tokens[i].type]
+                op_value += WORD_TO_OP[tokens[i].type]
             else:
-                op_value += word_to_op[tokens[i].type]
+                op_value += WORD_TO_OP[tokens[i].type]
 
         i += 1
 
