@@ -62,21 +62,42 @@ def run():
     # Get opcodes from parser
     op_codes = parse(tokens, table)
 
+    # Remove opcodes of unused functions from modules
+    all_module_opcodes_pruned = {}
+    for module_name, module_opcodes in all_module_opcodes.items():
+        all_module_opcodes_pruned[module_name] = []
+        i = 0
+        while(i < len(module_opcodes)):
+            if module_opcodes[i].type == "func_decl":
+                func_name = module_opcodes[i].val.split("---")[0].strip()
+                func_symbol_table_val = table.symbol_table.get(table.get_by_symbol(func_name))
+                func_ret_type = func_symbol_table_val[1]
+                if func_ret_type == "not_known" or type(func_ret_type) == list:
+                    beg_idx = i
+                    while(module_opcodes[i].type != "scope_over"):
+                        i += 1
+                else:
+                    all_module_opcodes_pruned[module_name].append(module_opcodes[i])
+            else:
+                all_module_opcodes_pruned[module_name].append(module_opcodes[i])
+            i += 1
+
     # Option to check out opcodes
     if len(sys.argv) > 2 and sys.argv[2] == 'opcode':
         for op_code in op_codes:
             print(op_code)
 
-        for module_name, module_opcodes in all_module_opcodes.items():
+        for module_name, module_opcodes in all_module_opcodes_pruned.items():
             print("\n---OpCodes for module " + module_name + "---")
             for op_code in module_opcodes:
                 print(op_code)
+                    
 
     # Compile to C code
     compile(op_codes, c_filename, table)
 
     # Compile the module functions
-    for module_name, module_opcodes in all_module_opcodes.items():
+    for module_name, module_opcodes in all_module_opcodes_pruned.items():
         module_c_filename = module_name + ".h"
 
         compile(module_opcodes, module_c_filename, table)

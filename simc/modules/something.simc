@@ -1,7 +1,0 @@
-fun add(c, d) {
-    return c + d
-}
-
-fun sub(e, f) {
-    return e - f
-}
