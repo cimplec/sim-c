@@ -1,5 +1,6 @@
 # Standard library to take input as command line argument
 import sys
+import os
 
 # Module to import some helper functions
 from .global_helpers import error, is_alpha, is_alnum, is_digit
@@ -44,6 +45,7 @@ def is_keyword(value):
         "default",
         "BEGIN_C",
         "END_C",
+        "import",
     ]
 
 
@@ -317,8 +319,17 @@ def lexical_analyze(filename, table):
     # To store comment string
     comment_str = ""
 
+    # Directory where installed modules can be found
+    module_dir = os.path.join(os.path.dirname(__file__), "modules")
+
+    # Path to source code of all the modules
+    module_source_paths = []
+
     # To indicate if BEGIN_C has been encountered
     raw_c = False
+
+    # Flag to check whether id is a module name or a normal id, this is set to true whenever an import is encountered
+    is_id_module_name = False
 
     # Loop through the source code character by character
     i = 0
@@ -359,14 +370,29 @@ def lexical_analyze(filename, table):
         # If alphabet or number appears then it might be either a keyword or an identifier
         elif is_alnum(source_code[i]):
             token, i = keyword_identifier(source_code, i, table, line_num)
-            if(token.type == "id"):
+            
+            if token.type == "id":
                 got_num_or_var = True
-            if token.type == "BEGIN_C":
+                if is_id_module_name:
+                    is_id_module_name = not is_id_module_name
+
+                    module_name, _, _ = table.get_by_id(token.val)
+                    module_path = os.path.join(module_dir, module_name + ".simc")
+
+                    if os.path.exists(module_path):
+                        module_source_paths.append(module_path)
+                    else:
+                        error("Module " + str(module_name) + " not found, install it before using", line_num)
+
+            elif token.type == "BEGIN_C":
                 raw_c = True
                 continue
             elif token.type == "END_C":
                 raw_c = False
                 continue
+            elif token.type == "import":
+                is_id_module_name = True
+
             tokens.append(token)
 
         # Identifying left paren token
@@ -608,4 +634,4 @@ def lexical_analyze(filename, table):
             i += 1
 
     # Return the generated tokens
-    return tokens
+    return tokens, module_source_paths

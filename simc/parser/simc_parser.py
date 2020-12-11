@@ -416,12 +416,20 @@ def parse(tokens, table):
             i += 1
             continue
 
+
         # If token is of type print then generate print opcode
         if tokens[i].type == "print":
             print_opcode, i, func_ret_type = print_statement(
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(print_opcode)
+        # If token is of type import then generate import opcode
+        elif tokens[i].type == "import":
+            i += 1
+            check_if(tokens[i].type, "id", "Expected module name after import", tokens[i].line_num)
+            value, _, _ = table.get_by_id(tokens[i].val)
+            op_codes.append(OpCode("import", value))
+            i += 1
         # If token is of type var then generate var opcode
         elif tokens[i].type == "var":
             var_opcode, i, func_ret_type = var_statement(
@@ -581,6 +589,7 @@ def parse(tokens, table):
                     expect_paren=False,
                     func_ret_type=func_ret_type,
                 )
+
             if func_name == "" and main_fn_count == 0:
                 error("Return statement outside any function", tokens[i].line_num)
             else:
@@ -603,9 +612,12 @@ def parse(tokens, table):
                     if op_type == -1:
                         func_ret_type[func_name] = beg_idx
                     # Change return type of function
-                    table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[
-                        op_type
-                    ]
+                    if op_type != -1:
+                        table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[
+                            op_type
+                        ]
+                    else:
+                        table.symbol_table[table.get_by_symbol(func_name)][1] = [prec_to_type[op_type], beg_idx, tokens]
 
             op_codes.append(OpCode("return", op_value, ""))
         # If token is of type break then generate break opcode
