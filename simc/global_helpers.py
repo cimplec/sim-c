@@ -1,6 +1,19 @@
 # Library to exit code when error occurs
 import sys
 
+def check_incomplete(index, line_num, tokens):
+    """
+    Check if the code written by the user is incomplete, in which case it throws an error and exits
+    Params
+    =====
+    index          (int)          = Current index of the token
+    line_num       (int)          = Line number
+    tokens         (list)         = List containing the tokens
+    """
+
+    if index >= len(tokens):
+        error("Code is incomplete", line_num)
+
 def check_if(given_type, should_be_types, msg, line_num):
     """
     Check if type matches what it should be otherwise throw an error and exit
