@@ -47,6 +47,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
         expect_paren=True,
         func_ret_type=func_ret_type,
     )
+
     # op_value start in 1 because it should start with "params)" not "(params)"
     op_value = op_value[1:]
     op_value_list = op_value.replace(" ", "").split(",")
@@ -58,7 +59,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     # Check if number of actual and formal parameters match
     if num_actual_params < num_required_args:
         error(
-            "Expected at least %d arguments but got %d in function %s".format(
+            "Expected at least {} arguments but got {} in function {}".format(
                 num_required_args, num_actual_params, func_name
             ),
             tokens[i].line_num
@@ -66,7 +67,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     if num_actual_params > num_formal_params:
         error(
-            "Expected not more than %d arguments but got %d in function %s".format(
+            "Expected not more than {} arguments but got {} in function {}".format(
                 num_formal_params, num_actual_params, func_name
             ),
             tokens[i].line_num
@@ -93,8 +94,17 @@ def function_call_statement(tokens, i, table, func_ret_type):
         # Set the datatype of the formal parameter
         table.symbol_table[table.get_by_symbol(params[j])][1] = dtype
 
+    func_token_val = table.symbol_table.get(table.get_by_symbol(func_name), -1)
+    use_module_tokens = False
+    if func_token_val != -1 and type(func_token_val) == list:
+        func_ret_type = {func_name: func_token_val[1][1]}
+        use_module_tokens = True
+
     if func_name in func_ret_type.keys():
-        _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "")
+        if use_module_tokens:
+            _, op_type, _, _ = expression(func_token_val[1][2], func_ret_type[func_name], table, "")
+        else:
+            _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "")
 
         #  Map datatype to appropriate datatype in C
         prec_to_type = {

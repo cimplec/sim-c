@@ -106,7 +106,7 @@ def compile(opcodes, c_filename, table):
         
         # If opcode is of type import then generate include statement
         if opcode.type == "import":
-            code = "#include \"" + opcode.val + ".h\""
+            code = "#include \"" + opcode.val + ".h\"\n"
 
         # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":
@@ -284,7 +284,7 @@ def compile(opcodes, c_filename, table):
             # Compile the actual params
             has_param = False
             for param in params:
-                if len(params[i]) > 0:
+                if len(params) > 0:
                     has_param = True
                     code += param + ", "
             if has_param:

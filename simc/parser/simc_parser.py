@@ -589,6 +589,7 @@ def parse(tokens, table):
                     expect_paren=False,
                     func_ret_type=func_ret_type,
                 )
+
             if func_name == "" and main_fn_count == 0:
                 error("Return statement outside any function", tokens[i].line_num)
             else:
@@ -611,9 +612,12 @@ def parse(tokens, table):
                     if op_type == -1:
                         func_ret_type[func_name] = beg_idx
                     # Change return type of function
-                    table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[
-                        op_type
-                    ]
+                    if op_type != -1:
+                        table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[
+                            op_type
+                        ]
+                    else:
+                        table.symbol_table[table.get_by_symbol(func_name)][1] = [prec_to_type[op_type], beg_idx, tokens]
 
             op_codes.append(OpCode("return", op_value, ""))
         # If token is of type break then generate break opcode
