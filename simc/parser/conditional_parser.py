@@ -26,6 +26,8 @@ def if_statement(tokens, i, table, func_ret_type):
     """
     from .simc_parser import expression
 
+    # checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
     # Check if ( follows if statement
     check_if(
         tokens[i].type,

@@ -43,6 +43,9 @@ def var_statement(tokens, i, table, func_ret_type):
     from .array_parser import array_initializer
     from .simc_parser import expression
 
+    #checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
+
     is_ptr, count_ast, i = check_ptr(tokens, i)
     # Check if identifier is present after var
     check_if(tokens[i].type, "id", "Expected id after var keyword", tokens[i].line_num)

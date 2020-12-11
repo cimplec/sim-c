@@ -418,6 +418,9 @@ def parse(tokens, table):
 
     while i <= len(tokens) - 1:
 
+        # checking if code is incomplete
+        check_incomplete(i + 1, tokens[i].line_num, tokens)
+
         # If token is raw c type
         if tokens[i].type == "RAW_C":
             op_codes.append(OpCode("raw",tokens[i].val))
@@ -441,6 +444,7 @@ def parse(tokens, table):
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
             # If '(' follows id then it is function calling else variable assignment
+
 
             # checking if code is incomplete
             check_incomplete(i + 1, tokens[i].line_num, tokens)
@@ -510,16 +514,16 @@ def parse(tokens, table):
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
 
-            # checking if code is incomplete
-            check_incomplete(i + 1, tokens[i].line_num, tokens)
-
             # If \n follows ) then skip all the \n characters
             if tokens[i + 1].type == "newline":
                 i += 1
                 while tokens[i].type == "newline":
                     i += 1
                 i -= 1
-            
+
+            # checking if code is incomplete
+            check_incomplete(i + 1, tokens[i].line_num, tokens)
+
             check_if(
                 tokens[i + 1].type,
                 "left_brace",
@@ -531,6 +535,10 @@ def parse(tokens, table):
             i += 1
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
+
+            # checking if code is incomplete
+            check_incomplete(i + 1, tokens[i].line_num, tokens)
+
             while_opcode, i, func_ret_type = while_statement(
                 tokens, i + 1, table, in_do, func_ret_type
             )
@@ -539,6 +547,7 @@ def parse(tokens, table):
             op_codes.append(while_opcode)
         # If token is of type if then generate if opcode
         elif tokens[i].type == "if":
+
             if_opcode, i, func_ret_type = if_statement(
                 tokens, i + 1, table, func_ret_type
             )
@@ -547,6 +556,10 @@ def parse(tokens, table):
             if_count += 1
         # If token is of type exit then generate exit opcode
         elif tokens[i].type == "exit":
+
+             # checking if code is incomplete
+            check_incomplete(i + 1, tokens[i].line_num, tokens)
+
             exit_opcode, i, func_ret_type = exit_statement(
                 tokens, i + 1, table, func_ret_type
             )
@@ -554,6 +567,9 @@ def parse(tokens, table):
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
             
+             # checking if code is incomplete
+            check_incomplete(i + 1, tokens[i].line_num, tokens)
+
             # If \n follows else then skip all the \n characters
             if tokens[i + 1].type == "newline":
                 i += 1
@@ -583,6 +599,9 @@ def parse(tokens, table):
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             beg_idx = i + 1
+
+            # checking if code is incomplete
+            check_incomplete(i + 1, tokens[i].line_num, tokens)
             if tokens[i + 1].type not in ["id", "number", "string", "left_paren"]:
                 op_value = ""
                 op_type = 6
