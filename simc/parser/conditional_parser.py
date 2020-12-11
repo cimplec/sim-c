@@ -1,4 +1,4 @@
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 from ..op_code import OpCode
 
@@ -26,6 +26,8 @@ def if_statement(tokens, i, table, func_ret_type):
     """
     from .simc_parser import expression
 
+    # checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
     # Check if ( follows if statement
     check_if(
         tokens[i].type,
@@ -50,6 +52,9 @@ def if_statement(tokens, i, table, func_ret_type):
         "Expected ) after expression in if statement",
         tokens[i - 1].line_num,
     )
+
+    #checking if code is incomplete
+    check_incomplete(i+1, tokens[i].line_num, tokens)
 
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
@@ -103,6 +108,9 @@ def switch_statement(tokens, i, table, func_ret_type):
         "Expected ) after expression in switch",
         tokens[i - 1].line_num,
     )
+
+    #checking if code is incomplete
+    check_incomplete(i+1, tokens[i].line_num, tokens)
 
     check_if(
         tokens[i + 1].type,
