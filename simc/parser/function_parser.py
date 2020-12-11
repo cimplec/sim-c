@@ -96,7 +96,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     func_token_val = table.symbol_table.get(table.get_by_symbol(func_name), -1)
     use_module_tokens = False
-    if func_token_val != -1 and type(func_token_val) == list:
+    if func_token_val != -1 and type(func_token_val[1][2]) == list:
         func_ret_type = {func_name: func_token_val[1][1]}
         use_module_tokens = True
 
