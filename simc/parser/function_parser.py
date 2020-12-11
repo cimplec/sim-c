@@ -1,4 +1,4 @@
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 from ..op_code import OpCode
 
@@ -192,6 +192,9 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     # Get function name
     func_name, _, _ = table.get_by_id(func_idx)
+
+    #checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
 
     # Check if ( follows id in function
     check_if(
