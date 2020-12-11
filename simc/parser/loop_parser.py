@@ -1,4 +1,4 @@
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 from ..op_code import OpCode
 
@@ -25,11 +25,14 @@ def for_statement(tokens, i, table, func_ret_type):
     # Check if identifier follows for keyword
     check_if(tokens[i].type, "id", "Expected variable name", tokens[i].line_num)
 
+    #checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
+
     # Check if in follows identifier
     check_if(tokens[i + 1].type, "in", "Expected in keyword", tokens[i + 1].line_num)
 
     # Check if number follows in keyword
-    expression(tokens,i+2,table,"Expected starting value",expect_paren=False)
+    expression(tokens,i+2, table,"Expected starting value",expect_paren=False)
 
     # Check if to keyword follows number
     check_if(tokens[i + 3].type, "to", "Expected to keyword", tokens[i + 3].line_num)
@@ -129,6 +132,9 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
         "Expected ) after expression in while statement",
         tokens[i - 1].line_num,
     )
+
+    #checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
 
     # If while is not part of do-while
     if not in_do:

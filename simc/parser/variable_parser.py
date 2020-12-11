@@ -1,4 +1,4 @@
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 from ..op_code import OpCode
 
@@ -78,6 +78,9 @@ def var_statement(tokens, i, table, func_ret_type):
         4: "float",
         5: "double",
     }
+
+    #checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
 
     # Check if it is a array initializer
     if tokens[i + 1].type == "left_bracket":

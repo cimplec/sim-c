@@ -1,5 +1,5 @@
 # Module to import some helper functions
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 # Module to import OpCode class
 from ..op_code import OpCode
@@ -53,6 +53,9 @@ def expression(
 
     # count parentheses
     count_paren = 0
+
+    #checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
 
     # Loop until expression is not parsed completely
     while i < len(tokens) and tokens[i].type in OP_TOKENS:
@@ -278,6 +281,8 @@ def unary_statement(tokens, i, table, func_ret_type):
     id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
     operator        -> ++ | --
     """
+    #checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
 
     # Check if assignment operator follows identifier name
     if tokens[i].type not in ["increment", "decrement"]:
@@ -341,6 +346,9 @@ def exit_statement(tokens, i, table, func_ret_type):
         "Expected ( after exit statement",
         tokens[i].line_num,
     )
+
+    #checking if code is incomplete
+    check_incomplete(i + 1, tokens[i].line_num, tokens)
 
     # Check if number follows ( in exit statement
     check_if(
@@ -428,9 +436,15 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(var_opcode)
+
+
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
             # If '(' follows id then it is function calling else variable assignment
+
+            # checking if code is incomplete
+            check_incomplete(i + 1, tokens[i].line_num, tokens)
+
             if tokens[i + 1].type == "left_paren":
                 fun_opcode, i, func_ret_type = function_call_statement(
                     tokens, i, table, func_ret_type
@@ -495,7 +509,10 @@ def parse(tokens, table):
             op_codes.append(for_opcode)
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
-            
+
+            # checking if code is incomplete
+            check_incomplete(i + 1, tokens[i].line_num, tokens)
+
             # If \n follows ) then skip all the \n characters
             if tokens[i + 1].type == "newline":
                 i += 1
