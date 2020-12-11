@@ -1,0 +1,10 @@
+// a raised to power b
+fun power(a, b) {
+	return a**b
+}
+MAIN
+	var a = input("enter 1st number: ", "i")
+	var b = input("enter 2nd number: ", "i")
+	var res = power(a, b)
+	print("{a} raised to power {b} is: {res}")
+END_MAIN
