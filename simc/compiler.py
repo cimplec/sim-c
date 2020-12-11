@@ -103,6 +103,10 @@ def compile(opcodes, c_filename, table):
                 # Generation of opcode is flawed as it fails to add the reference addess of the string being printed
             
             code = "\tprintf(%s);\n" % opcode.val
+        
+        # If opcode is of type import then generate include statement
+        if opcode.type == "import":
+            code = "#include \"" + opcode.val + ".h\""
 
         # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":

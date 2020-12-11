@@ -44,6 +44,7 @@ def is_keyword(value):
         "default",
         "BEGIN_C",
         "END_C",
+        "import",
     ]
 
 

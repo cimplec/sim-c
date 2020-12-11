@@ -1,4 +1,4 @@
-# Import sys module
+# Import sys and os module
 import sys
 
 # Module to import global helpers

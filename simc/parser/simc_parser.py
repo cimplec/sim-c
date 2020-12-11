@@ -416,12 +416,20 @@ def parse(tokens, table):
             i += 1
             continue
 
+
         # If token is of type print then generate print opcode
         if tokens[i].type == "print":
             print_opcode, i, func_ret_type = print_statement(
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(print_opcode)
+        # If token is of type import then generate import opcode
+        elif tokens[i].type == "import":
+            i += 1
+            check_if(tokens[i].type, "id", "Expected module name after import", tokens[i].line_num)
+            value, _, _ = table.get_by_id(tokens[i].val)
+            op_codes.append(OpCode("import", value))
+            i += 1
         # If token is of type var then generate var opcode
         elif tokens[i].type == "var":
             var_opcode, i, func_ret_type = var_statement(
