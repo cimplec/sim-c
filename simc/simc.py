@@ -11,7 +11,7 @@ from .symbol_table import SymbolTable
 from .lexical_analyzer import lexical_analyze
 
 # Module for using parser
-from .simc_parser import parse
+from .parser.simc_parser import parse
 
 # Module for using compiler
 from .compiler import compile
@@ -22,7 +22,7 @@ def run():
         filename = sys.argv[1]
 
         if "." not in filename or filename.split(".")[-1] != "simc":
-            error("Incorrect file extension", line_num)
+            error("Incorrect file extension", -1)
     else:
         error("Please provide simc file path", -1)
 
@@ -51,4 +51,5 @@ def run():
     # Compile to C code
     compile(op_codes, c_filename, table)
 
-    print("\033[92mC code generated at %s!" % c_filename)
+    print("\033[92mC code generated at %s!" % c_filename, end="")
+    print(" \033[m")

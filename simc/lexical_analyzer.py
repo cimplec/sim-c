@@ -43,7 +43,7 @@ def is_keyword(value):
         "case",
         "default",
         "BEGIN_C",
-        "END_C"
+        "END_C",
     ]
 
 
@@ -322,6 +322,12 @@ def lexical_analyze(filename, table):
 
     # Loop through the source code character by character
     i = 0
+    
+    # Stores whether we got a number or variable just before this index
+    # This is to presently differentiate between bitwise and
+    # and address of operations.
+    got_num_or_var = False
+    
     while source_code[i] != "\0":
 
         # If we have encountered BEGIN_C, copy everything exactly same until END_C
@@ -329,26 +335,32 @@ def lexical_analyze(filename, table):
             raw_tokens,i,line_num = get_raw_tokens(source_code,i,line_num)
             tokens.extend(raw_tokens)
             raw_c = False
+            got_num_or_var = False
             
         # If a digit appears, call numeric_val function and add the numeric token to list,
         # if it was correct
         if is_digit(source_code[i]):
             token, i = numeric_val(source_code, i, table, line_num)
             tokens.append(token)
+            got_num_or_var = True
 
         # If double quote appears the value is a string token
         elif source_code[i] == '"':
             token, i = string_val(source_code, i, table, line_num)
             tokens.append(token)
+            got_num_or_var = False
 
         # If single quote appears the value is a string token
         elif source_code[i] == "'":
             token, i = string_val(source_code, i, table, line_num, start_char="'")
             tokens.append(token)
+            got_num_or_var = False
 
         # If alphabet or number appears then it might be either a keyword or an identifier
         elif is_alnum(source_code[i]):
             token, i = keyword_identifier(source_code, i, table, line_num)
+            if(token.type == "id"):
+                got_num_or_var = True
             if token.type == "BEGIN_C":
                 raw_c = True
                 continue
@@ -358,11 +370,11 @@ def lexical_analyze(filename, table):
             tokens.append(token)
 
         # Identifying left paren token
-
         elif source_code[i] == "(":
             parantheses_count += 1
             tokens.append(Token("left_paren", "", line_num))
             i += 1
+            got_num_or_var = False
 
         # Identifying right paren token
         elif source_code[i] == ")":
@@ -375,13 +387,15 @@ def lexical_analyze(filename, table):
                     i += 1
 
                 # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
-                if source_code[i + 1] == "\n" or source_code[i + 1] == "{":
+                if source_code[i + 1] in ["\n", "{", "}", ","]:
                     tokens.append(Token("call_end", "", line_num))
 
             else:
                error("Parentheses does not match.", line_num);
 
+            got_num_or_var = False
             i += 1
+
         # Identifying end of expression
         elif source_code[i] == "\n":
             if parantheses_count == 0:
@@ -396,12 +410,24 @@ def lexical_analyze(filename, table):
         elif source_code[i] == "{":
             tokens.append(Token("left_brace", "", line_num))
             i += 1
+            got_num_or_var = False
 
         # Identifying right brace token
         elif source_code[i] == "}":
             tokens.append(Token("right_brace", "", line_num))
             i += 1
+            got_num_or_var = False
 
+        # Identifying left bracket token
+        elif source_code[i] == "[":
+            tokens.append(Token("left_bracket", "", line_num))
+            i += 1
+
+        # Identifying right bracket token
+        elif source_code[i] == "]":
+            tokens.append(Token("right_bracket", "", line_num))
+            i += 1
+            
         # Identifying assignment token or equivalence token
         elif source_code[i] == "=":
             if source_code[i + 1] != "=":
@@ -410,6 +436,7 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("equal", "", line_num))
                 i += 2
+            got_num_or_var = False
 
         # Identifying plus_equal, increment or plus token
         elif source_code[i] == "+":
@@ -422,6 +449,7 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("plus", "", line_num))
                 i += 1
+            got_num_or_var = False
 
         # Identifying minus_equal, decrement or minus token
         elif source_code[i] == "-":
@@ -434,34 +462,63 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("minus", "", line_num))
                 i += 1
+            got_num_or_var = False
 
         # Identifying multiply_equal or multiply token
         elif source_code[i] == "*":
             if source_code[i + 1] == "=":
                 tokens.append(Token("multiply_equal", "", line_num))
                 i += 2
+            # introducing new symbol for power -> pow(a,b) in c 
+            # is a**b in simc instead of a^b 
+            elif(source_code[i + 1] == '*'):
+                tokens.append(Token("power", "", line_num))
+                i += 2
             else:
                 tokens.append(Token("multiply", "", line_num))
                 i += 1
+            got_num_or_var = False
 
-        # Identifying or power token
+        # Identifying xor token
         elif source_code[i] == "^":
-            tokens.append(Token("power", "", line_num))
+            if(source_code[i + 1] == '='):
+                tokens.append(Token("bitwise_xor_equal", "", line_num))
+                i += 1
+            else:
+                tokens.append(Token("bitwise_xor", "", line_num))
             i += 1
+            got_num_or_var = False
 
-        # Identifying 'address of' or 'and' token
+        # Identifying 'address of','and', 'bitwise and' token
         elif source_code[i] == "&":
             if source_code[i+1] == "&":
                 tokens.append(Token("and", "", line_num))
                 i += 2
             else:
-                tokens.append(Token("address_of", "", line_num))
-                i += 1
-
+                if(got_num_or_var):
+                    if(source_code[i + 1] == '='):
+                        tokens.append(Token("bitwise_and_equal", "", line_num))
+                        i += 1
+                    else:
+                        tokens.append(Token("bitwise_and", "", line_num))
+                    i += 1
+                else:
+                    tokens.append(Token("address_of", "", line_num))
+                    i += 1
+            got_num_or_var = False
+    
         # Identifying 'or' token
         elif source_code[i] == "|":
-            tokens.append(Token("or", "", line_num))
-            i += 2
+            if(source_code[i + 1] == '|'):
+                tokens.append(Token("or", "", line_num))
+                i += 2
+            elif(source_code[i + 1] == '='):
+                tokens.append(Token("bitwise_or_equal", "", line_num))
+                i += 2
+            else:
+                tokens.append(Token('bitwise_or', '', line_num))
+                i += 1
+            got_num_or_var = False
 
         # Identifying divide_equal or divide token
         elif source_code[i] == "/":
@@ -490,6 +547,7 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("divide", "", line_num))
                 i += 1
+            got_num_or_var = False
 
         # Identifying modulus_equal or modulus token
         elif source_code[i] == "%":
@@ -499,16 +557,19 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("modulus", "", line_num))
                 i += 1
+            got_num_or_var = False
 
         # Identifying comma token
         elif source_code[i] == ",":
             tokens.append(Token("comma", "", line_num))
             i += 1
+            got_num_or_var = False
 
         # Identifying not_equal token
         elif source_code[i] == "!" and source_code[i + 1] == "=":
             tokens.append(Token("not_equal", "", line_num))
             i += 2
+            got_num_or_var = False
 
         # Identifying greater_than or greater_than_equal token
         elif source_code[i] == ">":
@@ -521,6 +582,7 @@ def lexical_analyze(filename, table):
             else:
                 tokens.append(Token("right_shift", "", line_num))
                 i += 2
+            got_num_or_var = False
 
         # Identifying less_than or less_than_equal token
         elif source_code[i] == "<":
@@ -533,15 +595,17 @@ def lexical_analyze(filename, table):
             elif source_code[i + 1] == "<":
                 tokens.append(Token("left_shift", "", line_num))
                 i += 2
+            got_num_or_var = False
 
         # Identifiying colon token
         elif source_code[i] == ":":
             tokens.append(Token("colon", "", line_num))
             i += 1
+            got_num_or_var = False
 
         # Otherwise increment the index
         else:
             i += 1
-    
+
     # Return the generated tokens
     return tokens

@@ -3,7 +3,7 @@ import sys
 
 sys.path.append("..")
 
-from token_class import Token
+from simc.token_class import Token
 
 class TestTokenClass(unittest.TestCase):
     def setUp(self):

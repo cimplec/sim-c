@@ -19,6 +19,10 @@
 ## Discussion
 
 <p align="justify">For doubts related to implementation of a feature or to know more about future releases join the official subreddit - <a href="https://www.reddit.com/r/cimplec/">r/cimplec</a>.
+  
+## New Developers
+
+<p align="justify">New developers can join simC New Devs slack channel where they can get help from core developers on their issues, link to the slack channel - <a href="https://join.slack.com/t/sim-cnewdevs/shared_invite/zt-jgfthwau-V0INVtZQAaZ4RERZbE2lGg">simC New Devs Slack</a></p>
 
 ## Start Contributing
 
@@ -72,3 +76,4 @@ List of contributors who contributed in some features or major bugs of simC (Thi
 - [nanoy42](https://github.com/nanoy42) - <a href="https://cimplec.github.io/docs/doc.html#logicalop">Fix logical operators</a>.
 - [ThomasBollmeier](https://github.com/ThomasBollmeier) - <a href="https://cimplec.github.io/docs/doc.html#fndefargs">Functions with default arguments</a> support and fix formal parameters issue. 
 - [Math-O5](https://github.com/Math-O5) - Fix closing parentheses, Add parentheses check.
+- [shobhit10058](https://github.com/shobhit10058) - <a href="https://cimplec.github.io/docs/doc.html#bitwiseop">Bitwise operators</a>.
