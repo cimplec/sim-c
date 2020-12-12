@@ -559,17 +559,18 @@ def expression(
                     if type_to_prec["double"] > op_type
                     else op_type
                 )
+
             elif type in ["var", "declared"] and not accept_unkown:
                 error("Cannot find the type of %s" % value, tokens[i].line_num)
             elif type == "var" and accept_unkown:
                 op_value += str(value)
-        elif tokens[i].type == "typeof" and tokens[i + 1].type == "left_paren" and tokens[i + 3].type == "right_paren":
-            if (not tokens[i+2].type == "id"):
-                error("typeof operator expects a variable")
-            # op_code, _, _= typeof_statement(tokens, i + 1, table, func_ret_type)
-            _, dtype, _ = table.get_by_id(tokens[i + 2].val)
-            op_type = 1
-            op_value = '"%s"' % dtype
+        elif tokens[i].type == "typeof":
+            op_code, _, _ = typeof_statement(
+                tokens, i + 1, table, func_ret_type
+            )
+            type_char_ptr = 1
+            op_type = type_char_ptr
+            op_value = "'" + op_code.val + "'"
             i+=3
         elif tokens[i].type in ["newline", "call_end"]:
             break
@@ -1103,7 +1104,6 @@ def var_statement(tokens, i, table, func_ret_type):
             expect_paren=False,
             func_ret_type=func_ret_type,
         )
-
         # Map datatype to appropriate datatype in C
         prec_to_type = {
             0: "string",
@@ -1113,10 +1113,8 @@ def var_statement(tokens, i, table, func_ret_type):
             4: "float",
             5: "double",
         }
-
         # Modify datatype of the identifier
         table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
-
         if is_ptr:
             return (
                 OpCode(
@@ -1422,7 +1420,7 @@ def typeof_statement(tokens, i, table, func_ret_type):
         "left_paren",
         "Expected ( after typeof statement",
         tokens[i].line_num,
-    )
+    )    
 
     # Check if expression follows ( in typeof statement
     op_value, op_type, i, func_ret_type = expression(
@@ -1432,9 +1430,13 @@ def typeof_statement(tokens, i, table, func_ret_type):
         "Expected expression inside typeof statement",
         func_ret_type=func_ret_type,
     )
+    op_value = op_value[1:-1]
+    _, op_value, op_type = table.get_by_id(table.get_by_symbol(op_value))
+    if (not op_type == "variable"):
+        error("typeof operator expects a variable as argument")
 
-    # op_value = op_value[1:-1]
-
+    # _, dtype, _ = table.get_by_id()
+    # op_value = '"%s"' % dtype
     # Check if typeof statement has closing )
     check_if(
         tokens[i - 1].type,
@@ -1442,7 +1444,6 @@ def typeof_statement(tokens, i, table, func_ret_type):
         "Expected ) after expression in typeof statement",
         tokens[i - 1].line_num,
     )
-
     # Return the opcode and i+1 (the token after typeof statement)
     return OpCode("typeof", op_value), i + 1, func_ret_type
 
