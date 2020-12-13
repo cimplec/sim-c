@@ -1,0 +1,11 @@
+/*
+	Sum of 1st n natural numbers = n*(n+1)/2
+*/
+fun sumNNaturalNumber(n) {
+	return (n*(n+1))/2
+}
+MAIN
+	var n = 25
+	var sum = sumNNaturalNumber(n)
+	print("The sum of 1st {n} natural numbers is: {sum}")
+END_MAIN

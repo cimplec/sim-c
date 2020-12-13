@@ -1,6 +1,24 @@
 # Library to exit code when error occurs
 import sys
 
+def check_if(given_type, should_be_types, msg, line_num):
+    """
+    Check if type matches what it should be otherwise throw an error and exit
+    Params
+    ======
+    given_type      (string)      = Type of token to be checked
+    should_be_types (string/list) = Type(s) to be compared with
+    msg             (string)      = Error message to print in case some case fails
+    line_num        (int)         = Line number
+    """
+
+    # Convert to list if type is string
+    if type(should_be_types) == str:
+        should_be_types = [should_be_types]
+
+    # If the given_type is not part of should_be_types then throw error and exit
+    if given_type not in should_be_types:
+        error(msg, line_num)
 
 def error(msg, line_num):
     """
@@ -13,7 +31,8 @@ def error(msg, line_num):
     """
 
     # Prints the error to screen in red color and then exits tokenizer
-    print("\033[91m[Line %d] Error: %s" % (line_num, msg))
+    print("\033[91m[Line %d] Error: %s" % (line_num, msg), end=" ")
+    print(" \033[m")
     sys.exit()
 
 

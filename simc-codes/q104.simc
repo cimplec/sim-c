@@ -1,0 +1,6 @@
+MAIN
+	var n = 25
+	for i in 1 to n by +1 {
+		print("{i}\n")
+	}
+END_MAIN

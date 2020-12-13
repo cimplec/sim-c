@@ -41,9 +41,16 @@ setup(
     packages = find_packages(),
     entry_points ={
         'console_scripts': [
-            'simc = simc.simc:run'
+            'simc = simc.simc:run',
+            'simpack = simc.simpack:get_package',
         ]
     },
+    package_data={
+        "simc": [
+            "package-index"
+        ]
+    },
+    install_requires=["requests"],
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 3",

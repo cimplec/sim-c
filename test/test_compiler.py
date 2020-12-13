@@ -4,24 +4,38 @@ import sys
 
 sys.path.append("..")
 
-from op_code import OpCode
-from symbol_table import SymbolTable
-from compiler import *
+from simc.op_code import OpCode
+from simc.symbol_table import SymbolTable
+from simc.compiler import *
 
 
 class TestCompiler(unittest.TestCase):
-    def test_check_include(self):
-        opcodes = [OpCode("print", ""), OpCode("var_assign", "")]
+    def test_check_include_print(self):
+        opcodes = [OpCode('print', '"%d", a', 'None')]
+        
         includes = check_include(opcodes)
-
         self.assertEqual(includes, "#include <stdio.h>")
 
-        opcodes = [OpCode("var_assign", "")]
+    def test_check_include_input(self):
+        opcodes = [OpCode('var_assign', 'a---Enter a number: ---i', 'int')]
+        
         includes = check_include(opcodes)
+        self.assertEqual(includes, "#include <stdio.h>")
 
+    def test_check_include_math_constant(self):
+        opcodes = [OpCode('print', '"%lf", M_PI', 'None')]
+        
+        includes = check_include(opcodes)
+        includes = set(includes.split("\n"))
+        self.assertEqual(includes, set(["#include <stdio.h>", "#include <math.h>"]))
+
+    def test_check_include_no_includes(self):
+        opcodes = [OpCode('var_assign', 'b---2', 'int')]
+        
+        includes = check_include(opcodes)
         self.assertEqual(includes, "")
 
-    def test_compile_func_main_code(self):
+    def test_compile_func_main_code_inside_main(self):
         outside_code = ""
         ccode = ""
 
@@ -33,6 +47,10 @@ class TestCompiler(unittest.TestCase):
         )
 
         self.assertEqual(ccode, "Hello World")
+
+    def test_compile_func_main_code_outside_main(self):
+        outside_code = ""
+        ccode = ""
 
         outside_main = True
         code = "Test simC"
@@ -93,7 +111,7 @@ class TestCompiler(unittest.TestCase):
 
         os.remove("testing.c")
 
-        self.assertEqual(data, ["", "\tint a = 1;", "\tint *n = &a;", ""])
+        self.assertEqual(data, ['#include <stdio.h>', '\tint a = 1;', '\tint *n = &a;', ''])
 
     def test_compile_var_no_assign(self):
         opcodes = [OpCode("var_no_assign", "a", None)]
@@ -141,7 +159,7 @@ class TestCompiler(unittest.TestCase):
 
         os.remove("testing.c")
 
-        self.assertEqual(data, ["", "\tfloat a;", "\ta = 3.14159;", ""])
+        self.assertEqual(data, ['#include <stdio.h>', '\tfloat a;', '\ta = 3.14159;', ''])
 
     def test_compile_ptr_only_assign(self):
         ## TODO: Fix this test after bug #23 gets fixed
@@ -165,7 +183,7 @@ class TestCompiler(unittest.TestCase):
 
         os.remove("testing.c")
 
-        self.assertEqual(data, ["", "\tint a = 1;", "\tint *n = &a;", "\t**n = =;", ""])
+        self.assertEqual(data, ['#include <stdio.h>', '\tint a = 1;', '\tint *n = &a;', '\t**n = =;', ''])
 
     def test_compile_unary(self):
         opcodes = [OpCode("var_assign", "a---1", "int"), OpCode("unary", "a ++ ", None)]
@@ -262,7 +280,7 @@ class TestCompiler(unittest.TestCase):
 
         os.remove("testing.c")
 
-        self.assertEqual(data, ["", "", "int main() {", "", "\treturn 0;", "}"])
+        self.assertEqual(data, ['', '', 'int main() {', '', '\treturn 0;', '}', ''])
 
     def test_compile_for(self):
         opcodes = [

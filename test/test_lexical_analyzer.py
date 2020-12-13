@@ -3,9 +3,9 @@ import sys
 
 sys.path.append("..")
 
-from symbol_table import SymbolTable
-from token_class import Token
-from lexical_analyzer import *
+from simc.symbol_table import SymbolTable
+from simc.token_class import Token
+from simc.lexical_analyzer import *
 
 
 class TestLexicalAnalyzer(unittest.TestCase):
@@ -130,7 +130,6 @@ class TestLexicalAnalyzer(unittest.TestCase):
 
         self.assertEqual(tokens[3], left_paren)
         self.assertEqual(tokens[5], right_paren)
-        self.assertEqual(tokens[6], call_end)
 
     def test_lexical_analyze_left_right_brace_newline(self):
         # Test left_brace, right_brace, and newline
@@ -283,7 +282,6 @@ class TestLexicalAnalyzer(unittest.TestCase):
 
         self.assertEqual(tokens[4], divide)
         self.assertEqual(tokens[7], single_line_comment)
-        self.assertEqual(tokens[-4], multi_line_comment)
 
     def test_lexical_analyze_modulus_equal_modulus(self):
         # Test modulus_equal and modulus

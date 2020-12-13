@@ -1,0 +1,18 @@
+// prints the sum of the even and odd integers that the user enters.
+MAIN
+    print("Enter 10 integers\n")
+    var n = 10
+    var evenSum = 0
+    var oddSum = 0
+    for i in 0 to n by +1 {
+        var x = input("Enter a number : ", "i")
+        if (x % 2 == 0){
+            evenSum += x
+        }
+        else {
+            oddSum += x
+        }
+    }
+    print("Sum of Even Numbers = {evenSum} \n")
+    print("Sum of Odd Numbers = {oddSum} ")
+END_MAIN
