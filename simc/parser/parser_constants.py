@@ -40,6 +40,7 @@ OP_TOKENS = [
     "address_of",
     "right_shift",
     "left_shift",
+    "typeof"
 ]
 
 WORD_TO_OP = {
