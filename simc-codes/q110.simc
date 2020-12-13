@@ -1,0 +1,21 @@
+// Print sum of numbers divisible by 9 from 100 to 200
+
+MAIN
+    
+    var sum=0
+    var num=0
+    var x=100
+
+    while(x<=200)
+    {
+        if(x%9==0)
+        {
+            sum = sum + x
+            num = num + 1
+        }
+        x = x + 1 
+    }
+    print("The sum is : {sum} \n")
+    print("The number of such numbers is : {num}")
+
+END_MAIN
