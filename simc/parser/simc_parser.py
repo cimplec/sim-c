@@ -511,14 +511,11 @@ def parse(tokens, table):
                     i += 1
                 i -= 1
             
-            check_if(
-                tokens[i + 1].type,
-                "left_brace",
-                "Expected { after do statement",
-                tokens[i + 1].line_num,
-            )
             in_do = True
             op_codes.append(OpCode("do", "", ""))
+            if(tokens[i + 1].type != "left_brace"):
+                op_codes.append(OpCode("scope_begin", "", ""))
+                brace_count += 1
             i += 1
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
@@ -526,6 +523,10 @@ def parse(tokens, table):
                 tokens, i + 1, table, in_do, func_ret_type
             )
             if in_do:
+                if(brace_count > 0):
+                    op_codes.append(OpCode("scope_over", "", ""))
+                    brace_count -= 1
+
                 in_do = False
             op_codes.append(while_opcode)
         # If token is of type if then generate if opcode
@@ -560,7 +561,7 @@ def parse(tokens, table):
                 if_opcode.type = "else_if"
                 op_codes.append(if_opcode)
             # Otherwise it is else
-            elif tokens[i + 1].type == "left_brace":
+            else:
                 op_codes.append(OpCode("else", "", ""))
 
                 # Decrement if count on encountering if, to make sure there aren't extra else conditions
