@@ -281,6 +281,63 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         func_ret_type,
     )
 
+def struct_declaration_statement(tokens, i, table):
+    """
+    Parse structure declaration statement
+    Params
+    ======
+    tokens      (list) = List of tokens
+    i           (int)  = Current index in token
+    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+    Returns
+    =======
+    OpCode, int, string: The opcode for the assign code, the index, and the name of the function after
+                         parsing function calling statement
+    """
+
+    # Check if identifier follows struct
+    check_if(tokens[i].type, "id", "Expected structure name", tokens[i].line_num)
+
+    # Store the id of strcuture name in symbol table
+    struct_idx = tokens[i].val
+
+    # Get function name
+    struct_name, _, _ = table.get_by_id(struct_idx)
+
+    # If \n follows struct name then skip all the \n characters
+    if tokens[i + 1].type == "newline":
+        i += 1
+        while tokens[i].type == "newline":
+            i += 1
+        i -= 1
+
+    # Check if { follows the structure name
+    check_if(
+        tokens[i + 1].type,
+        "left_brace",
+        "Expected { after structure name body",
+        tokens[i + 1].line_num,
+    )
+
+    # Loop until } is reached
+    i += 2
+    ret_idx = i
+    found_right_brace = False
+    while i < len(tokens) and tokens[i].type != "right_brace":
+        if tokens[i].type == "right_brace":
+            found_right_brace = True
+        i += 1
+
+    # If right brace found at end
+    if i != len(tokens) and tokens[i].type == "right_brace":
+        found_right_brace = True
+
+    # If right brace is not found then produce error
+    if not found_right_brace:
+        error("Expected } after structure body", tokens[i].line_num)
+
+    return (OpCode("struct_decl", struct_name, ""), ret_idx - 1, struct_name)
+
 
 def function_parameters(
         tokens,
@@ -1421,6 +1478,9 @@ def parse(tokens, table):
     # If function return type could not be figured out during return then do it while calling
     func_ret_type = {}
 
+    # If a struct is declared, make this variable true, then if its true add a semicolon after the next right parenthesis
+    struct_declared = False
+
     # Loop through all the tokens
     i = 0
 
@@ -1470,14 +1530,32 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(fun_opcode)
+        # If token is of type struct then generate structure opcode
+        elif tokens[i].type == "struct":
+            struct_opcode, i, struct_name = struct_declaration_statement(
+                tokens, i + 1, table
+            )
+            struct_declared = True
+            op_codes.append(struct_opcode)
         # If token is of type left_brace then generate scope_begin opcode
         elif tokens[i].type == "left_brace":
             op_codes.append(OpCode("scope_begin", "", ""))
             brace_count += 1
             i += 1
-        # If token is of type right_brace then generate scope_over opcode
+        # If token is of type right_brace then generate scope_over opcode, if a struct was declared earlier, generate struct_scope_over opcode
         elif tokens[i].type == "right_brace":
-            op_codes.append(OpCode("scope_over", "", ""))
+            if struct_declared == True:
+                # instance_name stores the name of structure instance, if defined
+                instance_name = ""
+                if tokens[i+1].type == "id":
+                    instance_name = table.get_by_id(tokens[i+1].val)[0]
+                    # Skip over the id type token
+                    i += 1
+                op_codes.append(OpCode("struct_scope_over", instance_name, ""))
+                struct_declared = False
+
+            else:
+                op_codes.append(OpCode("scope_over", "", ""))
             brace_count -= 1
 
             if brace_count < 0:

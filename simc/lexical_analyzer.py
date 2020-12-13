@@ -43,7 +43,8 @@ def is_keyword(value):
         "case",
         "default",
         "BEGIN_C",
-        "END_C"
+        "END_C",
+        "struct"
     ]
 
 
