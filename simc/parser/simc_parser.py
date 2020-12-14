@@ -415,7 +415,18 @@ def parse(tokens, table):
     func_st = -1
 
     while i <= len(tokens) - 1:
-
+        if(func_st == 0):
+            # If \n follows ) then skip all the \n characters
+            if tokens[i].type == "newline":
+                i += 1
+                while tokens[i].type == "newline":
+                    i += 1
+            # If we encounter MAIN or a new function then 
+            # the function body is empty
+            if((tokens[i].type == "MAIN") or (tokens[i].type == "fun")):
+                func_st = -1
+                op_codes.append(OpCode("scope_over", "", ""))
+            
         # at the end of the single statement function
         # introduce a right brace if not there
         if(func_st == 1):
@@ -523,7 +534,7 @@ def parse(tokens, table):
                 # The Function scope is over
                 func_name = ""
                 
-        # If token is of type MAIN then generate MAIN opcode
+        # If token is of typeMAIN then generate MAIN opcode
         elif tokens[i].type == "MAIN":
             op_codes.append(OpCode("MAIN", "", ""))
             main_fn_count += 1
