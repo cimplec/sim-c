@@ -289,66 +289,6 @@ def get_raw_tokens(source_code,i,line_num):
         line_num += 1
 
 
-def check_if_balanced_parenthesis( string ):
-    """
-    Function takes a string as the argument. Checks if '(', '[', '{' type of brackets are balanced.
-    If the bracket is balanced, function returns 1. Else it will return 0.
-    For example, 
-    string = "{hello {world} } {my( name)[ is Coder}{}"
-    Output: 0, since square brackets are not balanced.
-    string = "{hello {world} } {my( name)[ is TopCoder]}{}
-    Output: 1
-    """
-    line_num = 1
-
-    # For simple parenthesis
-    stack_0 = []
-    top_0 = -1
-
-    # For square brackets
-    stack_1 = []
-    top_1 = -1
-
-    # For flower brackets
-    stack_2 = []
-    top_2 = -1
-
-    stacks           = [ stack_0, stack_1, stack_2 ] 
-    tops             = [ top_0, top_1, top_2 ]
-    brackets         = [ '(', '[', '{' ]
-    closing_brackets = [ ')', ']', '}' ]
-
-
-    length = len( string )
-    for i in range( 0, length ):
-        for j in range( 0, 3 ):
-            
-            if string[ i ] == brackets[ j ]:
-                # If an opening brace is seen, push element to stack
-                tops[ j ] += 1
-                stacks[ j ].append( '*' )
-            
-            if string[ i ] == closing_brackets[ j ]:
-                if tops[ j ] == -1:
-                    # If at any time there is an underflow, the string is not balanced, 
-                    # because there is an extra closing bracket
-                    tops[ j ] -= 1
-                    error ( " Bracket %s is not balanced! Too many closing braces" % brackets[ j ], line_num )
-                    return 0
-
-                else:
-                    tops[ j ] -= 1
-        if string[ i ] == '\n':
-            line_num += 1
-        
-    # By the end, if any stack is not empty, there are extra opening brackets
-    for i in range( 0, 3 ):
-        if tops[i] != -1:
-            error ( " Bracket %s is not balanced! Too many openening braces." % brackets[ i ], line_num )
-            return 0
-    return 1
-
-
 def lexical_analyze(filename, table):
     """
     Generate tokens from source code
@@ -370,11 +310,6 @@ def lexical_analyze(filename, table):
     # Read the entire source code as a string
     source_code = open(filename, "r").read()
     source_code += "\0"
-
-    # Performing a check to see if all the brackets have been balanced or not:
-    bracket_check_result = check_if_balanced_parenthesis( source_code )
-    if bracket_check_result == 0:
-        error( "Parenthesis Unbalanced Error", 0 )
 
     # List of tokens
     tokens = []
@@ -404,6 +339,26 @@ def lexical_analyze(filename, table):
     # This is to presently differentiate between bitwise and
     # and address of operations.
     got_num_or_var = False
+
+    # To check if the brackets are balanced:
+    # For simple parenthesis
+    stack_0 = []
+    top_0 = -1
+
+    # For square brackets
+    stack_1 = []
+    top_1 = -1
+
+    # For flower brackets
+    stack_2 = []
+    top_2 = -1
+
+    stacks           = [ stack_0, stack_1, stack_2 ] 
+    tops             = [ top_0, top_1, top_2 ]
+    brackets         = [ '(', '[', '{' ]
+    closing_brackets = [ ')', ']', '}' ]
+
+    length = len( string )
     
     while source_code[i] != "\0":
 
@@ -413,6 +368,23 @@ def lexical_analyze(filename, table):
             tokens.extend(raw_tokens)
             raw_c = False
             got_num_or_var = False
+
+        # To check if brackets are balanced:
+        for j in range( 0, 3 ):
+            if string[ i ] == brackets[ j ]:
+                # If an opening brace is seen, push element to stack
+                tops[ j ] += 1
+                stacks[ j ].append( '*' )
+            
+            if string[ i ] == closing_brackets[ j ]:
+                if tops[ j ] == -1:
+                    # If at any time there is an underflow, the string is not balanced, 
+                    # because there is an extra closing bracket
+                    tops[ j ] -= 1
+                    error ( " Bracket %s is not balanced! Too many closing braces" % brackets[ j ], line_num )
+
+                else:
+                    tops[ j ] -= 1
             
         # If a digit appears, call numeric_val function and add the numeric token to list,
         # if it was correct
@@ -698,6 +670,13 @@ def lexical_analyze(filename, table):
         # Otherwise increment the index
         else:
             i += 1
+    
+    # By the end, if any stack is not empty, there are extra opening brackets
+    for i in range( 0, 3 ):
+        if tops[i] != -1:
+            error ( " Bracket %s is not balanced! Too many openening braces." % brackets[ i ], line_num )
+            return 0
+    return 1
 
     # Return the generated tokens
     return tokens, module_source_paths
