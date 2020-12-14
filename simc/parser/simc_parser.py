@@ -10,6 +10,7 @@ from .array_parser import array_initializer
 from .loop_parser import for_statement, while_statement
 from .conditional_parser import if_statement, switch_statement, case_statement
 from .variable_parser import var_statement, assign_statement
+from .struct_parser import struct_declaration_statement
 
 # Import parser constants
 from .parser_constants import OP_TOKENS, WORD_TO_OP
@@ -405,6 +406,9 @@ def parse(tokens, table):
     # If function return type could not be figured out during return then do it while calling
     func_ret_type = {}
 
+    # If a struct is declared, make this variable true, then if its true add a semicolon after the next right parenthesis
+    struct_declared = False
+
     # Loop through all the tokens
     i = 0
 
@@ -462,14 +466,32 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(fun_opcode)
+        # If token is of type struct then generate structure opcode
+        elif tokens[i].type == "struct":
+            struct_opcode, i, struct_name = struct_declaration_statement(
+                tokens, i + 1, table
+            )
+            struct_declared = True
+            op_codes.append(struct_opcode)
         # If token is of type left_brace then generate scope_begin opcode
         elif tokens[i].type == "left_brace":
             op_codes.append(OpCode("scope_begin", "", ""))
             brace_count += 1
             i += 1
-        # If token is of type right_brace then generate scope_over opcode
+        # If token is of type right_brace then generate scope_over opcode, if a struct was declared earlier, generate struct_scope_over opcode
         elif tokens[i].type == "right_brace":
-            op_codes.append(OpCode("scope_over", "", ""))
+            if struct_declared == True:
+                # instance_name stores the name of structure instance, if defined
+                instance_name = ""
+                if tokens[i+1].type == "id":
+                    instance_name = table.get_by_id(tokens[i+1].val)[0]
+                    # Skip over the id type token
+                    i += 1
+                op_codes.append(OpCode("struct_scope_over", instance_name, ""))
+                struct_declared = False
+
+            else:
+                op_codes.append(OpCode("scope_over", "", ""))
             brace_count -= 1
 
             if brace_count < 0:

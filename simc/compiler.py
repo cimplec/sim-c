@@ -292,12 +292,22 @@ def compile(opcodes, c_filename, table):
 
             # Finally add opening brace to start the function body
             code += ");\n"
+        # If opcode is of type struct_decl then generate structure declaration statement
+        elif opcode.type == "struct_decl":
+            #extracting struct name from val
+            struct_name = opcode.val
+
+            #append the struct keyword and structure nameto the code
+            code += "\n" + "struct" + " " + struct_name + " "
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
             code += "{\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
             code += "}\n"
+        # If opcode is of type struct_scope_over then generate closing brace, name of struct instance (if any) and add a semi-colon
+        elif opcode.type == "struct_scope_over":
+            code += "} "+ opcode.val + ";\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "MAIN":
             code += "\nint main() {\n"
