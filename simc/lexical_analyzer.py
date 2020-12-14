@@ -357,8 +357,6 @@ def lexical_analyze(filename, table):
     tops             = [ top_0, top_1, top_2 ]
     brackets         = [ '(', '[', '{' ]
     closing_brackets = [ ')', ']', '}' ]
-
-    length = len( string )
     
     while source_code[i] != "\0":
 
@@ -371,12 +369,12 @@ def lexical_analyze(filename, table):
 
         # To check if brackets are balanced:
         for j in range( 0, 3 ):
-            if string[ i ] == brackets[ j ]:
+            if source_code[ i ] == brackets[ j ]:
                 # If an opening brace is seen, push element to stack
                 tops[ j ] += 1
                 stacks[ j ].append( '*' )
             
-            if string[ i ] == closing_brackets[ j ]:
+            if source_code[ i ] == closing_brackets[ j ]:
                 if tops[ j ] == -1:
                     # If at any time there is an underflow, the string is not balanced, 
                     # because there is an extra closing bracket
@@ -675,8 +673,6 @@ def lexical_analyze(filename, table):
     for i in range( 0, 3 ):
         if tops[i] != -1:
             error ( " Bracket %s is not balanced! Too many openening braces." % brackets[ i ], line_num )
-            return 0
-    return 1
 
     # Return the generated tokens
     return tokens, module_source_paths
