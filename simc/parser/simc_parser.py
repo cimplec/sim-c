@@ -10,7 +10,6 @@ from .array_parser import array_initializer
 from .loop_parser import for_statement, while_statement
 from .conditional_parser import if_statement, switch_statement, case_statement
 from .variable_parser import var_statement, assign_statement
-from .struct_parser import struct_declaration_statement
 
 # Import parser constants
 from .parser_constants import OP_TOKENS, WORD_TO_OP
@@ -406,9 +405,6 @@ def parse(tokens, table):
     # If function return type could not be figured out during return then do it while calling
     func_ret_type = {}
 
-    # If a struct is declared, make this variable true, then if its true add a semicolon after the next right parenthesis
-    struct_declared = -1
-
     # Loop through all the tokens
     i = 0
 
@@ -466,41 +462,15 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(fun_opcode)
-        # If token is of type struct then generate structure opcode
-        elif tokens[i].type == "struct":
-            struct_opcode, i, struct_name = struct_declaration_statement(
-                tokens, i + 1, table
-            )
-            struct_declared = brace_count
-            op_codes.append(struct_opcode)
         # If token is of type left_brace then generate scope_begin opcode
         elif tokens[i].type == "left_brace":
             op_codes.append(OpCode("scope_begin", "", ""))
             brace_count += 1
             i += 1
-        # If token is of type right_brace then generate scope_over opcode, if a struct was declared earlier, generate struct_scope_over opcode
+        # If token is of type right_brace then generate scope_over opcode
         elif tokens[i].type == "right_brace":
+            op_codes.append(OpCode("scope_over", "", ""))
             brace_count -= 1
-            if struct_declared == brace_count:
-                # instance_name stores the name of structure instance (seperated by commas if multiple instances), if defined
-                instance_names = ""
-                # loop through the subsequent tokens to find all instantiated objects
-                for j in range(i+1, len(tokens)):
-                    if tokens[j].type == "id":
-                        instance_names += table.get_by_id(tokens[j].val)[0] + ", "
-                        # Skip over the id type token
-                        i += 1
-                    elif tokens[j].type == "comma":
-                        i += 1
-                        continue
-                    else:
-                        break
-                op_codes.append(OpCode("struct_scope_over", instance_names[:-2], ""))
-                struct_declared = -1
-
-            else:
-                op_codes.append(OpCode("scope_over", "", ""))
-            
 
             if brace_count < 0:
                 error(
