@@ -812,7 +812,7 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
         # If \n follows ) then skip all the \n characters
         if tokens[i + 1].type == "newline":
             i += 1
-            while i > len(tokens) and tokens[i].type == "newline":
+            while tokens[i].type == "newline":
                 i += 1
             i -= 1
 
@@ -896,7 +896,7 @@ def if_statement(tokens, i, table, func_ret_type):
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
         i += 1
-        while i > len(tokens) and tokens[i].type == "newline":
+        while tokens[i].type == "newline":
             i += 1
         i -= 1
 
