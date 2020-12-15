@@ -418,9 +418,9 @@ def lexical_analyze(filename, table):
                 # If at any time there is underflow, there are too many closing brackets.
                 top -= 1
                 balanced_brackets_stack = balanced_brackets_stack[ :-1]
-                error( "Too many closing simple parentheses '()' at line:", line_num )
+                error( "Too many closing parentheses", line_num )
             elif balanced_brackets_stack[ top ] != '(':
-                error( "Unbalanced Parentheses Error. Bracket: %s mismatch" % source_code[i], line_num )
+                error( "Unbalanced parentheses error", line_num )
 
 
             else:
@@ -440,7 +440,7 @@ def lexical_analyze(filename, table):
                     tokens.append(Token("call_end", "", line_num))
 
             else:
-               error("Parentheses does not match.", line_num);
+               error("Parentheses does not match", line_num)
 
             got_num_or_var = False
             i += 1
@@ -450,7 +450,7 @@ def lexical_analyze(filename, table):
             if parantheses_count == 0:
                 tokens.append(Token("newline", "", line_num))
             else:
-                error("Parentheses does not match.", line_num);
+                error("Parentheses does not match.", line_num)
 
             i += 1
             line_num += 1
@@ -472,9 +472,9 @@ def lexical_analyze(filename, table):
                 # If at any time there is underflow, there are too many closing brackets.
                 top -= 1
                 balanced_brackets_stack = balanced_brackets_stack[ :-1]
-                error( "Too many closing braces '{ }' at line:", line_num )
+                error( "Too many closing braces", line_num )
             elif balanced_brackets_stack[ top ] != '{':
-                error( "Unbalanced Braces Error. Bracket: %s mismatch" % source_code[i], line_num )
+                error( "Unbalanced braces error", line_num )
 
             else:
                 top -= 1
@@ -500,9 +500,9 @@ def lexical_analyze(filename, table):
                 # If at any time there is underflow, there are too many closing brackets.
                 top -= 1
                 balanced_brackets_stack = balanced_brackets_stack[ :-1]
-                error( "Too many closing square brackets '[]' at line:", line_num )
+                error( "Too many closing brackets", line_num )
             elif balanced_brackets_stack[ top ] != '[':
-                error( "Unbalanced Brackets Error. Bracket: %s mismatch" % source_code[i], line_num )
+                error( "Unbalanced brackets error", line_num )
                 
             else:
                 top -= 1
@@ -692,12 +692,7 @@ def lexical_analyze(filename, table):
     
     # By the end, if stack is not empty, there are extra opening brackets
     if top != -1:
-        if balanced_brackets_stack[ top ] == '(':
-            error( "Unbalanced Parentheses Error! Too many opening simple parentheses '()'.", line_num )
-        elif balanced_brackets_stack[ top ] == '[':
-            error( "Unbalanced Brackets Error! Too many opening square brackets '[]'.", line_num )
-        elif balanced_brackets_stack[ top ] == '{':
-            error( "Unbalanced Braces Error! Too many opening brackets '{ }'.", line_num )
+        error( "Unbalanced parenthesis error", line_num )
         
     # Return the generated tokens
     return tokens, module_source_paths
