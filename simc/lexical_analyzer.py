@@ -341,22 +341,8 @@ def lexical_analyze(filename, table):
     got_num_or_var = False
 
     # To check if the brackets are balanced:
-    # For simple parenthesis
-    stack_0 = []
-    top_0 = -1
-
-    # For square brackets
-    stack_1 = []
-    top_1 = -1
-
-    # For flower brackets
-    stack_2 = []
-    top_2 = -1
-
-    stacks           = [ stack_0, stack_1, stack_2 ] 
-    tops             = [ top_0, top_1, top_2 ]
-    brackets         = [ '(', '[', '{' ]
-    closing_brackets = [ ')', ']', '}' ]
+    top = -1
+    balanced_brackets_stack = [ ]
     
     while source_code[i] != "\0":
 
@@ -368,22 +354,55 @@ def lexical_analyze(filename, table):
             got_num_or_var = False
 
         # To check if brackets are balanced:
-        for j in range( 0, 3 ):
-            if source_code[ i ] == brackets[ j ]:
-                # If an opening brace is seen, push element to stack
-                tops[ j ] += 1
-                stacks[ j ].append( '*' )
-            
-            if source_code[ i ] == closing_brackets[ j ]:
-                if tops[ j ] == -1:
-                    # If at any time there is an underflow, the string is not balanced, 
-                    # because there is an extra closing bracket
-                    tops[ j ] -= 1
-                    error ( " Bracket %s is not balanced! Too many closing braces" % brackets[ j ], line_num )
+        # Checking if ( ) have been balanced
+        if source_code[ i ] == '(':
+            top += 1
+            balanced_brackets_stack.append( '(' )
+        elif source_code[ i ] == ')':
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing simple brackets ')' at line:", line_num )
+            elif balanced_brackets_stack[ top ] != '(':
+                error( "Unbalanced Brackets Detected!", line_num )
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
 
-                else:
-                    tops[ j ] -= 1
-            
+        # Checking if [ ] have been balanced
+        elif source_code[ i ] == '[':
+            top += 1
+            balanced_brackets_stack.append( '[' )
+        elif source_code[ i ] == ']':
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing square brackets ']' at line:", line_num )
+            elif balanced_brackets_stack[ top ] != '[':
+                error( "Unbalanced Brackets Detected!", line_num )
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+
+        # Checking if { } have been balanced
+        elif source_code[ i ] == '{':
+            top += 1
+            balanced_brackets_stack.append( '{' )
+        elif source_code[ i ] == '}':
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing flower brackets '}' at line:", line_num )
+            elif balanced_brackets_stack[ top ] != '{':
+                error( "Unbalanced Brackets Detected!", line_num )
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+        
+
         # If a digit appears, call numeric_val function and add the numeric token to list,
         # if it was correct
         if is_digit(source_code[i]):
@@ -670,9 +689,8 @@ def lexical_analyze(filename, table):
             i += 1
     
     # By the end, if any stack is not empty, there are extra opening brackets
-    for i in range( 0, 3 ):
-        if tops[i] != -1:
-            error ( " Bracket %s is not balanced! Too many openening braces." % brackets[ i ], line_num )
-
+    if top != -1:
+            error( "Brackets Unbalanced Error! There are too many opening braces", line_num )
+        
     # Return the generated tokens
     return tokens, module_source_paths
