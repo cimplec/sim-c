@@ -193,7 +193,7 @@ def expression(
         else:
             p_msg = ""
             dtype = "s"
-        dtype_to_prec = {"i": 3, "f": 4, "d": 5, "s": 1}
+        dtype_to_prec = {"i": 3, "f": 4, "d": 5, "s": 1, "c": 2}
         op_value = str(p_msg) + "---" + str(dtype)
         op_type = dtype_to_prec[dtype]
     # Return the expression, type of expression, and current index in source codes

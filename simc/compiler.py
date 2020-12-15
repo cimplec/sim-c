@@ -118,8 +118,8 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double"}
-            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf"}
+            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double", "c": "char"}
+            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
 
             # If it is of string type then change it to char <identifier>[]
             if dtype == "string":
@@ -153,8 +153,8 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double"}
-            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf"}
+            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double", "c": "char"}
+            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
 
             # If it is of string type then change it to char <identifier>[]
             if dtype == "string":
@@ -212,8 +212,8 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char *", "f": "float", "d": "double"}
-            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf"}
+            get_data_type = {"i": "int", "s": "char *", "f": "float", "d": "double", "c": "char"}
+            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
             # Check if the statement is of type input or not
             if len(val) == 3:
                 code += "\t" + val[0] + " " + val[1] + " " + val[2] + ";\n"
