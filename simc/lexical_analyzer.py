@@ -351,57 +351,7 @@ def lexical_analyze(filename, table):
             raw_tokens,i,line_num = get_raw_tokens(source_code,i,line_num)
             tokens.extend(raw_tokens)
             raw_c = False
-            got_num_or_var = False
-
-        # To check if brackets are balanced:
-        # Checking if ( ) have been balanced
-        if source_code[ i ] == '(':
-            top += 1
-            balanced_brackets_stack.append( '(' )
-        elif source_code[ i ] == ')':
-            if top == -1:
-                # If at any time there is underflow, there are too many closing brackets.
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[ :-1]
-                error( "Too many closing simple brackets ')' at line:", line_num )
-            elif balanced_brackets_stack[ top ] != '(':
-                error( "Unbalanced Brackets Detected!", line_num )
-            else:
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[ :-1]
-
-        # Checking if [ ] have been balanced
-        elif source_code[ i ] == '[':
-            top += 1
-            balanced_brackets_stack.append( '[' )
-        elif source_code[ i ] == ']':
-            if top == -1:
-                # If at any time there is underflow, there are too many closing brackets.
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[ :-1]
-                error( "Too many closing square brackets ']' at line:", line_num )
-            elif balanced_brackets_stack[ top ] != '[':
-                error( "Unbalanced Brackets Detected!", line_num )
-            else:
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[ :-1]
-
-        # Checking if { } have been balanced
-        elif source_code[ i ] == '{':
-            top += 1
-            balanced_brackets_stack.append( '{' )
-        elif source_code[ i ] == '}':
-            if top == -1:
-                # If at any time there is underflow, there are too many closing brackets.
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[ :-1]
-                error( "Too many closing flower brackets '}' at line:", line_num )
-            elif balanced_brackets_stack[ top ] != '{':
-                error( "Unbalanced Brackets Detected!", line_num )
-            else:
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[ :-1]
-        
+            got_num_or_var = False        
 
         # If a digit appears, call numeric_val function and add the numeric token to list,
         # if it was correct
@@ -452,6 +402,10 @@ def lexical_analyze(filename, table):
 
         # Identifying left paren token
         elif source_code[i] == "(":
+            # To check if brackets are balanced:
+            top += 1
+            balanced_brackets_stack.append( '(' )
+
             parantheses_count += 1
             tokens.append(Token("left_paren", "", line_num))
             i += 1
@@ -459,6 +413,18 @@ def lexical_analyze(filename, table):
 
         # Identifying right paren token
         elif source_code[i] == ")":
+            # To check if brackets are balanced:
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing simple brackets ')' at line:", line_num )
+            elif balanced_brackets_stack[ top ] != '(':
+                error( "Unbalanced Brackets Detected!", line_num )
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+
             if parantheses_count > 0:
                 parantheses_count -= 1
                 tokens.append(Token("right_paren", "", line_num))
@@ -489,23 +455,55 @@ def lexical_analyze(filename, table):
 
         # Identifying left brace token
         elif source_code[i] == "{":
+            # To check if brackets are balanced:
+            top += 1
+            balanced_brackets_stack.append( '{' )
+
             tokens.append(Token("left_brace", "", line_num))
             i += 1
             got_num_or_var = False
 
         # Identifying right brace token
         elif source_code[i] == "}":
+            # To check if brackets are balanced:
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing flower brackets '}' at line:", line_num )
+            elif balanced_brackets_stack[ top ] != '{':
+                error( "Unbalanced Brackets Detected!", line_num )
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+
             tokens.append(Token("right_brace", "", line_num))
             i += 1
             got_num_or_var = False
 
         # Identifying left bracket token
         elif source_code[i] == "[":
+            # To check if brackets are balanced:
+            top += 1
+            balanced_brackets_stack.append( '[' )
+
             tokens.append(Token("left_bracket", "", line_num))
             i += 1
 
         # Identifying right bracket token
         elif source_code[i] == "]":
+            # To check if brackets are balanced:
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing square brackets ']' at line:", line_num )
+            elif balanced_brackets_stack[ top ] != '[':
+                error( "Unbalanced Brackets Detected!", line_num )
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+
             tokens.append(Token("right_bracket", "", line_num))
             i += 1
             
