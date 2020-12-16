@@ -1,4 +1,4 @@
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 from ..op_code import OpCode
 
@@ -132,6 +132,12 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
 
     # If while is not part of do-while
     if not in_do:
+        check_incomplete(
+            i,
+            tokens,
+            "Expected { before while body",
+            tokens[i-1].line_num,
+        )
         # If \n follows ) then skip all the \n characters
         if tokens[i + 1].type == "newline":
             i += 1

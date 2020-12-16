@@ -20,6 +20,10 @@ def check_if(given_type, should_be_types, msg, line_num):
     if given_type not in should_be_types:
         error(msg, line_num)
 
+def check_incomplete(i, tokens, msg, line_num):
+    if i == len(tokens):
+        error(msg, line_num)
+
 def error(msg, line_num):
     """
     Shows error message in red color and exits the current process

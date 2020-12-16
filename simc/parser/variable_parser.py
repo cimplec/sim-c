@@ -1,4 +1,4 @@
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 from ..op_code import OpCode
 
@@ -7,6 +7,12 @@ def check_ptr(tokens, i):
     is_ptr = False
     # Count the depth of pointer
     count_ast = 0
+    check_incomplete(
+        i,
+        tokens,
+        "Improper Declaration",
+        tokens[i-1].line_num,
+    )
     if tokens[i].type == "multiply":
         j = 0
         while tokens[i + j].type == "multiply":

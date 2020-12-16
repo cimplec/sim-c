@@ -1,4 +1,4 @@
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 from ..op_code import OpCode
 
@@ -51,6 +51,12 @@ def if_statement(tokens, i, table, func_ret_type):
         tokens[i - 1].line_num,
     )
 
+    check_incomplete(
+        i,
+        tokens,
+        "Expected { before if body",
+        tokens[i-1].line_num,
+    )
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
         i += 1
@@ -99,7 +105,12 @@ def switch_statement(tokens, i, table, func_ret_type):
         "Expected ) after expression in switch",
         tokens[i - 1].line_num,
     )
-
+    check_incomplete(
+        i,
+        tokens,
+        "Expected { before switch body",
+        tokens[i-1].line_num,
+    )
     check_if(
         tokens[i + 1].type,
         "left_brace",

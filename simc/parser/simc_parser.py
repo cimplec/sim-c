@@ -1,5 +1,5 @@
 # Module to import some helper functions
-from ..global_helpers import error, check_if
+from ..global_helpers import error, check_if, check_incomplete
 
 # Module to import OpCode class
 from ..op_code import OpCode
@@ -497,6 +497,12 @@ def parse(tokens, table):
             op_codes.append(var_opcode)
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
+            check_incomplete(
+                i+1,
+                tokens,
+                "Improper Declaration",
+                tokens[i].line_num,
+            )
             # If '(' follows id then it is function calling else variable assignment
             if tokens[i + 1].type == "left_paren":
                 fun_opcode, i, func_ret_type = function_call_statement(
