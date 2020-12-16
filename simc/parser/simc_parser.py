@@ -478,7 +478,7 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             if(single_stat_func_flag == START_FUNCTION):
-                single_stat_func_flag += END_FUNCTION
+                single_stat_func_flag += 1
             op_codes.append(print_opcode)
         # If token is of type import then generate import opcode
         elif tokens[i].type == "import":
@@ -493,7 +493,7 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             if(single_stat_func_flag == START_FUNCTION):
-                single_stat_func_flag += END_FUNCTION
+                single_stat_func_flag += 1
             op_codes.append(var_opcode)
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
@@ -517,7 +517,7 @@ def parse(tokens, table):
                 op_codes.append(assign_opcode)
 
             if(single_stat_func_flag == START_FUNCTION):
-                single_stat_func_flag += END_FUNCTION
+                single_stat_func_flag += 1
         # If token is of type fun then generate function opcode
         elif tokens[i].type == "fun":
             fun_opcode, i, func_name, func_ret_type = function_definition_statement(
@@ -618,7 +618,7 @@ def parse(tokens, table):
                     op_codes.append(OpCode("scope_over", "", ""))
                     brace_count -= 1
                 if(single_stat_func_flag == START_FUNCTION):
-                    single_stat_func_flag += END_FUNCTION
+                    single_stat_func_flag += 1
 
                 in_do = False
             op_codes.append(while_opcode)
@@ -636,7 +636,7 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             if(single_stat_func_flag == START_FUNCTION):
-                single_stat_func_flag += END_FUNCTION
+                single_stat_func_flag += 1
             op_codes.append(exit_opcode)
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
@@ -716,20 +716,20 @@ def parse(tokens, table):
                         table.symbol_table[table.get_by_symbol(func_name)][1] = [prec_to_type[op_type], beg_idx, tokens]
 
             if(single_stat_func_flag == START_FUNCTION):
-                single_stat_func_flag += END_FUNCTION
+                single_stat_func_flag += 1
             op_codes.append(OpCode("return", op_value, ""))
         # If token is of type break then generate break opcode
         elif tokens[i].type == "break":
             op_codes.append(OpCode("break", "", ""))
             i += 1
             if(single_stat_func_flag == START_FUNCTION):
-                single_stat_func_flag += END_FUNCTION
+                single_stat_func_flag += 1
         # If token is of type continue then generate continue opcode
         elif tokens[i].type == "continue":
             op_codes.append(OpCode("continue", "", ""))
             i += 1
             if(single_stat_func_flag == START_FUNCTION):
-                single_stat_func_flag += END_FUNCTION
+                single_stat_func_flag += 1
         # If token is of type single_line_statement then generate single_line_comment opcode
         elif tokens[i].type == "single_line_comment":
             op_codes.append(OpCode("single_line_comment", tokens[i].val, ""))
@@ -766,7 +766,7 @@ def parse(tokens, table):
                 tokens, i, table, func_ret_type
             )
             if(single_stat_func_flag == START_FUNCTION):
-                single_stat_func_flag += END_FUNCTION
+                single_stat_func_flag += 1
             op_codes.append(unary_opcode)
 
         # Otherwise increment the index
