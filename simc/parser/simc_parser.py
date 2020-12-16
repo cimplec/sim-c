@@ -523,13 +523,10 @@ def parse(tokens, table):
             fun_opcode, i, func_name, func_ret_type = function_definition_statement(
                 tokens, i + 1, table, func_ret_type
             )
-<<<<<<< HEAD
             if(len(fun_opcode) == 2):
-                single_stat_func_flag = 0
+                single_stat_func_flag = START_FUNCTION
                 brace_count += 1
             op_codes.extend(fun_opcode)
-=======
-            op_codes.append(fun_opcode)
         # If token is of type struct then generate structure opcode
         elif tokens[i].type == "struct":
             struct_opcode, i, struct_name = struct_declaration_statement(
@@ -537,7 +534,6 @@ def parse(tokens, table):
             )
             struct_declared = brace_count
             op_codes.append(struct_opcode)
->>>>>>> 044f852546bb3a76c051411ffcda8cf55d3627e1
         # If token is of type left_brace then generate scope_begin opcode
         elif tokens[i].type == "left_brace":
             op_codes.append(OpCode("scope_begin", "", ""))
