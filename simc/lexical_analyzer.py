@@ -1,5 +1,6 @@
 # Standard library to take input as command line argument
 import sys
+import os
 
 # Module to import some helper functions
 from .global_helpers import error, is_alpha, is_alnum, is_digit
@@ -45,7 +46,9 @@ def is_keyword(value):
         "BEGIN_C",
         "END_C",
         "true",
-        "false"
+        "false",
+        "import",
+        "struct",
     ]
 
 
@@ -302,6 +305,7 @@ def get_raw_tokens(source_code,i,line_num):
         i += 1
         line_num += 1
 
+
 def lexical_analyze(filename, table):
     """
     Generate tokens from source code
@@ -333,8 +337,17 @@ def lexical_analyze(filename, table):
     # To store comment string
     comment_str = ""
 
+    # Directory where installed modules can be found
+    module_dir = os.path.join(os.path.dirname(__file__), "modules")
+
+    # Path to source code of all the modules
+    module_source_paths = []
+
     # To indicate if BEGIN_C has been encountered
     raw_c = False
+
+    # Flag to check whether id is a module name or a normal id, this is set to true whenever an import is encountered
+    is_id_module_name = False
 
     # Loop through the source code character by character
     i = 0
@@ -343,6 +356,10 @@ def lexical_analyze(filename, table):
     # This is to presently differentiate between bitwise and
     # and address of operations.
     got_num_or_var = False
+
+    # To check if the brackets are balanced:
+    top = -1
+    balanced_brackets_stack = [ ]
     
     while source_code[i] != "\0":
 
@@ -351,8 +368,8 @@ def lexical_analyze(filename, table):
             raw_tokens,i,line_num = get_raw_tokens(source_code,i,line_num)
             tokens.extend(raw_tokens)
             raw_c = False
-            got_num_or_var = False
-            
+            got_num_or_var = False        
+
         # If a digit appears, call numeric_val function and add the numeric token to list,
         # if it was correct
         if is_digit(source_code[i]):
@@ -375,18 +392,37 @@ def lexical_analyze(filename, table):
         # If alphabet or number appears then it might be either a keyword or an identifier
         elif is_alnum(source_code[i]):
             token, i = keyword_identifier(source_code, i, table, line_num)
-            if(token.type == "id"):
+            
+            if token.type == "id":
                 got_num_or_var = True
-            if token.type == "BEGIN_C":
+                if is_id_module_name:
+                    is_id_module_name = not is_id_module_name
+
+                    module_name, _, _ = table.get_by_id(token.val)
+                    module_path = os.path.join(module_dir, module_name + ".simc")
+
+                    if os.path.exists(module_path):
+                        module_source_paths.append(module_path)
+                    else:
+                        error("Module " + str(module_name) + " not found, install it before using", line_num)
+
+            elif token.type == "BEGIN_C":
                 raw_c = True
                 continue
             elif token.type == "END_C":
                 raw_c = False
                 continue
+            elif token.type == "import":
+                is_id_module_name = True
+
             tokens.append(token)
 
         # Identifying left paren token
         elif source_code[i] == "(":
+            # To check if brackets are balanced:
+            top += 1
+            balanced_brackets_stack.append( '(' )
+
             parantheses_count += 1
             tokens.append(Token("left_paren", "", line_num))
             i += 1
@@ -394,6 +430,20 @@ def lexical_analyze(filename, table):
 
         # Identifying right paren token
         elif source_code[i] == ")":
+            # To check if brackets are balanced:
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing parentheses", line_num )
+            elif balanced_brackets_stack[ top ] != '(':
+                error( "Unbalanced parentheses error", line_num )
+
+
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+
             if parantheses_count > 0:
                 parantheses_count -= 1
                 tokens.append(Token("right_paren", "", line_num))
@@ -407,7 +457,7 @@ def lexical_analyze(filename, table):
                     tokens.append(Token("call_end", "", line_num))
 
             else:
-               error("Parentheses does not match.", line_num);
+               error("Parentheses does not match", line_num)
 
             got_num_or_var = False
             i += 1
@@ -417,30 +467,64 @@ def lexical_analyze(filename, table):
             if parantheses_count == 0:
                 tokens.append(Token("newline", "", line_num))
             else:
-                error("Parentheses does not match.", line_num);
+                error("Parentheses does not match.", line_num)
 
             i += 1
             line_num += 1
 
         # Identifying left brace token
         elif source_code[i] == "{":
+            # To check if brackets are balanced:
+            top += 1
+            balanced_brackets_stack.append( '{' )
+
             tokens.append(Token("left_brace", "", line_num))
             i += 1
             got_num_or_var = False
 
         # Identifying right brace token
         elif source_code[i] == "}":
+            # To check if brackets are balanced:
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing braces", line_num )
+            elif balanced_brackets_stack[ top ] != '{':
+                error( "Unbalanced braces error", line_num )
+
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+
             tokens.append(Token("right_brace", "", line_num))
             i += 1
             got_num_or_var = False
 
         # Identifying left bracket token
         elif source_code[i] == "[":
+            # To check if brackets are balanced:
+            top += 1
+            balanced_brackets_stack.append( '[' )
+
             tokens.append(Token("left_bracket", "", line_num))
             i += 1
 
         # Identifying right bracket token
         elif source_code[i] == "]":
+            # To check if brackets are balanced:
+            if top == -1:
+                # If at any time there is underflow, there are too many closing brackets.
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+                error( "Too many closing brackets", line_num )
+            elif balanced_brackets_stack[ top ] != '[':
+                error( "Unbalanced brackets error", line_num )
+                
+            else:
+                top -= 1
+                balanced_brackets_stack = balanced_brackets_stack[ :-1]
+
             tokens.append(Token("right_bracket", "", line_num))
             i += 1
             
@@ -622,6 +706,10 @@ def lexical_analyze(filename, table):
         # Otherwise increment the index
         else:
             i += 1
-
+    
+    # By the end, if stack is not empty, there are extra opening brackets
+    if top != -1:
+        error( "Unbalanced parenthesis error", line_num )
+        
     # Return the generated tokens
-    return tokens
+    return tokens, module_source_paths

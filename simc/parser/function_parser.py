@@ -47,6 +47,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
         expect_paren=True,
         func_ret_type=func_ret_type,
     )
+
     # op_value start in 1 because it should start with "params)" not "(params)"
     op_value = op_value[1:]
     op_value_list = op_value.replace(" ", "").split(",")
@@ -58,7 +59,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     # Check if number of actual and formal parameters match
     if num_actual_params < num_required_args:
         error(
-            "Expected at least %d arguments but got %d in function %s".format(
+            "Expected at least {} arguments but got {} in function {}".format(
                 num_required_args, num_actual_params, func_name
             ),
             tokens[i].line_num
@@ -66,7 +67,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     if num_actual_params > num_formal_params:
         error(
-            "Expected not more than %d arguments but got %d in function %s".format(
+            "Expected not more than {} arguments but got {} in function {}".format(
                 num_formal_params, num_actual_params, func_name
             ),
             tokens[i].line_num
@@ -93,8 +94,17 @@ def function_call_statement(tokens, i, table, func_ret_type):
         # Set the datatype of the formal parameter
         table.symbol_table[table.get_by_symbol(params[j])][1] = dtype
 
+    func_token_val = table.symbol_table.get(table.get_by_symbol(func_name), -1)
+    use_module_tokens = False
+    if func_token_val != -1 and type(func_token_val[1][2]) == list:
+        func_ret_type = {func_name: func_token_val[1][1]}
+        use_module_tokens = True
+
     if func_name in func_ret_type.keys():
-        _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "")
+        if use_module_tokens:
+            _, op_type, _, _ = expression(func_token_val[1][2], func_ret_type[func_name], table, "")
+        else:
+            _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "")
 
         #  Map datatype to appropriate datatype in C
         prec_to_type = {
@@ -173,7 +183,7 @@ def function_definition_statement(tokens, i, table, func_ret_type):
     func_ret_type (string) = Function return type
     Returns
     =======
-    OpCode, int, string: The opcode for the assign code, the index, and the name of the function after
+    OpCodes, int, string: The opcodes for the assign code, the index, and the name of the function after
                          parsing function calling statement
     Grammar
     =======
@@ -218,30 +228,31 @@ def function_definition_statement(tokens, i, table, func_ret_type):
             i += 1
         i -= 1
 
-    # Check if { follows ) in function
-    check_if(
-        tokens[i + 1].type,
-        "left_brace",
-        "Expected { before function body",
-        tokens[i + 1].line_num,
-    )
+    op_codes = []
 
-    # Loop until } is reached
-    i += 2
     ret_idx = i
-    found_right_brace = False
-    while i < len(tokens) and tokens[i].type != "right_brace":
-        if tokens[i].type == "right_brace":
-            found_right_brace = True
+    if tokens[i].type == "newline":
+        ret_idx = i + 1
+    if tokens[i + 1].type == "left_brace":
+        # Loop until } is reached
         i += 1
+        ret_idx = i
+        found_right_brace = False
+        while i < len(tokens) and tokens[i].type != "right_brace":
+            if tokens[i].type == "right_brace":
+                found_right_brace = True
+            i += 1
 
-    # If right brace found at end
-    if i != len(tokens) and tokens[i].type == "right_brace":
-        found_right_brace = True
+        # If right brace found at end
+        if i != len(tokens) and tokens[i].type == "right_brace":
+            found_right_brace = True
 
-    # If right brace is not found then produce error
-    if not found_right_brace:
-        error("Expected } after function body", tokens[i].line_num)
+        # If right brace is not found then produce error
+        if not found_right_brace:
+            error("Expected } after function body", tokens[i].line_num)
+
+    else:
+        op_codes.append(OpCode("scope_begin", "", ""))
 
     # Add the identifier types to function's typedata
     parameter_names = [p[0] for p in parameters]
@@ -253,8 +264,10 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         func_typedata += "&&&" + "&&&".join(default_values)
     table.symbol_table[func_idx][2] = func_typedata
 
+    op_codes.append(OpCode("func_decl", func_name + "---" + "&&&".join(parameter_names), ""))
+    op_codes.reverse()
     return (
-        OpCode("func_decl", func_name + "---" + "&&&".join(parameter_names), ""),
+        op_codes,
         ret_idx - 1,
         func_name,
         func_ret_type,

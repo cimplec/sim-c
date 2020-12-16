@@ -10,6 +10,10 @@ from .array_parser import array_initializer
 from .loop_parser import for_statement, while_statement
 from .conditional_parser import if_statement, switch_statement, case_statement
 from .variable_parser import var_statement, assign_statement
+from .struct_parser import struct_declaration_statement
+
+# Import parser constants
+from .parser_constants import OP_TOKENS, WORD_TO_OP
 
 def expression(
     tokens,
@@ -52,49 +56,7 @@ def expression(
     count_paren = 0
 
     # Loop until expression is not parsed completely
-    while i < len(tokens) and tokens[i].type in [
-        "number",
-        "input",
-        "string",
-        "id",
-        "plus",
-        "minus",
-        "multiply",
-        "power",
-        "divide",
-        "bitwise_and",
-        "bitwise_xor",
-        "bitwise_or",
-        "bitwise_and_equal",
-        "bitwise_xor_equal",
-        "bitwise_or_equal",
-        "comma",
-        "equal",
-        "not_equal",
-        "greater_than",
-        "less_than",
-        "greater_than_equal",
-        "less_than_equal",
-        "modulus",
-        "increment",
-        "decrement",
-        "plus_equal",
-        "minus_equal",
-        "multiply_equal",
-        "divide_equal",
-        "modulus_equal",
-        "power_equal",
-        "and",
-        "or",
-        "left_paren",
-        "exit",
-        "right_paren",
-        "newline",
-        "call_end",
-        "address_of",
-        "right_shift",
-        "left_shift",
-    ]:
+    while i < len(tokens) and tokens[i].type in OP_TOKENS:
         # Check for function call
         if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
             fun_opcode, i, func_ret_type = function_call_statement(
@@ -179,51 +141,6 @@ def expression(
         elif tokens[i].type in ["newline", "call_end"]:
             break
         else:
-            word_to_op = {
-                "plus": " + ",
-                "minus": " - ",
-                "multiply": " * ",
-                "divide": " / ",
-                " comma ": ", ",
-                "equal": " == ",
-                "not_equal": " != ",
-                "greater_than": " > ",
-                "less_than": " < ",
-                "greater_than_equal": " >= ",
-                "less_than_equal": " <= ",
-                "input": " scanf ",
-                "modulus": " % ",
-                "increment": " ++ ",
-                "decrement": " -- ",
-                "plus_equal": " += ",
-                "minus_equal": " -= ",
-                "multiply_equal": " *= ",
-                "divide_equal": " /= ",
-                "modulus_equal": " %= ",
-                "and": " && ",
-                "or": " || ",
-                "bitwise_and":" & ",
-                "bitwise_or":" | ",
-                "bitwise_xor":" ^ ",
-                "bitwise_and_equal":" &= ",
-                "bitwise_or_equal":" |= ",
-                "bitwise_xor_equal":" ^= ",
-                "comma": ",",
-                "left_paren": "(",
-                "right_paren": ")",
-                "address_of": "&",
-                "left_shift": " << ",
-                "right_shift": " >> ",
-                "power": ""
-            }
-
-            # if (
-            #     expect_paren
-            #     and tokens[i].type == "right_paren"
-            #     and tokens[i + 1].type in ["newline", "left_brace"]
-            # ):
-            #     break
-
             if tokens[i].type == "power":
                 # Fetch information from symbol table for first operand
                 value_first, _, _ = table.get_by_id(tokens[i-1].val)
@@ -237,17 +154,16 @@ def expression(
 
                 i += 1
             elif tokens[i].type == "left_paren":
-                # if(tokens[i-1].type != "id"):
-                count_paren += 1;
-                op_value += word_to_op[tokens[i].type]
+                count_paren += 1
+                op_value += WORD_TO_OP[tokens[i].type]
             elif tokens[i].type == "right_paren":
-                count_paren -= 1;
+                count_paren -= 1
 
                 if count_paren < 0:
                     error("Found unexpected ‘)’ in expression", tokens[i].line_num)
-                op_value += word_to_op[tokens[i].type]
+                op_value += WORD_TO_OP[tokens[i].type]
             else:
-                op_value += word_to_op[tokens[i].type]
+                op_value += WORD_TO_OP[tokens[i].type]
 
         i += 1
 
@@ -278,7 +194,7 @@ def expression(
         else:
             p_msg = ""
             dtype = "s"
-        dtype_to_prec = {"i": 3, "f": 4, "d": 5, "s": 1}
+        dtype_to_prec = {"i": 3, "f": 4, "d": 5, "s": 1, "c": 2}
         op_value = str(p_msg) + "---" + str(dtype)
         op_type = dtype_to_prec[dtype]
     # Return the expression, type of expression, and current index in source codes
@@ -490,28 +406,94 @@ def parse(tokens, table):
     # If function return type could not be figured out during return then do it while calling
     func_ret_type = {}
 
+    # If a struct is declared, make this variable true, then if its true add a semicolon after the next right parenthesis
+    struct_declared = -1
+
     # Loop through all the tokens
     i = 0
 
-    while i <= len(tokens) - 1:
+    # Single Statement Function not called
+    NO_FUNC_CALLED = -1
 
+    # Single Statement Function body start
+    START_FUNCTION = 0
+
+    # Single Statement Function end body 
+    END_FUNCTION = 1 
+
+    # flag for beginning of a single statement function body
+    # NO_FUNC_CALLED -> function not started
+    # START_FUNCTION-> start of body
+    # END_FUNCTION -> end of body
+    # These constants should be three consecutive integers
+    single_stat_func_flag = NO_FUNC_CALLED
+
+    while i <= len(tokens) - 1:
+        if(single_stat_func_flag == START_FUNCTION):
+            # If \n follows ) then skip all the \n characters
+            if tokens[i].type == "newline":
+                i += 1
+                while tokens[i].type == "newline":
+                    i += 1
+            # If we encounter MAIN or a new function then 
+            # the function body is empty
+            if((tokens[i].type == "MAIN") or (tokens[i].type == "fun")):
+                single_stat_func_flag = NO_FUNC_CALLED
+                op_codes.append(OpCode("scope_over", "", ""))
+            
+        # at the end of the single statement function
+        # introduce a right brace if not there
+        if(single_stat_func_flag == END_FUNCTION):
+            if(not in_do):
+                # If \n follows ) then skip all the \n characters
+                if tokens[i].type == "newline":
+                    i += 1
+                    while tokens[i].type == "newline":
+                        i += 1
+                if(tokens[i].type != "right_brace"):
+                    op_codes.append(OpCode("scope_over", "", ""))
+                    brace_count -= 1
+
+                    if brace_count < 0:
+                        error(
+                            "Closing brace doesn't match any previous opening brace",
+                            tokens[i].line_num,
+                        )
+
+                    if brace_count == 0:
+                        # The Function scope is over
+                        func_name = ""
+                single_stat_func_flag = NO_FUNC_CALLED
+        
         # If token is raw c type
         if tokens[i].type == "RAW_C":
             op_codes.append(OpCode("raw",tokens[i].val))
             i += 1
             continue
 
+
         # If token is of type print then generate print opcode
         if tokens[i].type == "print":
             print_opcode, i, func_ret_type = print_statement(
                 tokens, i + 1, table, func_ret_type
             )
+            if(single_stat_func_flag == START_FUNCTION):
+                single_stat_func_flag += 1
             op_codes.append(print_opcode)
+        # If token is of type import then generate import opcode
+        elif tokens[i].type == "import":
+            i += 1
+            check_if(tokens[i].type, "id", "Expected module name after import", tokens[i].line_num)
+            value, _, _ = table.get_by_id(tokens[i].val)
+            op_codes.append(OpCode("import", value))
+            i += 1
         # If token is of type var then generate var opcode
         elif tokens[i].type == "var":
             var_opcode, i, func_ret_type = var_statement(
                 tokens, i + 1, table, func_ret_type
             )
+            if(single_stat_func_flag == START_FUNCTION):
+                single_stat_func_flag += 1
             op_codes.append(var_opcode)
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
@@ -533,21 +515,53 @@ def parse(tokens, table):
                     tokens, i + 1, table, func_ret_type
                 )
                 op_codes.append(assign_opcode)
+
+            if(single_stat_func_flag == START_FUNCTION):
+                single_stat_func_flag += 1
         # If token is of type fun then generate function opcode
         elif tokens[i].type == "fun":
             fun_opcode, i, func_name, func_ret_type = function_definition_statement(
                 tokens, i + 1, table, func_ret_type
             )
-            op_codes.append(fun_opcode)
+            if(len(fun_opcode) == 2):
+                single_stat_func_flag = START_FUNCTION
+                brace_count += 1
+            op_codes.extend(fun_opcode)
+        # If token is of type struct then generate structure opcode
+        elif tokens[i].type == "struct":
+            struct_opcode, i, struct_name = struct_declaration_statement(
+                tokens, i + 1, table
+            )
+            struct_declared = brace_count
+            op_codes.append(struct_opcode)
         # If token is of type left_brace then generate scope_begin opcode
         elif tokens[i].type == "left_brace":
             op_codes.append(OpCode("scope_begin", "", ""))
             brace_count += 1
             i += 1
-        # If token is of type right_brace then generate scope_over opcode
+        # If token is of type right_brace then generate scope_over opcode, if a struct was declared earlier, generate struct_scope_over opcode
         elif tokens[i].type == "right_brace":
-            op_codes.append(OpCode("scope_over", "", ""))
             brace_count -= 1
+            if struct_declared == brace_count:
+                # instance_name stores the name of structure instance (seperated by commas if multiple instances), if defined
+                instance_names = ""
+                # loop through the subsequent tokens to find all instantiated objects
+                for j in range(i+1, len(tokens)):
+                    if tokens[j].type == "id":
+                        instance_names += table.get_by_id(tokens[j].val)[0] + ", "
+                        # Skip over the id type token
+                        i += 1
+                    elif tokens[j].type == "comma":
+                        i += 1
+                        continue
+                    else:
+                        break
+                op_codes.append(OpCode("struct_scope_over", instance_names[:-2], ""))
+                struct_declared = -1
+
+            else:
+                op_codes.append(OpCode("scope_over", "", ""))
+            
 
             if brace_count < 0:
                 error(
@@ -560,7 +574,7 @@ def parse(tokens, table):
                 # The Function scope is over
                 func_name = ""
                 
-        # If token is of type MAIN then generate MAIN opcode
+        # If token is of typeMAIN then generate MAIN opcode
         elif tokens[i].type == "MAIN":
             op_codes.append(OpCode("MAIN", "", ""))
             main_fn_count += 1
@@ -588,14 +602,11 @@ def parse(tokens, table):
                     i += 1
                 i -= 1
             
-            check_if(
-                tokens[i + 1].type,
-                "left_brace",
-                "Expected { after do statement",
-                tokens[i + 1].line_num,
-            )
             in_do = True
             op_codes.append(OpCode("do", "", ""))
+            if(tokens[i + 1].type != "left_brace"):
+                op_codes.append(OpCode("scope_begin", "", ""))
+                brace_count += 1
             i += 1
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
@@ -603,6 +614,12 @@ def parse(tokens, table):
                 tokens, i + 1, table, in_do, func_ret_type
             )
             if in_do:
+                if(brace_count > 0):
+                    op_codes.append(OpCode("scope_over", "", ""))
+                    brace_count -= 1
+                if(single_stat_func_flag == START_FUNCTION):
+                    single_stat_func_flag += 1
+
                 in_do = False
             op_codes.append(while_opcode)
         # If token is of type if then generate if opcode
@@ -618,6 +635,8 @@ def parse(tokens, table):
             exit_opcode, i, func_ret_type = exit_statement(
                 tokens, i + 1, table, func_ret_type
             )
+            if(single_stat_func_flag == START_FUNCTION):
+                single_stat_func_flag += 1
             op_codes.append(exit_opcode)
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
@@ -637,7 +656,7 @@ def parse(tokens, table):
                 if_opcode.type = "else_if"
                 op_codes.append(if_opcode)
             # Otherwise it is else
-            elif tokens[i + 1].type == "left_brace":
+            else:
                 op_codes.append(OpCode("else", "", ""))
 
                 # Decrement if count on encountering if, to make sure there aren't extra else conditions
@@ -666,6 +685,7 @@ def parse(tokens, table):
                     expect_paren=False,
                     func_ret_type=func_ret_type,
                 )
+
             if func_name == "" and main_fn_count == 0:
                 error("Return statement outside any function", tokens[i].line_num)
             else:
@@ -688,19 +708,28 @@ def parse(tokens, table):
                     if op_type == -1:
                         func_ret_type[func_name] = beg_idx
                     # Change return type of function
-                    table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[
-                        op_type
-                    ]
+                    if op_type != -1:
+                        table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[
+                            op_type
+                        ]
+                    else:
+                        table.symbol_table[table.get_by_symbol(func_name)][1] = [prec_to_type[op_type], beg_idx, tokens]
 
+            if(single_stat_func_flag == START_FUNCTION):
+                single_stat_func_flag += 1
             op_codes.append(OpCode("return", op_value, ""))
         # If token is of type break then generate break opcode
         elif tokens[i].type == "break":
             op_codes.append(OpCode("break", "", ""))
             i += 1
+            if(single_stat_func_flag == START_FUNCTION):
+                single_stat_func_flag += 1
         # If token is of type continue then generate continue opcode
         elif tokens[i].type == "continue":
             op_codes.append(OpCode("continue", "", ""))
             i += 1
+            if(single_stat_func_flag == START_FUNCTION):
+                single_stat_func_flag += 1
         # If token is of type single_line_statement then generate single_line_comment opcode
         elif tokens[i].type == "single_line_comment":
             op_codes.append(OpCode("single_line_comment", tokens[i].val, ""))
@@ -736,6 +765,8 @@ def parse(tokens, table):
             unary_opcode, i, func_ret_type = unary_statement(
                 tokens, i, table, func_ret_type
             )
+            if(single_stat_func_flag == START_FUNCTION):
+                single_stat_func_flag += 1
             op_codes.append(unary_opcode)
 
         # Otherwise increment the index
