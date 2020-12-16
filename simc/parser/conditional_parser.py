@@ -58,26 +58,22 @@ def if_statement(tokens, i, table, func_ret_type):
             i += 1
         i -= 1
 
-    # Check if { follows ) in if statement
-    check_if(
-        tokens[i + 1].type,
-        "left_brace",
-        "Expected { before if body",
-        tokens[i + 1].line_num,
-    )
-
-    # Loop until } is reached
-    i += 1
-    ret_idx = i 
-    found_right_brace = False
-    while i < len(tokens) and tokens[i].type != "right_brace":
-        if found_right_brace:
-            found_right_brace = True
+    ret_idx = i
+    if(tokens[i].type == "newline"):
+        ret_idx = i + 1
+    if(tokens[i + 1].type == "left_brace"):
+        # Loop until } is reached
         i += 1
+        ret_idx = i 
+        found_right_brace = False
+        while i < len(tokens) and tokens[i].type != "right_brace":
+            if found_right_brace:
+                found_right_brace = True
+            i += 1
 
-    # If right brace found at end
-    if i != len(tokens) and tokens[i].type == "right_brace":
-        found_right_brace = True
+        # If right brace found at end
+        if i != len(tokens) and tokens[i].type == "right_brace":
+            found_right_brace = True
 
     return OpCode("if", op_value[1:-1]), ret_idx - 1, func_ret_type
 
