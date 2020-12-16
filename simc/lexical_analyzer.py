@@ -46,6 +46,7 @@ def is_keyword(value):
         "BEGIN_C",
         "END_C",
         "import",
+        "struct"
     ]
 
 
