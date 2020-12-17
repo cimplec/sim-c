@@ -527,8 +527,8 @@ def parse(tokens, table):
                 single_stat_func_flag += 1
         # If token is of type fun then generate function opcode
         elif tokens[i].type == "fun":
-            if main_fn_count > 0:
-                error("Cannot define a function inside main", tokens[i].line_num)
+            if main_fn_count > 0 or brace_count != 0:
+                error("Cannot define a function inside another function", tokens[i].line_num)
 
             fun_opcode, i, func_name, func_ret_type = function_definition_statement(
                 tokens, i + 1, table, func_ret_type

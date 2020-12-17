@@ -1,5 +1,0 @@
-MAIN
-	fun hello() {
-		return 1
-	}
-END_MAIN
