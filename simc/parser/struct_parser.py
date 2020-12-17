@@ -45,8 +45,6 @@ def struct_declaration_statement(tokens, i, table):
     ret_idx = i
     found_right_brace = False
     while i < len(tokens) and tokens[i].type != "right_brace":
-        if tokens[i].type == "right_brace":
-            found_right_brace = True
         i += 1
 
     # If right brace found at end
