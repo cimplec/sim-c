@@ -2,6 +2,7 @@ from ..global_helpers import error, check_if
 
 from ..op_code import OpCode
 
+
 def if_statement(tokens, i, table, func_ret_type):
     """
     Parse if statement
@@ -59,12 +60,12 @@ def if_statement(tokens, i, table, func_ret_type):
         i -= 1
 
     ret_idx = i
-    if(tokens[i].type == "newline"):
+    if tokens[i].type == "newline":
         ret_idx = i + 1
-    if(tokens[i + 1].type == "left_brace"):
+    if tokens[i + 1].type == "left_brace":
         # Loop until } is reached
         i += 1
-        ret_idx = i 
+        ret_idx = i
         found_right_brace = False
         while i < len(tokens) and tokens[i].type != "right_brace":
             i += 1

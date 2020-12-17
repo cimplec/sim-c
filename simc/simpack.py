@@ -5,6 +5,7 @@ import os
 
 from .global_helpers import error
 
+
 def get_package():
     simc_path = os.path.dirname(__file__)
     index_path = os.path.join(simc_path, "package-index")
@@ -39,5 +40,5 @@ def get_package():
         print("Fetching package " + requested_name + " from " + requested_link)
         r = requests.get(requested_link)
 
-        open(module_path, 'wb').write(r.content)
+        open(module_path, "wb").write(r.content)
         print(requested_name + " is now available for use!")

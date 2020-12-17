@@ -2,6 +2,7 @@ from ..global_helpers import error, check_if
 
 from ..op_code import OpCode
 
+
 def struct_declaration_statement(tokens, i, table):
     """
     Parse structure declaration statement
