@@ -148,8 +148,6 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
             ret_idx = i
             found_right_brace = False
             while i < len(tokens) and tokens[i].type != "right_brace":
-                if found_right_brace:
-                    found_right_brace = True
                 i += 1
 
             # If right brace found at end
