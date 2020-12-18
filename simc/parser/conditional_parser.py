@@ -104,12 +104,20 @@ def switch_statement(tokens, i, table, func_ret_type):
         "Expected ) after expression in switch",
         tokens[i - 1].line_num,
     )
+
     check_incomplete(
         i,
         tokens,
         "Expected { before switch body",
         tokens[i-1].line_num,
     )
+
+    if tokens[i + 1].type == "newline":
+        i += 1
+        while tokens[i].type == "newline":
+            i += 1
+        i -= 1
+
     check_if(
         tokens[i + 1].type,
         "left_brace",
