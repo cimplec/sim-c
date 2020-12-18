@@ -9,7 +9,6 @@ from simc.simc_parser import *
 
 
 class TestSimcParser(unittest.TestCase):
-
     def test_function_definition(self):
 
         symbol_table = SymbolTable()

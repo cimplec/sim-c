@@ -2,6 +2,7 @@ from ..global_helpers import error, check_if, check_incomplete
 
 from ..op_code import OpCode
 
+
 def for_statement(tokens, i, table, func_ret_type):
     """
     Parse for for_loop
@@ -29,22 +30,22 @@ def for_statement(tokens, i, table, func_ret_type):
     check_if(tokens[i + 1].type, "in", "Expected in keyword", tokens[i + 1].line_num)
 
     # Check if number follows in keyword
-    expression(tokens,i+2,table,"Expected starting value",expect_paren=False)
+    expression(tokens, i + 2, table, "Expected starting value", expect_paren=False)
 
     # Check if to keyword follows number
     check_if(tokens[i + 3].type, "to", "Expected to keyword", tokens[i + 3].line_num)
 
     # Check if number follows in keyword
-    expression(tokens,i+4,table,"Expected ending value",expect_paren=False)
-    
+    expression(tokens, i + 4, table, "Expected ending value", expect_paren=False)
+
     # Check if by keyword follows number
     check_if(tokens[i + 5].type, "by", "Expected by keyword", tokens[i + 5].line_num)
 
     word_to_op = {"plus": "+", "minus": "-", "multiply": "*", "divide": "/"}
 
     # Check if number follows operator
-    expression(tokens,i+7,table,"Expected value for change",expect_paren=False)
-    
+    expression(tokens, i + 7, table, "Expected value for change", expect_paren=False)
+
     # Get required values
     var_name, _, _ = table.get_by_id(tokens[i].val)
     table.symbol_table[tokens[i].val][1] = "int"
@@ -146,16 +147,14 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
             i -= 1
 
         ret_idx = i
-        if(tokens[i].type == "newline"):
+        if tokens[i].type == "newline":
             ret_idx = i + 1
-        if(tokens[i + 1].type == "left_brace"):
+        if tokens[i + 1].type == "left_brace":
             # Loop until } is reached
             i += 1
             ret_idx = i
             found_right_brace = False
             while i < len(tokens) and tokens[i].type != "right_brace":
-                if found_right_brace:
-                    found_right_brace = True
                 i += 1
 
             # If right brace found at end

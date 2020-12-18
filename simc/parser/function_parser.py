@@ -2,6 +2,7 @@ from ..global_helpers import error, check_if
 
 from ..op_code import OpCode
 
+
 def function_call_statement(tokens, i, table, func_ret_type):
     """
     Parse function calling statement
@@ -62,7 +63,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
             "Expected at least {} arguments but got {} in function {}".format(
                 num_required_args, num_actual_params, func_name
             ),
-            tokens[i].line_num
+            tokens[i].line_num,
         )
 
     if num_actual_params > num_formal_params:
@@ -70,14 +71,11 @@ def function_call_statement(tokens, i, table, func_ret_type):
             "Expected not more than {} arguments but got {} in function {}".format(
                 num_formal_params, num_actual_params, func_name
             ),
-            tokens[i].line_num
+            tokens[i].line_num,
         )
 
     op_value_list = fill_missing_args_with_defaults(
-        op_value_list,
-        default_values,
-        num_actual_params,
-        num_formal_params
+        op_value_list, default_values, num_actual_params, num_formal_params
     )
 
     # Assign datatype to formal parameters
@@ -102,7 +100,9 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     if func_name in func_ret_type.keys():
         if use_module_tokens:
-            _, op_type, _, _ = expression(func_token_val[1][2], func_ret_type[func_name], table, "")
+            _, op_type, _, _ = expression(
+                func_token_val[1][2], func_ret_type[func_name], table, ""
+            )
         else:
             _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "")
 
@@ -150,10 +150,8 @@ def extract_func_typedata(typedata, table):
 
 
 def fill_missing_args_with_defaults(
-        op_value_list,
-        default_values,
-        num_actual_params,
-        num_formal_params):
+    op_value_list, default_values, num_actual_params, num_formal_params
+):
 
     offset = len(default_values) - num_formal_params + num_actual_params
     default_values = default_values[offset:]
@@ -239,8 +237,6 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         ret_idx = i
         found_right_brace = False
         while i < len(tokens) and tokens[i].type != "right_brace":
-            if tokens[i].type == "right_brace":
-                found_right_brace = True
             i += 1
 
         # If right brace found at end
@@ -264,7 +260,9 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         func_typedata += "&&&" + "&&&".join(default_values)
     table.symbol_table[func_idx][2] = func_typedata
 
-    op_codes.append(OpCode("func_decl", func_name + "---" + "&&&".join(parameter_names), ""))
+    op_codes.append(
+        OpCode("func_decl", func_name + "---" + "&&&".join(parameter_names), "")
+    )
     op_codes.reverse()
     return (
         op_codes,
@@ -274,10 +272,7 @@ def function_definition_statement(tokens, i, table, func_ret_type):
     )
 
 
-def function_parameters(
-        tokens,
-        i,
-        table):
+def function_parameters(tokens, i, table):
     """
     Parse function parameters
     Params
@@ -304,10 +299,7 @@ def function_parameters(
     parameters = []
     default_val_required = False
 
-    param_info, i = function_parameter(tokens,
-                                       i,
-                                       table,
-                                       default_val_required)
+    param_info, i = function_parameter(tokens, i, table, default_val_required)
     if param_info is not None:
 
         parameters.append(param_info)
@@ -316,10 +308,7 @@ def function_parameters(
 
         while tokens[i].type == "comma":
             i += 1
-            param_info, i = function_parameter(tokens,
-                                               i,
-                                               table,
-                                               default_val_required)
+            param_info, i = function_parameter(tokens, i, table, default_val_required)
             if param_info is not None:
                 parameters.append(param_info)
                 if not default_val_required:
@@ -328,10 +317,12 @@ def function_parameters(
             else:
                 error("Parameter expected after comma", tokens[i].line_num)
 
-        check_if(tokens[i].type,
-                 "right_paren",
-                 "Right parentheses expected",
-                 tokens[i].line_num)
+        check_if(
+            tokens[i].type,
+            "right_paren",
+            "Right parentheses expected",
+            tokens[i].line_num,
+        )
         i += 1
 
         # check_if(tokens[i].type,
@@ -340,17 +331,12 @@ def function_parameters(
         #          tokens[i].line_num)
 
     else:
-        error("Function parameters must be identifiers",
-              tokens[i].line_num)
+        error("Function parameters must be identifiers", tokens[i].line_num)
 
     return parameters, i
 
 
-def function_parameter(
-        tokens,
-        i,
-        table,
-        default_val_required):
+def function_parameter(tokens, i, table, default_val_required):
     """
     Parse function parameter
     Params
@@ -373,24 +359,30 @@ def function_parameter(
     default_val = None
 
     if default_val_required:
-        check_if(tokens[i].type,
-                 "assignment",
-                 "Default value expected for parameter {}".format(parameter),
-                 tokens[i].line_num)
+        check_if(
+            tokens[i].type,
+            "assignment",
+            "Default value expected for parameter {}".format(parameter),
+            tokens[i].line_num,
+        )
         i += 1
         if tokens[i].type in ["number", "string"]:
             default_val = tokens[i].val
             i += 1
         else:
-            error("Only numbers and strings are allowed as default arguments",
-                  tokens[i].line_num)
+            error(
+                "Only numbers and strings are allowed as default arguments",
+                tokens[i].line_num,
+            )
     elif tokens[i].type == "assignment":
         i += 1
         if tokens[i].type in ["number", "string"]:
             default_val = tokens[i].val
             i += 1
         else:
-            error("Only numbers and strings are allowed as default arguments",
-                  tokens[i].line_num)
+            error(
+                "Only numbers and strings are allowed as default arguments",
+                tokens[i].line_num,
+            )
 
     return (parameter, default_val), i

@@ -1,6 +1,7 @@
 # Library to exit code when error occurs
 import sys
 
+
 def check_if(given_type, should_be_types, msg, line_num):
     """
     Check if type matches what it should be otherwise throw an error and exit

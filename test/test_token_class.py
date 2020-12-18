@@ -5,6 +5,7 @@ sys.path.append("..")
 
 from simc.token_class import Token
 
+
 class TestTokenClass(unittest.TestCase):
     def setUp(self):
         self.token = Token("number", 1, 2)
