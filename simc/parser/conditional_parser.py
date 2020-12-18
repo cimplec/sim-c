@@ -59,11 +59,6 @@ def if_statement(tokens, i, table, func_ret_type):
         tokens[i-1].line_num,
     )
     # If \n follows ) then skip all the \n characters
-    if tokens[i + 1].type == "newline":
-        i += 1
-        while tokens[i].type == "newline":
-            i += 1
-        i -= 1
 
     ret_idx = i
     if tokens[i].type == "newline":
