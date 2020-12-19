@@ -56,51 +56,7 @@ def expression(
     count_paren = 0
 
     # Loop until expression is not parsed completely
-    while i < len(tokens) and tokens[i].type in [
-        "number",
-        "input",
-        "string",
-        "id",
-        "plus",
-        "minus",
-        "multiply",
-        "power",
-        "divide",
-        "bitwise_and",
-        "bitwise_xor",
-        "bitwise_or",
-        "bitwise_and_equal",
-        "bitwise_xor_equal",
-        "bitwise_or_equal",
-        "comma",
-        "equal",
-        "not_equal",
-        "greater_than",
-        "less_than",
-        "greater_than_equal",
-        "less_than_equal",
-        "modulus",
-        "increment",
-        "decrement",
-        "plus_equal",
-        "minus_equal",
-        "multiply_equal",
-        "divide_equal",
-        "modulus_equal",
-        "power_equal",
-        "and",
-        "or",
-        "left_paren",
-        "exit",
-        "right_paren",
-        "newline",
-        "call_end",
-        "address_of",
-        "right_shift",
-        "left_shift",
-        "bool",
-    ]:
-        while i < len(tokens) and tokens[i].type in OP_TOKENS:
+    while i < len(tokens) and tokens[i].type in OP_TOKENS:
         # Check for function call
         if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
             fun_opcode, i, func_ret_type = function_call_statement(
