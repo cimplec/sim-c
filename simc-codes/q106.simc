@@ -1,0 +1,12 @@
+// program that takes a static positive integer and print the multiplication table of that number
+MAIN
+    print("Print Multiplication Table\n")
+    var no = input("Enter an integer : ", "i")
+    var n = 11
+    var num = 0
+    for i in 1 to n by +1 {
+        num = no * i
+        print("{no} x {i} = {num}\n")
+    }
+
+END_MAIN

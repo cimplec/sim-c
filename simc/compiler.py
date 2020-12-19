@@ -101,7 +101,17 @@ def compile(opcodes, c_filename, table):
         code = ""
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
+            
+            if opcode.val == '"%s", i':  # Temporary solution to the printf( ) statement being used on strings
+                opcode.val = '"%s", &i'
+                # Generation of opcode is flawed as it fails to add the reference addess of the string being printed
+            
             code = "\tprintf(%s);\n" % opcode.val
+        
+        # If opcode is of type import then generate include statement
+        if opcode.type == "import":
+            code = "#include \"" + opcode.val + ".h\"\n"
+
         # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":
             code = ""
@@ -112,8 +122,8 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double"}
-            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf"}
+            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double", "c": "char"}
+            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
 
             # If it is of string type then change it to char <identifier>[]
             if dtype == "string":
@@ -128,7 +138,11 @@ def compile(opcodes, c_filename, table):
                 code += "\t" + dtype + " " + str(val[0]) + ";\n"
                 if (val[1] != ''): code += "\t" + 'printf("' + str(val[1]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder
-                if "*" in dtype:
+
+                if dtype == "char*":            
+                    # If the datatype is character array, we need to pass in the reference address into scanf( )
+                    code += '", &' + str(val[0]) + ");\n"
+                elif "*" in dtype:
                     code += '", ' + str(val[0]) + ");\n"
                 else:
                     code += '", &' + str(val[0]) + ");\n"
@@ -143,8 +157,8 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double"}
-            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf"}
+            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double", "c": "char"}
+            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
 
             # If it is of string type then change it to char <identifier>[]
             if dtype == "string":
@@ -202,8 +216,8 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char *", "f": "float", "d": "double"}
-            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf"}
+            get_data_type = {"i": "int", "s": "char *", "f": "float", "d": "double", "c": "char"}
+            get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
             # Check if the statement is of type input or not
             if len(val) == 3:
                 code += "\t" + val[0] + " " + val[1] + " " + val[2] + ";\n"
@@ -274,7 +288,7 @@ def compile(opcodes, c_filename, table):
             # Compile the actual params
             has_param = False
             for param in params:
-                if len(params[i]) > 0:
+                if len(params) > 0:
                     has_param = True
                     code += param + ", "
             if has_param:
@@ -282,12 +296,22 @@ def compile(opcodes, c_filename, table):
 
             # Finally add opening brace to start the function body
             code += ");\n"
+        # If opcode is of type struct_decl then generate structure declaration statement
+        elif opcode.type == "struct_decl":
+            #extracting struct name from val
+            struct_name = opcode.val
+
+            #append the struct keyword and structure nameto the code
+            code += "\n" + "struct" + " " + struct_name + " "
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
             code += "{\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
             code += "}\n"
+        # If opcode is of type struct_scope_over then generate closing brace, name of struct instance (if any) and add a semi-colon
+        elif opcode.type == "struct_scope_over":
+            code += "} "+ opcode.val + ";\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "MAIN":
             code += "\nint main() {\n"
