@@ -704,7 +704,7 @@ def parse(tokens, table):
                     3: "int",
                     4: "float",
                     5: "double",
-                    6: "bool"
+                    6: "bool",
                     7: "void",
                 }
 
