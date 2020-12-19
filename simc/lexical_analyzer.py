@@ -211,16 +211,10 @@ def keyword_identifier(source_code, i, table, line_num):
         i += 1
 
     #converts boolean const true to integer 1
-    if value == "true":
+    if value == "true" or value == "false":
         return Token("bool",
                      table.entry(value, "bool", "constant"),
                      line_num) , i 
-        
-    #converts boolean const false to integer 0 
-    if value == "false":
-        return Token("bool",
-                     table.entry(value, "bool", "constant"),
-                     line_num) , i
 
     #Check if value is a math constant or not
     if value in ["PI","E","inf","NaN"]:
