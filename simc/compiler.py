@@ -28,7 +28,7 @@ def check_include(opcodes):
             includes.append("#include <stdio.h>")
 
         # If there is any boolean assignment opcode then include stdbool.h    
-        if opcode,dtype == "bool":
+        if opcode.dtype == "bool":
             includes.append("#include <stdbool.h>")
             
         # If the opcode is a statement of type input, then it requires stdio.h to be included
