@@ -194,7 +194,7 @@ def keyword_identifier(source_code, i, table, line_num):
     #converts boolean const true to integer 1
     if value == "true":
         return Token("bool",
-                     table.entry(1value, "bool", "constant"),
+                     table.entry(value, "bool", "constant"),
                      line_num) , i 
         
     #converts boolean const false to integer 0 
