@@ -2,6 +2,7 @@ from ..global_helpers import error, check_if
 
 from ..op_code import OpCode
 
+
 def check_ptr(tokens, i):
     # Check if a pointer is being declared
     is_ptr = False
@@ -17,6 +18,7 @@ def check_ptr(tokens, i):
         return is_ptr, count_ast, i
     else:
         return False, 0, i
+
 
 def var_statement(tokens, i, table, func_ret_type):
     """
@@ -82,10 +84,10 @@ def var_statement(tokens, i, table, func_ret_type):
 
     # Check if it is a array initializer
     if tokens[i + 1].type == "left_bracket":
-        
+
         # Number of position allocated in array
-        num_field_expec = ''
-        
+        num_field_expec = ""
+
         # Store the index of identifier
         id_idx = i
 
@@ -107,15 +109,18 @@ def var_statement(tokens, i, table, func_ret_type):
             i += 3
         elif tokens[i + 2].type == "right_bracket":
             # Define max array length
-            num_field_expec =  ''
+            num_field_expec = ""
             # Position indice to end of array declaration (right bracket)
             i += 2
         else:
-            error("Expected integer number after expression in array statement", tokens[i + 2].line_num)  
+            error(
+                "Expected integer number after expression in array statement",
+                tokens[i + 2].line_num,
+            )
 
         # Check if array is also initialized
         if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
-            
+
             # Check if expression follows = in array statement
             op_value, op_type, i = array_initializer(
                 tokens,
@@ -132,7 +137,11 @@ def var_statement(tokens, i, table, func_ret_type):
             return (
                 OpCode(
                     "array_assign",
-                    table.symbol_table[tokens[id_idx].val][0] + "---" + str(num_field_expec) + "---" + op_value,
+                    table.symbol_table[tokens[id_idx].val][0]
+                    + "---"
+                    + str(num_field_expec)
+                    + "---"
+                    + op_value,
                     prec_to_type[op_type],
                 ),
                 i,
@@ -160,8 +169,12 @@ def var_statement(tokens, i, table, func_ret_type):
             # Set declared
             table.symbol_table[tokens[id_idx].val][1] = "declared"
 
-            return (OpCode("array_no_assign", value + "---" + str(num_field_expec)), i, func_ret_type)
-            
+            return (
+                OpCode("array_no_assign", value + "---" + str(num_field_expec)),
+                i,
+                func_ret_type,
+            )
+
     # Check if variable is also initialized
     elif i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
         # Store the index of identifier
@@ -234,6 +247,7 @@ def var_statement(tokens, i, table, func_ret_type):
 
         return OpCode("var_no_assign", value), i + 1, func_ret_type
 
+
 def assign_statement(tokens, i, table, func_ret_type):
     """
     Parse assignment statement
@@ -282,9 +296,9 @@ def assign_statement(tokens, i, table, func_ret_type):
         "multiply_equal": "*=",
         "divide_equal": "/=",
         "modulus_equal": "%=",
-        "bitwise_and_equal" : "&=",
-        "bitwise_xor_equal":"^=",
-        "bitwise_or_equal":"|=",
+        "bitwise_and_equal": "&=",
+        "bitwise_xor_equal": "^=",
+        "bitwise_or_equal": "|=",
     }
     # Check if assignment operator follows identifier name
     check_if(

@@ -18,8 +18,8 @@ def check_include(opcodes):
     # List of includes
     includes = []
 
-    #List of math constants
-    math_func_const = ["M_PI", "M_E", "pow(" , "INFINITY","NAN"]
+    # List of math constants
+    math_func_const = ["M_PI", "M_E", "pow(", "INFINITY", "NAN"]
 
     # Loop through all opcodes
     for opcode in opcodes:
@@ -30,7 +30,7 @@ def check_include(opcodes):
         # If there is any boolean assignment opcode then include stdbool.h    
         if opcode.dtype == "bool":
             includes.append("#include <stdbool.h>")
-            
+        
         # If the opcode is a statement of type input, then it requires stdio.h to be included
         if len(opcode.val.split("---")) >= 3:
             includes.append("#include <stdio.h>")
@@ -101,16 +101,18 @@ def compile(opcodes, c_filename, table):
         code = ""
         # If opcode is of type print then generate a printf statement
         if opcode.type == "print":
-            
-            if opcode.val == '"%s", i':  # Temporary solution to the printf( ) statement being used on strings
+
+            if (
+                opcode.val == '"%s", i'
+            ):  # Temporary solution to the printf( ) statement being used on strings
                 opcode.val = '"%s", &i'
                 # Generation of opcode is flawed as it fails to add the reference addess of the string being printed
-            
+
             code = "\tprintf(%s);\n" % opcode.val
-        
+
         # If opcode is of type import then generate include statement
         if opcode.type == "import":
-            code = "#include \"" + opcode.val + ".h\"\n"
+            code = '#include "' + opcode.val + '.h"\n'
 
         # If opcode is of type var_assign then generate a declaration [/initialization] statement
         elif opcode.type == "var_assign":
@@ -122,7 +124,13 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double", "c": "char"}
+            get_data_type = {
+                "i": "int",
+                "s": "char*",
+                "f": "float",
+                "d": "double",
+                "c": "char",
+            }
             get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
 
             # If it is of string type then change it to char <identifier>[]
@@ -136,10 +144,11 @@ def compile(opcodes, c_filename, table):
                 dtype = get_data_type[val[2]]
                 placeholder = get_placeholder[val[2]]
                 code += "\t" + dtype + " " + str(val[0]) + ";\n"
-                if (val[1] != ''): code += "\t" + 'printf("' + str(val[1]) + '");\n'
+                if val[1] != "":
+                    code += "\t" + 'printf("' + str(val[1]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder
 
-                if dtype == "char*":            
+                if dtype == "char*":
                     # If the datatype is character array, we need to pass in the reference address into scanf( )
                     code += '", &' + str(val[0]) + ");\n"
                 elif "*" in dtype:
@@ -157,7 +166,13 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char*", "f": "float", "d": "double", "c": "char"}
+            get_data_type = {
+                "i": "int",
+                "s": "char*",
+                "f": "float",
+                "d": "double",
+                "c": "char",
+            }
             get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
 
             # If it is of string type then change it to char <identifier>[]
@@ -191,7 +206,9 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
-            code += "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + ";\n"
+            code += (
+                "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + ";\n"
+            )
         elif opcode.type == "array_assign":
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
@@ -199,7 +216,18 @@ def compile(opcodes, c_filename, table):
             _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
-            code += "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + " = " + val[2] + ";\n"
+            code += (
+                "\t"
+                + opcode.dtype
+                + " "
+                + str(val[0])
+                + "["
+                + (val[1])
+                + "]"
+                + " = "
+                + val[2]
+                + ";\n"
+            )
         # If opcode is of type ptr_no_assign then generate declaration statement
         elif opcode.type == "ptr_no_assign":
             val = opcode.val.split("---")
@@ -216,7 +244,13 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Helper Dictionaries
-            get_data_type = {"i": "int", "s": "char *", "f": "float", "d": "double", "c": "char"}
+            get_data_type = {
+                "i": "int",
+                "s": "char *",
+                "f": "float",
+                "d": "double",
+                "c": "char",
+            }
             get_placeholder = {"i": "d", "s": "s", "f": "f", "d": "lf", "c": "c"}
             # Check if the statement is of type input or not
             if len(val) == 3:
@@ -225,7 +259,8 @@ def compile(opcodes, c_filename, table):
                 # If the statement is of type input
                 dtype = get_data_type[val[3]]
                 placeholder = get_placeholder[val[3]]
-                if (val[2] != ''): code += "\t" + 'printf("' + str(val[2]) + '");\n'
+                if val[2] != "":
+                    code += "\t" + 'printf("' + str(val[2]) + '");\n'
                 code += "\t" + 'scanf("%' + placeholder + '", &' + str(val[0]) + ");\n"
 
         # If opcode is of type ptr_only_assign then generate an assignment statement
@@ -298,10 +333,10 @@ def compile(opcodes, c_filename, table):
             code += ");\n"
         # If opcode is of type struct_decl then generate structure declaration statement
         elif opcode.type == "struct_decl":
-            #extracting struct name from val
+            # extracting struct name from val
             struct_name = opcode.val
 
-            #append the struct keyword and structure nameto the code
+            # append the struct keyword and structure nameto the code
             code += "\n" + "struct" + " " + struct_name + " "
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
@@ -311,7 +346,7 @@ def compile(opcodes, c_filename, table):
             code += "}\n"
         # If opcode is of type struct_scope_over then generate closing brace, name of struct instance (if any) and add a semi-colon
         elif opcode.type == "struct_scope_over":
-            code += "} "+ opcode.val + ";\n"
+            code += "} " + opcode.val + ";\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "MAIN":
             code += "\nint main() {\n"
@@ -394,9 +429,9 @@ def compile(opcodes, c_filename, table):
         # If opcode is of type default then generate default statement
         elif opcode.type == "default":
             code += "\tdefault:\n"
-         # If opcode is of type RAW_c, simpaly copy the value
+        # If opcode is of type RAW_c, simpaly copy the value
         elif opcode.type == "raw":
-            code += opcode.val + "\n" 
+            code += opcode.val + "\n"
 
         outside_code, ccode = compile_func_main_code(
             outside_code, ccode, outside_main, code

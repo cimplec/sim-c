@@ -29,27 +29,21 @@ def get_version(rel_path):
 setup(
     name="simc",
     version=get_version("simc/__init__.py"),
-    description=(
-        "A dynamically typed high-level front end for C"
-    ),
+    description="A dynamically typed high-level front end for C",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/cimplec/simc",
     author="Siddhartha Dhar Choudhury",
     author_email="sdharchou@gmail.com",
     license="GNU General Public License v3",
-    packages = find_packages(),
-    entry_points ={
-        'console_scripts': [
-            'simc = simc.simc:run',
-            'simpack = simc.simpack:get_package',
+    packages=find_packages(),
+    entry_points={
+        "console_scripts": [
+            "simc = simc.simc:run",
+            "simpack = simc.simpack:get_package",
         ]
     },
-    package_data={
-        "simc": [
-            "package-index"
-        ]
-    },
+    package_data={"simc": ["package-index"]},
     install_requires=["requests"],
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

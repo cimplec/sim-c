@@ -15,7 +15,7 @@ if __name__ == "__main__":
         TestLexicalAnalyzer,
         TestOpCodeClass,
         TestTokenClass,
-        TestSymbolTableClass
+        TestSymbolTableClass,
     ]
 
     loader = unittest.TestLoader()
@@ -30,6 +30,5 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     results = runner.run(big_suite)
 
-
-    if os.path.exists('testing.simc'):
-        os.remove('testing.simc')
+    if os.path.exists("testing.simc"):
+        os.remove("testing.simc")

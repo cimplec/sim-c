@@ -1,12 +1,12 @@
 import unittest
 import sys
 
-sys.path.append('..')
+sys.path.append("..")
 
 from simc.symbol_table import SymbolTable
 
-class TestSymbolTableClass(unittest.TestCase):
 
+class TestSymbolTableClass(unittest.TestCase):
     def setUp(self):
         self.table = SymbolTable()
 
@@ -17,7 +17,10 @@ class TestSymbolTableClass(unittest.TestCase):
         self.assertEqual(id_1, 1)
         self.assertEqual(id_2, 2)
 
-        self.assertEqual(self.table.symbol_table, {1: ["hello", "int", "variable"], 2: ["world", "float", "constant"]})
+        self.assertEqual(
+            self.table.symbol_table,
+            {1: ["hello", "int", "variable"], 2: ["world", "float", "constant"]},
+        )
 
     def test_get_by_id(self):
         id_1 = self.table.entry("hello", "int", "variable")
