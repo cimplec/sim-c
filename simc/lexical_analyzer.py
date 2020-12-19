@@ -193,14 +193,14 @@ def keyword_identifier(source_code, i, table, line_num):
 
     #converts boolean const true to integer 1
     if value == "true":
-        return Token("number",
-                     table.entry(1, "int", "constant"),
+        return Token("bool",
+                     table.entry(1value, "bool", "constant"),
                      line_num) , i 
         
     #converts boolean const false to integer 0 
     if value == "false":
-        return Token("number",
-                     table.entry(0, "int", "constant"),
+        return Token("bool",
+                     table.entry(value, "bool", "constant"),
                      line_num) , i
 
     #Check if value is a math constant or not
@@ -245,8 +245,9 @@ def keyword_identifier(source_code, i, table, line_num):
         "if",
         "static",
         "while",
-        "true"
-        "false"
+        "true",
+        "false",
+        "bool",
     ]
 
     # Check if identifier is a keyword in class

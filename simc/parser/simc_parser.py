@@ -42,7 +42,7 @@ def expression(
     op_value = ""
     op_type = -1
 
-    # Mapping for precedence checking (double > float > int)
+    # Mapping for precedence checking (double > float > int > bool)
     type_to_prec = {"int": 3, "float": 4, "double": 5}
 
     #Mapping simc constant name to c constant name
@@ -94,6 +94,7 @@ def expression(
         "address_of",
         "right_shift",
         "left_shift",
+        "bool",
     ]:
         # Check for function call
         if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
@@ -107,7 +108,7 @@ def expression(
             op_type = type_to_prec[table.get_by_id(table.get_by_symbol(val[0]))[1]]
             i -= 1
         # If token is identifier or constant
-        elif tokens[i].type in ["number", "string", "id"]:
+        elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table
             value, type, typedata = table.get_by_id(tokens[i].val)
 
@@ -138,6 +139,7 @@ def expression(
                         "int": "%d",
                         "float": "%f",
                         "double": "%lf",
+                        "bool": "%d",
                     }
                     for var in vars:
                         _, type, _ = table.get_by_id(table.get_by_symbol(var))
@@ -153,6 +155,9 @@ def expression(
             elif type == "char":
                 op_value += value
                 op_type = 2
+            elif type == "bool":
+                op_value += value
+                op_type = 6
             elif type == "int":
                 op_value += str(value)
                 op_type = (
@@ -303,6 +308,7 @@ def print_statement(tokens, i, table, func_ret_type):
     string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
     quote           -> "
     number          -> [0-9]+
+    bool            -> 1/0 (t/f)
     id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
     operator        -> + | - | * | /
     """
@@ -332,6 +338,7 @@ def print_statement(tokens, i, table, func_ret_type):
         3: '"%d", ',
         4: '"%f", ',
         5: '"%lf", ',
+        6: '"%d", ',
     }
     op_value = prec_to_type[op_type] + op_value[1:-1]
 
@@ -678,7 +685,8 @@ def parse(tokens, table):
                     3: "int",
                     4: "float",
                     5: "double",
-                    6: "void",
+                    6: "bool"
+                    7: "void",
                 }
 
                 # If we are in main function, 
