@@ -215,12 +215,6 @@ def keyword_identifier(source_code, i, table, line_num):
         return Token("bool",
                      table.entry(value, "bool", "constant"),
                      line_num) , i 
-
-    #Check if value is a math constant or not
-    if value in ["PI","E","inf","NaN"]:
-        return Token("number",
-                     table.entry(value, "double", "constant"),
-                     line_num) , i
       
     # Check if value is a math constant or not
     if value in ["PI", "E", "inf", "NaN"]:
