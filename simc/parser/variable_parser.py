@@ -79,6 +79,7 @@ def var_statement(tokens, i, table, func_ret_type):
         3: "int",
         4: "float",
         5: "double",
+        6: "bool",
     }
 
     # Check if it is a array initializer
@@ -233,6 +234,7 @@ def var_statement(tokens, i, table, func_ret_type):
             "string",
             "char *",
             "char*",
+            "bool"
         ]:
             error("Variable %s already declared" % value, tokens[i].line_num)
 
@@ -337,6 +339,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         3: "int",
         4: "float",
         5: "double",
+        6: "bool",
     }
     op_value = converted_type + "---" + op_value
     # Modify datatype of the identifier
