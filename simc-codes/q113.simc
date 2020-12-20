@@ -1,0 +1,6 @@
+MAIN
+var rad = 0.06
+var h = 0.21
+var vol = PI*rad*rad*h
+print("The volume of the cylinder with radius 6cm and height 21cm is : {vol} cubic metres")
+END_MAIN
