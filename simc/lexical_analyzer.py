@@ -8,48 +8,39 @@ from .global_helpers import error, is_alpha, is_alnum, is_digit
 # Module to import Token class
 from .token_class import Token
 
+class LexicalAnalyzer:
 
-def is_keyword(value):
-    """
-    Checks if string is keyword or not
+    def __init__(self, filename, table):
+        self.filename = filename 
+        self.table = table
 
-    Params
-    ======
-    value (string) = The string to be checked for keyword
+        self.common_simc_c_keywords = [
+            'break', 'case', 'continue', 'default', 'do', 'else', 'for', 'if', 'return', 'struct', 'switch', 'while'
+        ]
 
-    Returns
-    =======
-    bool: Whether the value passed is a keyword or not
-    """
-    return value in [
-        "fun",
-        "do",
-        "MAIN",
-        "print",
-        "return",
-        "var",
-        "END_MAIN",
-        "for",
-        "in",
-        "to",
-        "by",
-        "while",
-        "if",
-        "else",
-        "break",
-        "continue",
-        "input",
-        "exit",
-        "switch",
-        "case",
-        "default",
-        "BEGIN_C",
-        "END_C",
-        "true",
-        "false",
-        "import",
-        "struct",
-    ]
+        self.simc_unique_keywords = [
+            'BEGIN_C', 'END_C', 'END_MAIN', 'MAIN', 'by', 'exit', 'false', 'fun', 'import', 'in', 
+            'input', 'print', 'to', 'true', 'var'
+        ]
+
+        self.c_unique_keywords = [
+            'auto', 'char', 'const', 'double', 'enum', 'extern', 'float', 'goto', 'int', 'long', 'register', 
+            'short', 'signed', 'sizeof', 'static', 'typedef', 'union', 'unsigned', 'void', 'volatile'
+        ]
+
+    def is_keyword(self, value):
+        """
+        Checks if string is keyword or not
+
+        Params
+        ======
+        value (string) = The string to be checked for keyword
+
+        Returns
+        =======
+        bool: Whether the value passed is a keyword or not
+        """
+        return value in self.common_simc_c_keywords + self.simc_unique_keywords
 
 
 def numeric_val(source_code, i, table, line_num):
@@ -228,37 +219,9 @@ def keyword_identifier(source_code, i, table, line_num):
     id = table.get_by_symbol(value)
 
     C_keywords = [
-        "break",
-        "else",
-        "long",
-        "switch",
-        "case",
-        "enum",
-        "register",
-        "typedef",
-        "char",
-        "extern",
-        "return",
-        "union",
-        "const",
-        "float",
-        "short",
-        "unsigned",
-        "continue",
-        "for",
-        "signed",
-        "void",
-        "default",
-        "goto",
-        "sizeof",
-        "volatile",
-        "do",
-        "if",
-        "static",
-        "while",
-        "true",
-        "false",
-        "bool",
+        "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum",
+        "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short", "signed",
+        "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while"
     ]
 
     # Check if identifier is a keyword in class
