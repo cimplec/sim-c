@@ -129,10 +129,10 @@ class LexicalAnalyzer:
                 type_ = "double"
 
         # Make entry in symbol table
-        id = self.table.entry(numeric_constant, type_, "constant")
+        id_ = self.table.entry(numeric_constant, type_, "constant")
 
         # Return number token and current index in source code
-        self.tokens.append(Token("number", id, self.line_num))
+        self.tokens.append(Token("number", id_, self.line_num))
 
 
     def string_val(self, start_char='"'):
@@ -163,11 +163,11 @@ class LexicalAnalyzer:
             if self.source_code[self.current_source_index] == "\\" and self.source_code[self.current_source_index + 1] == "'":
                 string_constant += self.source_code[self.current_source_index] + self.source_code[self.current_source_index + 1]
                 if self.source_code[self.current_source_index + 2] != start_char:
-                    error("Unterminated string!", self.line_num)
+                    error("Unterminated string from here!", self.line_num)
                 self.current_source_index += 2
             else:
                 while self.source_code[self.current_source_index] != start_char:
-                    if self.source_code[self.current_source_index] == "\0" or self.source_code[self.current_source_index] == "\n":
+                    if self.source_code[self.current_source_index] in ["\0", "\n"]:
                         error("Unterminated string!", self.line_num)
                     string_constant += self.source_code[self.current_source_index]
                     self.current_source_index += 1
