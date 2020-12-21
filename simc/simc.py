@@ -9,7 +9,7 @@ from .global_helpers import error
 from .symbol_table import SymbolTable
 
 # Module for using lexical analyzer
-from .lexical_analyzer import lexical_analyze
+from .lexical_analyzer import LexicalAnalyzer
 
 # Module for using parser
 from .parser.simc_parser import parse
@@ -35,16 +35,17 @@ def run():
     table = SymbolTable()
 
     # Get source code tokens from lexical_analyzer
-    tokens, module_source_paths = lexical_analyze(filename, table)
+    lexical_analyzer = LexicalAnalyzer(filename, table)
+    tokens, module_source_paths = lexical_analyzer.lexical_analyze()
 
     # Get module tokens from lexical_analyzer
     all_module_tokens = {}
     if len(module_source_paths) > 0:
         for module_source_path in module_source_paths:
             module_name = os.path.basename(module_source_path).split(".")[0]
-            all_module_tokens[module_name], _ = lexical_analyze(
-                module_source_path, table
-            )
+
+            lexical_analyzer.update_filename(module_source_path)
+            all_module_tokens[module_name], _ = lexical_analyzer.lexical_analyze()
 
     # Option to check out tokens
     if len(sys.argv) > 2 and sys.argv[2] == "token":
