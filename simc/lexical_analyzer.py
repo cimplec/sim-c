@@ -1,6 +1,7 @@
 # Standard library to take input as command line argument
 import sys
 import os
+from collections import namedtuple
 
 # Module to import some helper functions
 from .global_helpers import error, is_alpha, is_alnum, is_digit
@@ -67,7 +68,7 @@ class LexicalAnalyzer:
 
         # Stores whether we got a number or variable just before this index
         # This is to presently differentiate between bitwise and
-        # and address of operations.
+        # and address of operations
         self.got_num_or_var = False
 
         # To check if the brackets are balanced:
@@ -231,27 +232,23 @@ class LexicalAnalyzer:
         # Loop until we get a non-digit character
         while is_alnum(self.source_code[self.current_source_index]):
             value += self.source_code[self.current_source_index]
-            self.current_source_index += 1
+            self.update_source_index()
+
+        types = namedtuple('types', ['data_type', 'token_type'])
+        const_with_types = {"true": types("bool", "bool"), "false": types("bool", "bool"), 
+                            "PI": types("double", "number"), "E": types("double", "number"), 
+                            "inf": types("double", "number"), "NaN": types("double", "number")}
 
         #converts boolean const true to integer 1
-        if value == "true" or value == "false":
-            self.tokens.append(Token("bool",
-                        self.symbol_table.entry(value, "bool", "constant"),
-                        self.line_num))
-            return
-        
-        # Check if value is a math constant or not
-        if value in ["PI", "E", "inf", "NaN"]:
-            self.tokens.append(Token("number", self.symbol_table.entry(value, "double", "constant"), self.line_num))
+        if value in const_with_types.keys():
+            id_ = self.symbol_table.entry(value, const_with_types[value].data_type, "constant")
+            self.tokens.append(Token(const_with_types[value].token_type, id_, self.line_num))
             return
 
         # Check if value is keyword or not
-        if self.is_keyword(value):
+        elif self.is_keyword(value):
             self.tokens.append(Token(value, "", self.line_num))
-            return 
-
-        # Check if identifier is in symbol self.symbol_table
-        id = self.symbol_table.get_by_symbol(value)
+            return
 
         C_keywords = [
             "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum",
@@ -263,12 +260,15 @@ class LexicalAnalyzer:
         if value in C_keywords:
             error("A keyword cannot be an identifier - %s" % value, self.line_num)
 
+        # Check if identifier is in symbol self.symbol_table
+        id_ = self.symbol_table.get_by_symbol(value)
+
         # If identifier is not in symbol self.symbol_table then give a placeholder datatype var
-        if id == -1:
-            id = self.symbol_table.entry(value, "var", "variable")
+        if id_ == -1:
+            id_ = self.symbol_table.entry(value, "var", "variable")
 
         # Return id token and current index in source code
-        self.tokens.append(Token("id", id, self.line_num))
+        self.tokens.append(Token("id", id_, self.line_num))
 
 
     def get_raw_tokens(self):
@@ -285,31 +285,27 @@ class LexicalAnalyzer:
         =======
         [Token], int,int: List of raw tokens, current place in self.source_code, current line_number in self.source_code
         """
-
-        # keep self.line_num to show in case of error
-        begin = self.line_num
-        tokens = []
+        
         while True:
-            val = ""
+            raw_c_code = ""
 
             # capture whole line
-            while self.source_code[self.current_source_index] != "\n" and self.source_code[self.current_source_index] != "\0":
-                val += self.source_code[self.current_source_index]
-                self.current_source_index += 1
+            while self.source_code[self.current_source_index] not in ["\n", "\0"]:
+                raw_c_code += self.source_code[self.current_source_index]
+                self.update_source_index()
 
             # if END_C found, add 1 to account for newline, and return
-            if val.strip() == "END_C":
-                self.current_source_index += 1
+            if raw_c_code.strip() == "END_C":
+                self.update_source_index()
                 self.line_num += 1
                 return
-
             elif self.source_code[self.current_source_index] == "\0":
-                error("No matching END_C found to BEGIN_C", begin)
+                error("No matching END_C found to BEGIN_C", self.line_num)
             else:
-                self.tokens.append(Token("RAW_C", val, self.line_num))
+                self.tokens.append(Token("RAW_C", raw_c_code, self.line_num))
 
             # increment self.current_source_index and self.line_num to go to next line
-            self.current_source_index += 1
+            self.update_source_index()
             self.line_num += 1
 
 
@@ -337,11 +333,12 @@ class LexicalAnalyzer:
 
         while self.source_code[self.current_source_index] != "\0":
 
+            self.got_num_or_var = False
+
             # If we have encountered BEGIN_C, copy everything exactly same until END_C
             if self.raw_c_begin:
                 self.get_raw_tokens()
                 self.raw_c_begin = False
-                self.got_num_or_var = False
 
             # If a digit appears, call numeric_val function and add the numeric token to list,
             # if it was correct
@@ -352,12 +349,10 @@ class LexicalAnalyzer:
             # If double quote appears the value is a string token
             elif self.source_code[self.current_source_index] == '"':
                 self.string_val()
-                self.got_num_or_var = False
 
             # If single quote appears the value is a string token
             elif self.source_code[self.current_source_index] == "'":
                 self.string_val(start_char="'")
-                self.got_num_or_var = False
 
             # If alphabet or number appears then it might be either a keyword or an identifier
             elif is_alnum(self.source_code[self.current_source_index]):
@@ -398,8 +393,7 @@ class LexicalAnalyzer:
 
                 self.parantheses_count += 1
                 self.tokens.append(Token("left_paren", "", self.line_num))
-                self.current_source_index += 1
-                self.got_num_or_var = False
+                self.update_source_index()
 
             # Identifying right paren token
             elif self.source_code[self.current_source_index] == ")":
@@ -411,7 +405,6 @@ class LexicalAnalyzer:
                     error("Too many closing parentheses", self.line_num)
                 elif self.balanced_brackets_stack[self.top] != "(":
                     error("Unbalanced parentheses error", self.line_num)
-
                 else:
                     self.top -= 1
                     self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
@@ -422,7 +415,7 @@ class LexicalAnalyzer:
 
                     # Read spaces between next code
                     while self.source_code[self.current_source_index + 1] is " ":
-                        self.current_source_index += 1
+                        self.update_source_index()
 
                     # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
                     if self.source_code[self.current_source_index + 1] in ["\n", "{", "}", ","]:
@@ -431,8 +424,7 @@ class LexicalAnalyzer:
                 else:
                     error("Parentheses does not match", self.line_num)
 
-                self.got_num_or_var = False
-                self.current_source_index += 1
+                self.update_source_index()
 
             # Identifying end of expression
             elif self.source_code[self.current_source_index] == "\n":
@@ -441,7 +433,7 @@ class LexicalAnalyzer:
                 else:
                     error("Parentheses does not match.", self.line_num)
 
-                self.current_source_index += 1
+                self.update_source_index()
                 self.line_num += 1
 
             # Identifying left brace token
@@ -451,8 +443,7 @@ class LexicalAnalyzer:
                 self.balanced_brackets_stack.append("{")
 
                 self.tokens.append(Token("left_brace", "", self.line_num))
-                self.current_source_index += 1
-                self.got_num_or_var = False
+                self.update_source_index()
 
             # Identifying right brace token
             elif self.source_code[self.current_source_index] == "}":
@@ -470,8 +461,7 @@ class LexicalAnalyzer:
                     self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
 
                 self.tokens.append(Token("right_brace", "", self.line_num))
-                self.current_source_index += 1
-                self.got_num_or_var = False
+                self.update_source_index()
 
             # Identifying left bracket token
             elif self.source_code[self.current_source_index] == "[":
@@ -480,7 +470,7 @@ class LexicalAnalyzer:
                 self.balanced_brackets_stack.append("[")
 
                 self.tokens.append(Token("left_bracket", "", self.line_num))
-                self.current_source_index += 1
+                self.update_source_index()
 
             # Identifying right bracket token
             elif self.source_code[self.current_source_index] == "]":
@@ -498,186 +488,172 @@ class LexicalAnalyzer:
                     balanced_brackets_stack = balanced_brackets_stack[:-1]
 
                 self.tokens.append(Token("right_bracket", "", self.line_num))
-                self.current_source_index += 1
+                self.update_source_index()
 
             # Identifying assignment token or equivalence token
             elif self.source_code[self.current_source_index] == "=":
                 if self.source_code[self.current_source_index + 1] != "=":
                     self.tokens.append(Token("assignment", "", self.line_num))
-                    self.current_source_index += 1
+                    self.update_source_index()
                 else:
                     self.tokens.append(Token("equal", "", self.line_num))
-                    self.current_source_index += 2
-                self.got_num_or_var = False
+                    self.update_source_index(by=2)
 
             # Identifying plus_equal, increment or plus token
             elif self.source_code[self.current_source_index] == "+":
                 if self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("plus_equal", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 elif self.source_code[self.current_source_index + 1] == "+":
                     self.tokens.append(Token("increment", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 else:
                     self.tokens.append(Token("plus", "", self.line_num))
-                    self.current_source_index += 1
-                self.got_num_or_var = False
+                    self.update_source_index()
 
             # Identifying minus_equal, decrement or minus token
             elif self.source_code[self.current_source_index] == "-":
                 if self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("minus_equal", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 elif self.source_code[self.current_source_index + 1] == "-":
                     self.tokens.append(Token("decrement", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 else:
                     self.tokens.append(Token("minus", "", self.line_num))
-                    self.current_source_index += 1
-                self.got_num_or_var = False
+                    self.update_source_index()
 
             # Identifying multiply_equal or multiply token
             elif self.source_code[self.current_source_index] == "*":
                 if self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("multiply_equal", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 # introducing new symbol for power -> pow(a,b) in c
                 # is a**b in simc instead of a^b
                 elif self.source_code[self.current_source_index + 1] == "*":
                     self.tokens.append(Token("power", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 else:
                     self.tokens.append(Token("multiply", "", self.line_num))
-                    self.current_source_index += 1
-                self.got_num_or_var = False
+                    self.update_source_index()
 
             # Identifying xor token
             elif self.source_code[self.current_source_index] == "^":
                 if self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("bitwise_xor_equal", "", self.line_num))
-                    self.current_source_index += 1
+                    self.update_source_index()
                 else:
                     self.tokens.append(Token("bitwise_xor", "", self.line_num))
-                self.current_source_index += 1
-                self.got_num_or_var = False
+                self.update_source_index()
 
             # Identifying 'address of','and', 'bitwise and' token
             elif self.source_code[self.current_source_index] == "&":
                 if self.source_code[self.current_source_index + 1] == "&":
                     self.tokens.append(Token("and", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 else:
                     if self.got_num_or_var:
                         if self.source_code[self.current_source_index + 1] == "=":
                             self.tokens.append(Token("bitwise_and_equal", "", self.line_num))
-                            self.current_source_index += 1
+                            self.update_source_index()
                         else:
                             self.tokens.append(Token("bitwise_and", "", self.line_num))
-                        self.current_source_index += 1
+                        self.update_source_index()
                     else:
                         self.tokens.append(Token("address_of", "", self.line_num))
-                        self.current_source_index += 1
-                self.got_num_or_var = False
+                        self.update_source_index()
 
             # Identifying 'or' token
             elif self.source_code[self.current_source_index] == "|":
                 if self.source_code[self.current_source_index + 1] == "|":
                     self.tokens.append(Token("or", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 elif self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("bitwise_or_equal", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 else:
                     self.tokens.append(Token("bitwise_or", "", self.line_num))
-                    self.current_source_index += 1
-                self.got_num_or_var = False
+                    self.update_source_index()
 
             # Identifying divide_equal or divide token
             elif self.source_code[self.current_source_index] == "/":
                 if self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("divide_equal", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 # to check if it is a single line comment
                 elif self.source_code[self.current_source_index + 1] == "/":
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                     while self.source_code[self.current_source_index] != "\n":
                         self.comment_str += str(self.source_code[self.current_source_index])
-                        self.current_source_index += 1
+                        self.update_source_index()
                     self.tokens.append(Token("single_line_comment", self.comment_str, self.line_num))
                     self.comment_str = ""
                 # to check if it is a multi line comment
                 elif self.source_code[self.current_source_index + 1] == "*":
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                     while self.source_code[self.current_source_index : self.current_source_index + 2] != "*/":
                         if self.source_code[self.current_source_index] == "\n":
                             self.line_num += 1
                         self.comment_str += str(self.source_code[self.current_source_index])
-                        self.current_source_index += 1
-                    self.current_source_index += 2
+                        self.update_source_index()
+                    self.update_source_index(by=2)
                     self.tokens.append(Token("multi_line_comment", self.comment_str, self.line_num))
                     self.comment_str = ""
                 else:
                     self.tokens.append(Token("divide", "", self.line_num))
-                    self.current_source_index += 1
-                self.got_num_or_var = False
+                    self.update_source_index()
 
             # Identifying modulus_equal or modulus token
             elif self.source_code[self.current_source_index] == "%":
                 if self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("modulus_equal", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 else:
                     self.tokens.append(Token("modulus", "", self.line_num))
-                    self.current_source_index += 1
-                self.got_num_or_var = False
+                    self.update_source_index()
 
             # Identifying comma token
             elif self.source_code[self.current_source_index] == ",":
                 self.tokens.append(Token("comma", "", self.line_num))
-                self.current_source_index += 1
-                self.got_num_or_var = False
+                self.update_source_index()
 
             # Identifying not_equal token
             elif self.source_code[self.current_source_index] == "!" and self.source_code[self.current_source_index + 1] == "=":
                 self.tokens.append(Token("not_equal", "", self.line_num))
-                self.current_source_index += 2
-                self.got_num_or_var = False
+                self.update_source_index(by=2)
 
             # Identifying greater_than or greater_than_equal token
             elif self.source_code[self.current_source_index] == ">":
                 if self.source_code[self.current_source_index + 1] not in ["=", ">"]:
                     self.tokens.append(Token("greater_than", "", self.line_num))
-                    self.current_source_index += 1
+                    self.update_source_index()
                 elif self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("greater_than_equal", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 else:
                     self.tokens.append(Token("right_shift", "", self.line_num))
-                    self.current_source_index += 2
-                self.got_num_or_var = False
+                    self.update_source_index(by=2)
 
             # Identifying less_than or less_than_equal token
             elif self.source_code[self.current_source_index] == "<":
                 if self.source_code[self.current_source_index + 1] not in ["<", "="]:
                     self.tokens.append(Token("less_than", "", self.line_num))
-                    self.current_source_index += 1
+                    self.update_source_index()
                 elif self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("less_than_equal", "", self.line_num))
-                    self.current_source_index += 2
+                    self.update_source_index(by=2)
                 elif self.source_code[self.current_source_index + 1] == "<":
                     self.tokens.append(Token("left_shift", "", self.line_num))
-                    self.current_source_index += 2
-                self.got_num_or_var = False
+                    self.update_source_index(by=2)
 
             # Identifiying colon token
             elif self.source_code[self.current_source_index] == ":":
                 self.tokens.append(Token("colon", "", self.line_num))
-                self.current_source_index += 1
-                self.got_num_or_var = False
+                self.update_source_index()
 
             # Otherwise increment the index
             else:
-                self.current_source_index += 1
+                self.update_source_index()
 
         # By the end, if stack is not empty, there are extra opening brackets
         if self.top != -1:
