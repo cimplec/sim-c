@@ -84,7 +84,7 @@ class LexicalAnalyzer:
             "volatile",
         ]
 
-    def read_source_code(self):
+    def __read_source_code(self):
         """
         Read source code from source file path and return it in a string
 
@@ -294,7 +294,7 @@ class LexicalAnalyzer:
         # Put appropriate quote
         string_constant = (
             '"' + string_constant + '"'
-            if type == "string"
+            if type_ == "string"
             else "'" + string_constant + "'"
         )
 
@@ -397,7 +397,7 @@ class LexicalAnalyzer:
         """
 
         # Read source code from file, initialize flags and counters
-        self.source_code = self.read_source_code()
+        self.source_code = self.__read_source_code()
         self.current_source_index = 0
 
         self.initialize_flags_counters()
