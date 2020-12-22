@@ -234,7 +234,7 @@ def var_statement(tokens, i, table, func_ret_type):
             "string",
             "char *",
             "char*",
-            "bool"
+            "bool",
         ]:
             error("Variable %s already declared" % value, tokens[i].line_num)
 

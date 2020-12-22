@@ -128,10 +128,10 @@ class LexicalAnalyzer:
         tokens_if_false (str)  = Token to be generated if none of these characters succeeds the current character
         """
 
-        # Loop through all next characters and corresponding tokens if they match 
+        # Loop through all next characters and corresponding tokens if they match
         for next_char, token_if_true in zip(next_chars, tokens_if_true):
 
-            # If there is a match append to tokens and return 
+            # If there is a match append to tokens and return
             if self.source_code[self.current_source_index + 1] == next_char:
                 self.tokens.append(Token(token_if_true, "", self.line_num))
                 self.__update_source_index(by=2)
@@ -589,7 +589,9 @@ class LexicalAnalyzer:
 
             # Identifying minus_equal, decrement or minus token
             elif self.source_code[self.current_source_index] == "-":
-                self.__check_next_token(["=", "-"], ["minus_equal", "decrement"], "minus")
+                self.__check_next_token(
+                    ["=", "-"], ["minus_equal", "decrement"], "minus"
+                )
 
             # Identifying multiply_equal, power or multiply token
             elif self.source_code[self.current_source_index] == "*":

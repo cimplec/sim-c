@@ -114,7 +114,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
             3: "int",
             4: "float",
             5: "double",
-            6: "bool"
+            6: "bool",
         }
 
         table.symbol_table[table.get_by_symbol(func_name)][1] = prec_to_type[op_type]

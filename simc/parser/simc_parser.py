@@ -57,7 +57,7 @@ def expression(
     count_paren = 0
 
     # Loop until expression is not parsed completely
-    while i < len(tokens) and tokens[i].type in OP_TOKENS :
+    while i < len(tokens) and tokens[i].type in OP_TOKENS:
         # Check for function call
         if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
             fun_opcode, i, func_ret_type = function_call_statement(
@@ -534,7 +534,10 @@ def parse(tokens, table):
         # If token is of type fun then generate function opcode
         elif tokens[i].type == "fun":
             if main_fn_count > 0 or brace_count != 0:
-                error("Cannot define a function inside another function", tokens[i].line_num)
+                error(
+                    "Cannot define a function inside another function",
+                    tokens[i].line_num,
+                )
 
             fun_opcode, i, func_name, func_ret_type = function_definition_statement(
                 tokens, i + 1, table, func_ret_type
