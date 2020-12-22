@@ -10,9 +10,9 @@ from .token_class import Token
 
 class LexicalAnalyzer:
 
-    def __init__(self, filename, table):
-        self.filename = filename 
-        self.table = table
+    def __init__(self, source_filename, symbol_table):
+        self.source_filename = source_filename 
+        self.symbol_table = symbol_table
 
         self.common_simc_c_keywords = [
             'break', 'case', 'continue', 'default', 'do', 'else', 'for', 'if', 'return', 'struct', 'switch', 'while'
@@ -29,15 +29,19 @@ class LexicalAnalyzer:
         ]
 
     def read_source_code(self):
-        source = ""
-        with open(self.filename, "r") as file:
-            source = file.read()
+        source_code = ""
+        with open(self.source_filename, "r") as file:
+            source_code = file.read()
         
-        source += "\0"
-        return source
+        source_code += "\0"
 
-    def update_filename(self, filename):
-        self.filename = filename
+        return source_code
+
+    def update_filename(self, source_filename):
+        self.source_filename = source_filename
+
+    def update_source_index(self, by=1):
+        self.current_source_index += by
 
     def initialize_flags_counters(self):
         # Line number
@@ -56,7 +60,7 @@ class LexicalAnalyzer:
         self.module_source_paths = []
 
         # To indicate if BEGIN_C has been encountered
-        self.raw_c = False
+        self.raw_c_begin = False
 
         # Flag to check whether id is a module name or a normal id, this is set to true whenever an import is encountered
         self.is_id_module_name = False
@@ -84,7 +88,6 @@ class LexicalAnalyzer:
         """
         return value in (self.common_simc_c_keywords + self.simc_unique_keywords)
 
-
     def numeric_val(self):
         """
         Processes numeric values in the source code
@@ -107,7 +110,7 @@ class LexicalAnalyzer:
         # Loop until we get a non-digit character
         while is_digit(self.source_code[self.current_source_index]):
             numeric_constant += self.source_code[self.current_source_index]
-            self.current_source_index += 1
+            self.update_source_index()
 
         # If a numeric constant contains more than 1 decimal point (.) then that is invalid
         if numeric_constant.count(".") > 1:
@@ -118,18 +121,18 @@ class LexicalAnalyzer:
             )
 
         # Check the length after . to distinguish between float and double
-        length = len(numeric_constant.split(".")[1]) if "." in numeric_constant else 0
+        length_after_decimal = len(numeric_constant.split(".")[1]) if "." in numeric_constant else 0
 
         # Determine type of numeric value
         type_ = "int"
-        if length != 0:
-            if length <= 7:
+        if length_after_decimal != 0:
+            if length_after_decimal <= 7:
                 type_ = "float"
-            elif length >= 7:
+            elif length_after_decimal >= 7:
                 type_ = "double"
 
         # Make entry in symbol table
-        id_ = self.table.entry(numeric_constant, type_, "constant")
+        id_ = self.symbol_table.entry(numeric_constant, type_, "constant")
 
         # Return number token and current index in source code
         self.tokens.append(Token("number", id_, self.line_num))
@@ -156,41 +159,27 @@ class LexicalAnalyzer:
         string_constant = ""
 
         # Skip the first " so that the string atleast makes into the while loop
-        self.current_source_index += 1
+        self.update_source_index()
 
-        # Loop until we get a non-digit character
-        if start_char == "'":
-            if self.source_code[self.current_source_index] == "\\" and self.source_code[self.current_source_index + 1] == "'":
+        while (self.current_source_index < len(self.source_code)) and (self.source_code[self.current_source_index] != start_char):
+            if self.source_code[self.current_source_index] in ["\0", "\n"]:
+                error("Unterminated string", self.line_num)
+
+            if self.source_code[self.current_source_index] == f"\\" and self.source_code[self.current_source_index + 1] == start_char:
                 string_constant += self.source_code[self.current_source_index] + self.source_code[self.current_source_index + 1]
-                if self.source_code[self.current_source_index + 2] != start_char:
-                    error("Unterminated string from here!", self.line_num)
-                self.current_source_index += 2
+                self.update_source_index(by=2)
             else:
-                while self.source_code[self.current_source_index] != start_char:
-                    if self.source_code[self.current_source_index] in ["\0", "\n"]:
-                        error("Unterminated string!", self.line_num)
-                    string_constant += self.source_code[self.current_source_index]
-                    self.current_source_index += 1
-        elif start_char == '"':
-            while self.source_code[self.current_source_index] != start_char:
-                if self.source_code[self.current_source_index] == "\0" or self.source_code[self.current_source_index] == "\n":
-                    error("Unterminated string!", self.line_num)
                 string_constant += self.source_code[self.current_source_index]
-                if (
-                    self.source_code[self.current_source_index] == "\\"
-                    and self.source_code[self.current_source_index - 1] != "\\"
-                    and self.source_code[self.current_source_index + 1] == '"'
-                ):
-                    string_constant += self.source_code[self.current_source_index + 1]
-                    self.current_source_index += 2
-                else:
-                    self.current_source_index += 1
+                self.update_source_index()
+
+        if self.current_source_index == len(self.source_code):
+            error("Unterminated string", self.line_num)
 
         # Skip the " character so that it does not loop back to this function incorrectly
-        self.current_source_index += 1
+        self.update_source_index()
 
         # Determine the type of data
-        type = "char"
+        type_ = "char"
         escape_sequences = [
             "\\\\",
             "\\0",
@@ -205,8 +194,9 @@ class LexicalAnalyzer:
             "\\'",
             '\\"',
         ]
+
         if len(string_constant) > 1 and string_constant not in escape_sequences:
-            type = "string"
+            type_ = "string"
 
         # Put appropriate quote
         string_constant = (
@@ -214,10 +204,10 @@ class LexicalAnalyzer:
         )
 
         # Make entry in symbol table
-        id = self.table.entry(string_constant, type, "constant")
+        id_ = self.symbol_table.entry(string_constant, type_, "constant")
 
         # Return string token and current index in source code
-        self.tokens.append(Token("string", id, self.line_num))
+        self.tokens.append(Token("string", id_, self.line_num))
 
 
     def keyword_identifier(self):
@@ -228,7 +218,7 @@ class LexicalAnalyzer:
         ======
         self.source_code (string) = The string containing simc source code
         self.current_source_index           (int)    = The current index in the source code
-        self.table       (SymbolTable) = Symbol self.table constructed holding information about identifiers and constants
+        self.symbol_table       (SymbolTable) = Symbol self.symbol_table constructed holding information about identifiers and constants
         self.line_num    (int)         = Line number
 
         Returns
@@ -246,13 +236,13 @@ class LexicalAnalyzer:
         #converts boolean const true to integer 1
         if value == "true" or value == "false":
             self.tokens.append(Token("bool",
-                        self.table.entry(value, "bool", "constant"),
+                        self.symbol_table.entry(value, "bool", "constant"),
                         self.line_num))
             return
         
         # Check if value is a math constant or not
         if value in ["PI", "E", "inf", "NaN"]:
-            self.tokens.append(Token("number", self.table.entry(value, "double", "constant"), self.line_num))
+            self.tokens.append(Token("number", self.symbol_table.entry(value, "double", "constant"), self.line_num))
             return
 
         # Check if value is keyword or not
@@ -260,8 +250,8 @@ class LexicalAnalyzer:
             self.tokens.append(Token(value, "", self.line_num))
             return 
 
-        # Check if identifier is in symbol self.table
-        id = self.table.get_by_symbol(value)
+        # Check if identifier is in symbol self.symbol_table
+        id = self.symbol_table.get_by_symbol(value)
 
         C_keywords = [
             "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum",
@@ -273,9 +263,9 @@ class LexicalAnalyzer:
         if value in C_keywords:
             error("A keyword cannot be an identifier - %s" % value, self.line_num)
 
-        # If identifier is not in symbol self.table then give a placeholder datatype var
+        # If identifier is not in symbol self.symbol_table then give a placeholder datatype var
         if id == -1:
-            id = self.table.entry(value, "var", "variable")
+            id = self.symbol_table.entry(value, "var", "variable")
 
         # Return id token and current index in source code
         self.tokens.append(Token("id", id, self.line_num))
@@ -330,7 +320,7 @@ class LexicalAnalyzer:
         Params
         ======
         filename    (string)      = The string containing simc source code filename
-        self.table       (SymbolTable) = Symbol self.table constructed holding information about identifiers and constants
+        self.symbol_table       (SymbolTable) = Symbol self.symbol_table constructed holding information about identifiers and constants
 
         Returns
         ========
@@ -348,9 +338,9 @@ class LexicalAnalyzer:
         while self.source_code[self.current_source_index] != "\0":
 
             # If we have encountered BEGIN_C, copy everything exactly same until END_C
-            if self.raw_c:
+            if self.raw_c_begin:
                 self.get_raw_tokens()
-                self.raw_c = False
+                self.raw_c_begin = False
                 self.got_num_or_var = False
 
             # If a digit appears, call numeric_val function and add the numeric token to list,
@@ -378,7 +368,7 @@ class LexicalAnalyzer:
                     if self.is_id_module_name:
                         self.is_id_module_name = not self.is_id_module_name
 
-                        module_name, _, _ = self.table.get_by_id(self.tokens[-1].val)
+                        module_name, _, _ = self.symbol_table.get_by_id(self.tokens[-1].val)
                         module_path = os.path.join(self.module_dir, module_name + ".simc")
 
                         if os.path.exists(module_path):
@@ -392,10 +382,10 @@ class LexicalAnalyzer:
                             )
 
                 elif self.tokens[-1].type == "BEGIN_C":
-                    self.raw_c = True
+                    self.raw_c_begin = True
                     continue
                 elif self.tokens[-1].type == "END_C":
-                    self.raw_c = False
+                    self.raw_c_begin = False
                     continue
                 elif self.tokens[-1].type == "import":
                     self.is_id_module_name = True
