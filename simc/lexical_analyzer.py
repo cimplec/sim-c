@@ -1,6 +1,7 @@
 # Standard library to take input as command line argument
 import sys
 import os
+from collections import namedtuple
 
 # Module to import some helper functions
 from .global_helpers import error, is_alpha, is_alnum, is_digit
@@ -9,720 +10,699 @@ from .global_helpers import error, is_alpha, is_alnum, is_digit
 from .token_class import Token
 
 
-def is_keyword(value):
+class LexicalAnalyzer:
     """
-    Checks if string is keyword or not
-
-    Params
-    ======
-    value (string) = The string to be checked for keyword
-
-    Returns
-    =======
-    bool: Whether the value passed is a keyword or not
-    """
-    return value in [
-        "fun",
-        "do",
-        "MAIN",
-        "print",
-        "return",
-        "var",
-        "END_MAIN",
-        "for",
-        "in",
-        "to",
-        "by",
-        "while",
-        "if",
-        "else",
-        "break",
-        "continue",
-        "input",
-        "exit",
-        "switch",
-        "case",
-        "default",
-        "BEGIN_C",
-        "END_C",
-        "true",
-        "false",
-        "import",
-        "struct",
-    ]
-
-
-def numeric_val(source_code, i, table, line_num):
-    """
-    Processes numeric values in the source code
-
-    Params
-    ======
-    source_code (string)      = The string containing simc source code
-    i           (int)         = The current index in the source code
-    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-    line_num    (int)         = Line number
-
-    Returns
-    =======
-    Token, int: The token generated for the numeric constant and the current position in source code,
-                this is done only if there is no error in the numeric constant
+    Lexical analyzer class is responsible for performing lexical analysis and generating tokens
     """
 
-    numeric_constant = ""
+    def __init__(self, source_filename, symbol_table):
+        """
+        Class initializer
 
-    # Loop until we get a non-digit character
-    while is_digit(source_code[i]):
-        numeric_constant += source_code[i]
-        i += 1
+        Params
+        ======
+        source_filename (string)                        = Name of file containing sim-C source code
+        symbol_table    (simc.symbol_table.SymbolTable) = Shared symbol table
+        """
 
-    # If a numeric constant contains more than 1 decimal point (.) then that is invalid
-    if numeric_constant.count(".") > 1:
-        error(
-            "Invalid numeric constant, cannot have more than one decimal point in a"
-            " number!",
-            line_num,
+        self.source_filename = source_filename
+        self.symbol_table = symbol_table
+
+        self.common_simc_c_keywords = [
+            "break",
+            "case",
+            "continue",
+            "default",
+            "do",
+            "else",
+            "for",
+            "if",
+            "return",
+            "struct",
+            "switch",
+            "while",
+        ]
+
+        self.simc_unique_keywords = [
+            "BEGIN_C",
+            "END_C",
+            "END_MAIN",
+            "MAIN",
+            "by",
+            "exit",
+            "false",
+            "fun",
+            "import",
+            "in",
+            "input",
+            "print",
+            "to",
+            "true",
+            "var",
+        ]
+
+        self.c_unique_keywords = [
+            "auto",
+            "char",
+            "const",
+            "double",
+            "enum",
+            "extern",
+            "float",
+            "goto",
+            "int",
+            "long",
+            "register",
+            "short",
+            "signed",
+            "sizeof",
+            "static",
+            "typedef",
+            "union",
+            "unsigned",
+            "void",
+            "volatile",
+        ]
+
+    def __read_source_code(self):
+        """
+        Read source code from source file path and return it in a string
+
+        Returns
+        =======
+        str: sim-C source code
+        """
+
+        # Open file and read sim-C source code
+        source_code = ""
+        with open(self.source_filename, "r") as file:
+            source_code = file.read()
+
+        # Add end of string character to indicate end of source code
+        source_code += "\0"
+
+        return source_code
+
+    def update_filename(self, source_filename):
+        """
+        Update sim-C source file path, used during lexical analysis of module sources
+        """
+
+        self.source_filename = source_filename
+
+    def __update_source_index(self, by=1):
+        """
+        Update current source index by an integer
+        """
+
+        self.current_source_index += by
+
+    def __check_next_token(self, next_chars, tokens_if_true, token_if_false):
+        """
+        Generates token based on value of next token
+
+        Params
+        ======
+        next_chars      (list) = Characters to be checked in the next index
+        tokens_if_true  (list) = Corresponding tokens to be generated based on which character matches
+        tokens_if_false (str)  = Token to be generated if none of these characters succeeds the current character
+        """
+
+        # Loop through all next characters and corresponding tokens if they match 
+        for next_char, token_if_true in zip(next_chars, tokens_if_true):
+
+            # If there is a match append to tokens and return 
+            if self.source_code[self.current_source_index + 1] == next_char:
+                self.tokens.append(Token(token_if_true, "", self.line_num))
+                self.__update_source_index(by=2)
+                return
+
+        # If none of the characters match then generate the token of type token_if_false
+        self.tokens.append(Token(token_if_false, "", self.line_num))
+        self.__update_source_index()
+
+    def __initialize_flags_counters(self):
+        """
+        Initialize flags and counter variables used for lexical analysis
+        """
+
+        # Line number
+        self.line_num = 1
+
+        # Parantheses checker for detecting function call
+        self.parantheses_count = 0
+
+        # To store comment string
+        self.comment_str = ""
+
+        # Directory where installed modules can be found
+        self.module_dir = os.path.join(os.path.dirname(__file__), "modules")
+
+        # Path to source code of all the modules
+        self.module_source_paths = []
+
+        # To indicate if BEGIN_C has been encountered
+        self.raw_c_begin = False
+
+        # Flag to check whether id is a module name or a normal id, this is set to true whenever an import is encountered
+        self.is_id_module_name = False
+
+        # Stores whether we got a number or variable just before this index
+        # This is to presently differentiate between bitwise and
+        # and address of operations
+        self.got_num_or_var = False
+
+        # To check if the brackets are balanced:
+        self.top = -1
+        self.balanced_brackets_stack = []
+
+    def __is_keyword(self, value):
+        """
+        Checks if string is keyword or not
+
+        Params
+        ======
+        value (string) = The string to be checked for keyword
+
+        Returns
+        =======
+        bool: Whether the value passed is a keyword or not
+        """
+
+        return value in (self.common_simc_c_keywords + self.simc_unique_keywords)
+
+    def __numeric_val(self):
+        """
+        Processes numeric values in the source code
+        """
+
+        numeric_constant = ""
+
+        # Loop until we get a non-digit character
+        while is_digit(self.source_code[self.current_source_index]):
+            numeric_constant += self.source_code[self.current_source_index]
+            self.__update_source_index()
+
+        # If a numeric constant contains more than 1 decimal point (.) then that is invalid
+        if numeric_constant.count(".") > 1:
+            error(
+                "Invalid numeric constant, cannot have more than one decimal point in a"
+                " number!",
+                self.line_num,
+            )
+
+        # Check the length after . to distinguish between float and double
+        length_after_decimal = (
+            len(numeric_constant.split(".")[1]) if "." in numeric_constant else 0
         )
 
-    # Check the length after . to distinguish between float and double
-    length = len(numeric_constant.split(".")[1]) if "." in numeric_constant else 0
+        # Determine type of numeric value
+        type_ = "int"
+        if length_after_decimal != 0:
+            if length_after_decimal <= 7:
+                type_ = "float"
+            elif length_after_decimal >= 7:
+                type_ = "double"
 
-    # Determine type of numeric value
-    type = "int"
-    if length != 0:
-        if length <= 7:
-            type = "float"
-        elif length >= 7:
-            type = "double"
+        # Make entry in symbol table
+        id_ = self.symbol_table.entry(numeric_constant, type_, "constant")
 
-    # Make entry in symbol table
-    id = table.entry(numeric_constant, type, "constant")
+        # Return number token and current index in source code
+        self.tokens.append(Token("number", id_, self.line_num))
 
-    # Return number token and current index in source code
-    return Token("number", id, line_num), i
+    def __string_val(self, start_char='"'):
+        """
+        Processes string values in the source code
+        """
 
+        # Temporary buffer to save string contents
+        string_constant = ""
 
-def string_val(source_code, i, table, line_num, start_char='"'):
-    """
-    Processes string values in the source code
+        # Skip the first " or ' so that the string atleast makes into the while loop
+        self.__update_source_index()
 
-    Params
-    ======
-    source_code (string) = The string containing simc source code
-    i           (int)    = The current index in the source code
-    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-    line_num    (int)         = Line number
-    start_char  (str) (Optional) = Character with which string starts
+        # Loop until " or ' is matched (with whichever it started)
+        while (self.current_source_index < len(self.source_code)) and (
+            self.source_code[self.current_source_index] != start_char
+        ):
+            # If we reach the end of source code then the string is unterminated
+            if self.source_code[self.current_source_index] in ["\0", "\n"]:
+                error("Unterminated string", self.line_num)
 
-    Returns
-    =======
-    Token, int: The token generated for the string constant and the current position in source code,
-                this is done only if there is no error in the string constant
-    """
-
-    string_constant = ""
-
-    # Skip the first " so that the string atleast makes into the while loop
-    i += 1
-
-    # Loop until we get a non-digit character
-    if start_char == "'":
-        if source_code[i] == "\\" and source_code[i + 1] == "'":
-            string_constant += source_code[i] + source_code[i + 1]
-            if source_code[i + 2] != start_char:
-                error("Unterminated string!", line_num)
-            i += 2
-        else:
-            while source_code[i] != start_char:
-                if source_code[i] == "\0" or source_code[i] == "\n":
-                    error("Unterminated string!", line_num)
-                string_constant += source_code[i]
-                i += 1
-    elif start_char == '"':
-        while source_code[i] != start_char:
-            if source_code[i] == "\0" or source_code[i] == "\n":
-                error("Unterminated string!", line_num)
-            string_constant += source_code[i]
+            # Process \" and \' escape sequences
             if (
-                source_code[i] == "\\"
-                and source_code[i - 1] != "\\"
-                and source_code[i + 1] == '"'
+                self.source_code[self.current_source_index] == f"\\"
+                and self.source_code[self.current_source_index + 1] == start_char
             ):
-                string_constant += source_code[i + 1]
-                i += 2
+                string_constant += (
+                    self.source_code[self.current_source_index]
+                    + self.source_code[self.current_source_index + 1]
+                )
+                self.__update_source_index(by=2)
             else:
-                i += 1
+                string_constant += self.source_code[self.current_source_index]
+                self.__update_source_index()
 
-    # Skip the " character so that it does not loop back to this function incorrectly
-    i += 1
+        # If we reached end of source code without terminating string then it is unterminated
+        if self.current_source_index == len(self.source_code):
+            error("Unterminated string", self.line_num)
 
-    # Determine the type of data
-    type = "char"
-    escape_sequences = [
-        "\\\\",
-        "\\0",
-        "\\n",
-        "\\a",
-        "\\b",
-        "\\f",
-        "\\r",
-        "\\t",
-        "\\v",
-        "\\?",
-        "\\'",
-        '\\"',
-    ]
-    if len(string_constant) > 1 and string_constant not in escape_sequences:
-        type = "string"
+        # Skip the " or ' character so that it does not loop back to this function incorrectly
+        self.__update_source_index()
 
-    # Put appropriate quote
-    string_constant = (
-        '"' + string_constant + '"' if type == "string" else "'" + string_constant + "'"
-    )
+        # Determine the type of data
+        type_ = "char"
 
-    # Make entry in symbol table
-    id = table.entry(string_constant, type, "constant")
+        escape_sequences = [
+            "\\\\",
+            "\\0",
+            "\\n",
+            "\\a",
+            "\\b",
+            "\\f",
+            "\\r",
+            "\\t",
+            "\\v",
+            "\\?",
+            "\\'",
+            '\\"',
+        ]
 
-    # Return string token and current index in source code
-    return Token("string", id, line_num), i
+        if len(string_constant) > 1 and string_constant not in escape_sequences:
+            type_ = "string"
 
+        # Put appropriate quote
+        string_constant = (
+            '"' + string_constant + '"'
+            if type_ == "string"
+            else "'" + string_constant + "'"
+        )
 
-def keyword_identifier(source_code, i, table, line_num):
-    """
-    Process keywords and identifiers in source code
+        # Make entry in symbol table
+        id_ = self.symbol_table.entry(string_constant, type_, "constant")
 
-    Params
-    ======
-    source_code (string) = The string containing simc source code
-    i           (int)    = The current index in the source code
-    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-    line_num    (int)         = Line number
+        # Return string token and current index in source code
+        self.tokens.append(Token("string", id_, self.line_num))
 
-    Returns
-    =======
-    Token, int: The token generated for the keyword or identifier and the current position in source code
-    """
+    def __keyword_identifier(self):
+        """
+        Process keywords and identifiers in source code
+        """
 
-    value = ""
+        # Temporary buffer to hold identifier name
+        value = ""
 
-    # Loop until we get a non-digit character
-    while is_alnum(source_code[i]):
-        value += source_code[i]
-        i += 1
+        # Loop until we get a non-alphanumeric character
+        while is_alnum(self.source_code[self.current_source_index]):
+            value += self.source_code[self.current_source_index]
+            self.__update_source_index()
 
-    #converts boolean const true to integer 1
-    if value == "true" or value == "false":
-        return Token("bool",
-                     table.entry(value, "bool", "constant"),
-                     line_num) , i 
-      
-    # Check if value is a math constant or not
-    if value in ["PI", "E", "inf", "NaN"]:
-        return Token("number", table.entry(value, "double", "constant"), line_num), i
+        # For generating bool or math constant type tokens
+        types = namedtuple("types", ["data_type", "token_type"])
+        const_with_types = {
+            "true": types("bool", "bool"),
+            "false": types("bool", "bool"),
+            "PI": types("double", "number"),
+            "E": types("double", "number"),
+            "inf": types("double", "number"),
+            "NaN": types("double", "number"),
+        }
 
-    # Check if value is keyword or not
-    if is_keyword(value):
-        return Token(value, "", line_num), i
+        # Handle boolean and math constants
+        if value in const_with_types.keys():
+            id_ = self.symbol_table.entry(
+                value, const_with_types[value].data_type, "constant"
+            )
+            self.tokens.append(
+                Token(const_with_types[value].token_type, id_, self.line_num)
+            )
+            return
 
-    # Check if identifier is in symbol table
-    id = table.get_by_symbol(value)
+        # Check if value is keyword or not
+        elif self.__is_keyword(value):
+            self.tokens.append(Token(value, "", self.line_num))
+            return
 
-    C_keywords = [
-        "break",
-        "else",
-        "long",
-        "switch",
-        "case",
-        "enum",
-        "register",
-        "typedef",
-        "char",
-        "extern",
-        "return",
-        "union",
-        "const",
-        "float",
-        "short",
-        "unsigned",
-        "continue",
-        "for",
-        "signed",
-        "void",
-        "default",
-        "goto",
-        "sizeof",
-        "volatile",
-        "do",
-        "if",
-        "static",
-        "while",
-        "true",
-        "false",
-        "bool",
-    ]
+        C_keywords = self.c_unique_keywords + self.common_simc_c_keywords
 
-    # Check if identifier is a keyword in class
-    if value in C_keywords:
-        error("A keyword cannot be an identifier - %s" % value, line_num)
+        # Check if identifier is a keyword in class
+        if value in C_keywords:
+            error("A keyword cannot be an identifier - %s" % value, self.line_num)
 
-    # If identifier is not in symbol table then give a placeholder datatype var
-    if id == -1:
-        id = table.entry(value, "var", "variable")
+        # Check if identifier is in symbol self.symbol_table
+        id_ = self.symbol_table.get_by_symbol(value)
 
-    # Return id token and current index in source code
-    return Token("id", id, line_num), i
+        # If identifier is not in symbol self.symbol_table then give a placeholder datatype var
+        if id_ == -1:
+            id_ = self.symbol_table.entry(value, "var", "variable")
 
+        # Return id token and current index in source code
+        self.tokens.append(Token("id", id_, self.line_num))
 
-def get_raw_tokens(source_code, i, line_num):
-    """
-    makes tokens of each line in C, written between BEGIN_C and END_C
+    def __get_raw_tokens(self):
+        """
+        Makes RAW_C tokens for each line of C code written between BEGIN_C and END_C
+        """
 
-    Params
-    ======
-    source_code (string) = The string containing simc source code
-    i           (int)    = The current index in the source code
-    line_num    (int)         = Line number
+        while True:
+            raw_c_code = ""
 
-    Returns
-    =======
-    [Token], int,int: List of raw tokens, current place in source_code, current line_number in source_code
-    """
+            # Loop until end of line
+            while self.source_code[self.current_source_index] not in ["\n", "\0"]:
+                raw_c_code += self.source_code[self.current_source_index]
+                self.__update_source_index()
 
-    # keep line_num to show in case of error
-    begin = line_num
-    tokens = []
-    while True:
-        val = ""
+            # If END_C found, add 1 to account for newline, and return
+            if raw_c_code.strip() == "END_C":
+                self.__update_source_index()
+                self.line_num += 1
+                return
+            elif self.source_code[self.current_source_index] == "\0":
+                error("No matching END_C found to BEGIN_C", self.line_num)
+            else:
+                self.tokens.append(Token("RAW_C", raw_c_code, self.line_num))
 
-        # capture whole line
-        while source_code[i] != "\n" and source_code[i] != "\0":
-            val += source_code[i]
-            i += 1
+            # increment self.current_source_index and self.line_num to go to next line
+            self.__update_source_index()
+            self.line_num += 1
 
-        # if END_C found, add 1 to account for newline, and return
-        if val.strip() == "END_C":
-            i += 1
-            line_num += 1
-            return tokens, i, line_num
+    def lexical_analyze(self):
+        """
+        Generate tokens from source code
 
-        elif source_code[i] == "\0":
-            error("No matching END_C found to BEGIN_C", begin)
-        else:
-            tokens.append(Token("RAW_C", val, line_num))
+        Returns
+        ========
+        list: A list of tokens of the source code, if the code is lexically correct
+        list: A list of module source paths
+        """
 
-        # increment i and line_num to go to next line
-        i += 1
-        line_num += 1
+        # Read source code from file, initialize flags and counters
+        self.source_code = self.__read_source_code()
+        self.current_source_index = 0
 
+        self.__initialize_flags_counters()
 
-def lexical_analyze(filename, table):
-    """
-    Generate tokens from source code
+        self.tokens = []
 
-    Params
-    ======
-    filename    (string)      = The string containing simc source code filename
-    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+        # Loop until end of source code
+        while self.source_code[self.current_source_index] != "\0":
 
-    Returns
-    ========
-    list: A list of tokens of the source code, if the code is lexically correct, otherwise
-          presents user with an error
-    """
+            # This is set to true only if number or variable is found
+            self.got_num_or_var = False
 
-    # Line number
-    line_num = 1
+            # If we have encountered BEGIN_C, copy everything exactly same until END_C
+            if self.raw_c_begin:
+                self.__get_raw_tokens()
+                self.raw_c_begin = False
 
-    # Read the entire source code as a string
-    source_code = open(filename, "r").read()
-    source_code += "\0"
+            # If a digit appears, call numeric_val function and add the numeric token to list
+            if is_digit(self.source_code[self.current_source_index]):
+                self.__numeric_val()
+                self.got_num_or_var = True
 
-    # List of tokens
-    tokens = []
+            # If double quote appears the value is a string token
+            elif self.source_code[self.current_source_index] == '"':
+                self.__string_val()
 
-    # Parantheses checker for detecting function call
-    parantheses_count = 0
+            # If single quote appears the value is a string token
+            elif self.source_code[self.current_source_index] == "'":
+                self.__string_val(start_char="'")
 
-    # To store comment string
-    comment_str = ""
+            # If alphabet or number appears then it might be either a keyword or an identifier
+            elif is_alnum(self.source_code[self.current_source_index]):
+                self.__keyword_identifier()
 
-    # Directory where installed modules can be found
-    module_dir = os.path.join(os.path.dirname(__file__), "modules")
+                # If token is an id it might be name of a module
+                if self.tokens[-1].type == "id":
+                    self.got_num_or_var = True
 
-    # Path to source code of all the modules
-    module_source_paths = []
+                    if self.is_id_module_name:
+                        # Switch off the flag
+                        self.is_id_module_name = not self.is_id_module_name
 
-    # To indicate if BEGIN_C has been encountered
-    raw_c = False
-
-    # Flag to check whether id is a module name or a normal id, this is set to true whenever an import is encountered
-    is_id_module_name = False
-
-    # Loop through the source code character by character
-    i = 0
-
-    # Stores whether we got a number or variable just before this index
-    # This is to presently differentiate between bitwise and
-    # and address of operations.
-    got_num_or_var = False
-
-    # To check if the brackets are balanced:
-    top = -1
-    balanced_brackets_stack = []
-
-    while source_code[i] != "\0":
-
-        # If we have encountered BEGIN_C, copy everything exactly same until END_C
-        if raw_c:
-            raw_tokens, i, line_num = get_raw_tokens(source_code, i, line_num)
-            tokens.extend(raw_tokens)
-            raw_c = False
-            got_num_or_var = False
-
-        # If a digit appears, call numeric_val function and add the numeric token to list,
-        # if it was correct
-        if is_digit(source_code[i]):
-            token, i = numeric_val(source_code, i, table, line_num)
-            tokens.append(token)
-            got_num_or_var = True
-
-        # If double quote appears the value is a string token
-        elif source_code[i] == '"':
-            token, i = string_val(source_code, i, table, line_num)
-            tokens.append(token)
-            got_num_or_var = False
-
-        # If single quote appears the value is a string token
-        elif source_code[i] == "'":
-            token, i = string_val(source_code, i, table, line_num, start_char="'")
-            tokens.append(token)
-            got_num_or_var = False
-
-        # If alphabet or number appears then it might be either a keyword or an identifier
-        elif is_alnum(source_code[i]):
-            token, i = keyword_identifier(source_code, i, table, line_num)
-
-            if token.type == "id":
-                got_num_or_var = True
-                if is_id_module_name:
-                    is_id_module_name = not is_id_module_name
-
-                    module_name, _, _ = table.get_by_id(token.val)
-                    module_path = os.path.join(module_dir, module_name + ".simc")
-
-                    if os.path.exists(module_path):
-                        module_source_paths.append(module_path)
-                    else:
-                        error(
-                            "Module "
-                            + str(module_name)
-                            + " not found, install it before using",
-                            line_num,
+                        # Get name of module from symbol table
+                        module_name, _, _ = self.symbol_table.get_by_id(
+                            self.tokens[-1].val
                         )
 
-            elif token.type == "BEGIN_C":
-                raw_c = True
-                continue
-            elif token.type == "END_C":
-                raw_c = False
-                continue
-            elif token.type == "import":
-                is_id_module_name = True
+                        module_path = os.path.join(
+                            self.module_dir, module_name + ".simc"
+                        )
 
-            tokens.append(token)
+                        # Check if module is installed
+                        if os.path.exists(module_path):
+                            self.module_source_paths.append(module_path)
+                        else:
+                            error(
+                                "Module "
+                                + str(module_name)
+                                + " not found, install it before using",
+                                self.line_num,
+                            )
 
-        # Identifying left paren token
-        elif source_code[i] == "(":
-            # To check if brackets are balanced:
-            top += 1
-            balanced_brackets_stack.append("(")
+                elif self.tokens[-1].type == "BEGIN_C":
+                    self.raw_c_begin = True
+                    continue
+                elif self.tokens[-1].type == "END_C":
+                    self.raw_c_begin = False
+                    continue
+                elif self.tokens[-1].type == "import":
+                    self.is_id_module_name = True
 
-            parantheses_count += 1
-            tokens.append(Token("left_paren", "", line_num))
-            i += 1
-            got_num_or_var = False
+            # Identifying left paren token
+            elif self.source_code[self.current_source_index] == "(":
+                # To check if parantheses are balanced:
+                self.top += 1
+                self.balanced_brackets_stack.append("(")
 
-        # Identifying right paren token
-        elif source_code[i] == ")":
-            # To check if brackets are balanced:
-            if top == -1:
-                # If at any time there is underflow, there are too many closing brackets.
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[:-1]
-                error("Too many closing parentheses", line_num)
-            elif balanced_brackets_stack[top] != "(":
-                error("Unbalanced parentheses error", line_num)
+                self.parantheses_count += 1
+                self.tokens.append(Token("left_paren", "", self.line_num))
+                self.__update_source_index()
 
-            else:
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[:-1]
-
-            if parantheses_count > 0:
-                parantheses_count -= 1
-                tokens.append(Token("right_paren", "", line_num))
-
-                # Read spaces between next code
-                while source_code[i + 1] is " ":
-                    i += 1
-
-                # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
-                if source_code[i + 1] in ["\n", "{", "}", ","]:
-                    tokens.append(Token("call_end", "", line_num))
-
-            else:
-                error("Parentheses does not match", line_num)
-
-            got_num_or_var = False
-            i += 1
-
-        # Identifying end of expression
-        elif source_code[i] == "\n":
-            if parantheses_count == 0:
-                tokens.append(Token("newline", "", line_num))
-            else:
-                error("Parentheses does not match.", line_num)
-
-            i += 1
-            line_num += 1
-
-        # Identifying left brace token
-        elif source_code[i] == "{":
-            # To check if brackets are balanced:
-            top += 1
-            balanced_brackets_stack.append("{")
-
-            tokens.append(Token("left_brace", "", line_num))
-            i += 1
-            got_num_or_var = False
-
-        # Identifying right brace token
-        elif source_code[i] == "}":
-            # To check if brackets are balanced:
-            if top == -1:
-                # If at any time there is underflow, there are too many closing brackets.
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[:-1]
-                error("Too many closing braces", line_num)
-            elif balanced_brackets_stack[top] != "{":
-                error("Unbalanced braces error", line_num)
-
-            else:
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[:-1]
-
-            tokens.append(Token("right_brace", "", line_num))
-            i += 1
-            got_num_or_var = False
-
-        # Identifying left bracket token
-        elif source_code[i] == "[":
-            # To check if brackets are balanced:
-            top += 1
-            balanced_brackets_stack.append("[")
-
-            tokens.append(Token("left_bracket", "", line_num))
-            i += 1
-
-        # Identifying right bracket token
-        elif source_code[i] == "]":
-            # To check if brackets are balanced:
-            if top == -1:
-                # If at any time there is underflow, there are too many closing brackets.
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[:-1]
-                error("Too many closing brackets", line_num)
-            elif balanced_brackets_stack[top] != "[":
-                error("Unbalanced brackets error", line_num)
-
-            else:
-                top -= 1
-                balanced_brackets_stack = balanced_brackets_stack[:-1]
-
-            tokens.append(Token("right_bracket", "", line_num))
-            i += 1
-
-        # Identifying assignment token or equivalence token
-        elif source_code[i] == "=":
-            if source_code[i + 1] != "=":
-                tokens.append(Token("assignment", "", line_num))
-                i += 1
-            else:
-                tokens.append(Token("equal", "", line_num))
-                i += 2
-            got_num_or_var = False
-
-        # Identifying plus_equal, increment or plus token
-        elif source_code[i] == "+":
-            if source_code[i + 1] == "=":
-                tokens.append(Token("plus_equal", "", line_num))
-                i += 2
-            elif source_code[i + 1] == "+":
-                tokens.append(Token("increment", "", line_num))
-                i += 2
-            else:
-                tokens.append(Token("plus", "", line_num))
-                i += 1
-            got_num_or_var = False
-
-        # Identifying minus_equal, decrement or minus token
-        elif source_code[i] == "-":
-            if source_code[i + 1] == "=":
-                tokens.append(Token("minus_equal", "", line_num))
-                i += 2
-            elif source_code[i + 1] == "-":
-                tokens.append(Token("decrement", "", line_num))
-                i += 2
-            else:
-                tokens.append(Token("minus", "", line_num))
-                i += 1
-            got_num_or_var = False
-
-        # Identifying multiply_equal or multiply token
-        elif source_code[i] == "*":
-            if source_code[i + 1] == "=":
-                tokens.append(Token("multiply_equal", "", line_num))
-                i += 2
-            # introducing new symbol for power -> pow(a,b) in c
-            # is a**b in simc instead of a^b
-            elif source_code[i + 1] == "*":
-                tokens.append(Token("power", "", line_num))
-                i += 2
-            else:
-                tokens.append(Token("multiply", "", line_num))
-                i += 1
-            got_num_or_var = False
-
-        # Identifying xor token
-        elif source_code[i] == "^":
-            if source_code[i + 1] == "=":
-                tokens.append(Token("bitwise_xor_equal", "", line_num))
-                i += 1
-            else:
-                tokens.append(Token("bitwise_xor", "", line_num))
-            i += 1
-            got_num_or_var = False
-
-        # Identifying 'address of','and', 'bitwise and' token
-        elif source_code[i] == "&":
-            if source_code[i + 1] == "&":
-                tokens.append(Token("and", "", line_num))
-                i += 2
-            else:
-                if got_num_or_var:
-                    if source_code[i + 1] == "=":
-                        tokens.append(Token("bitwise_and_equal", "", line_num))
-                        i += 1
-                    else:
-                        tokens.append(Token("bitwise_and", "", line_num))
-                    i += 1
+            # Identifying right paren token
+            elif self.source_code[self.current_source_index] == ")":
+                # To check if parantheses are balanced:
+                if self.top == -1:
+                    # If at any time there is underflow, there are too many closing parantheses.
+                    self.top -= 1
+                    self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
+                    error("Too many closing parentheses", self.line_num)
+                elif self.balanced_brackets_stack[self.top] != "(":
+                    error("Unbalanced parentheses error", self.line_num)
                 else:
-                    tokens.append(Token("address_of", "", line_num))
-                    i += 1
-            got_num_or_var = False
+                    self.top -= 1
+                    self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
 
-        # Identifying 'or' token
-        elif source_code[i] == "|":
-            if source_code[i + 1] == "|":
-                tokens.append(Token("or", "", line_num))
-                i += 2
-            elif source_code[i + 1] == "=":
-                tokens.append(Token("bitwise_or_equal", "", line_num))
-                i += 2
+                if self.parantheses_count > 0:
+                    self.parantheses_count -= 1
+                    self.tokens.append(Token("right_paren", "", self.line_num))
+
+                    # Read spaces between next code
+                    while self.source_code[self.current_source_index + 1] is " ":
+                        self.__update_source_index()
+
+                    # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
+                    if self.source_code[self.current_source_index + 1] in [
+                        "\n",
+                        "{",
+                        "}",
+                        ",",
+                    ]:
+                        self.tokens.append(Token("call_end", "", self.line_num))
+
+                else:
+                    error("Parentheses does not match", self.line_num)
+
+                self.__update_source_index()
+
+            # Identifying end of expression
+            elif self.source_code[self.current_source_index] == "\n":
+                if self.parantheses_count == 0:
+                    self.tokens.append(Token("newline", "", self.line_num))
+                else:
+                    error("Parentheses does not match.", self.line_num)
+
+                self.__update_source_index()
+                self.line_num += 1
+
+            # Identifying left brace token
+            elif self.source_code[self.current_source_index] == "{":
+                # To check if braces are balanced
+                self.top += 1
+                self.balanced_brackets_stack.append("{")
+
+                self.tokens.append(Token("left_brace", "", self.line_num))
+                self.__update_source_index()
+
+            # Identifying right brace token
+            elif self.source_code[self.current_source_index] == "}":
+                # To check if braces are balanced:
+                if self.top == -1:
+                    # If at any time there is underflow, there are too many closing braces.
+                    self.top -= 1
+                    self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
+                    error("Too many closing braces", self.line_num)
+                elif self.balanced_brackets_stack[self.top] != "{":
+                    error("Unbalanced braces error", self.line_num)
+
+                else:
+                    self.top -= 1
+                    self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
+
+                self.tokens.append(Token("right_brace", "", self.line_num))
+                self.__update_source_index()
+
+            # Identifying left bracket token
+            elif self.source_code[self.current_source_index] == "[":
+                # To check if brackets are balanced:
+                self.top += 1
+                self.balanced_brackets_stack.append("[")
+
+                self.tokens.append(Token("left_bracket", "", self.line_num))
+                self.__update_source_index()
+
+            # Identifying right bracket token
+            elif self.source_code[self.current_source_index] == "]":
+                # To check if brackets are balanced:
+                if self.top == -1:
+                    # If at any time there is underflow, there are too many closing brackets.
+                    self.top -= 1
+                    self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
+                    error("Too many closing brackets", self.line_num)
+                elif balanced_brackets_stack[top] != "[":
+                    error("Unbalanced brackets error", self.line_num)
+
+                else:
+                    self.top -= 1
+                    balanced_brackets_stack = balanced_brackets_stack[:-1]
+
+                self.tokens.append(Token("right_bracket", "", self.line_num))
+                self.__update_source_index()
+
+            # Identifying assignment token or equivalence token
+            elif self.source_code[self.current_source_index] == "=":
+                self.__check_next_token(["="], ["equal"], "assignment")
+
+            # Identifying plus_equal, increment or plus token
+            elif self.source_code[self.current_source_index] == "+":
+                self.__check_next_token(["=", "+"], ["plus_equal", "increment"], "plus")
+
+            # Identifying minus_equal, decrement or minus token
+            elif self.source_code[self.current_source_index] == "-":
+                self.__check_next_token(["=", "-"], ["minus_equal", "decrement"], "minus")
+
+            # Identifying multiply_equal, power or multiply token
+            elif self.source_code[self.current_source_index] == "*":
+                self.__check_next_token(
+                    ["=", "*"], ["multiply_equal", "power"], "multiply"
+                )
+
+            # Identifying bitwise xor equal or bitwise xor token
+            elif self.source_code[self.current_source_index] == "^":
+                self.__check_next_token(["="], ["bitwise_xor_equal"], "bitwise_or")
+
+            # Identifying address of, and, or bitwise and token
+            elif self.source_code[self.current_source_index] == "&":
+                if self.source_code[self.current_source_index + 1] == "&":
+                    self.tokens.append(Token("and", "", self.line_num))
+                    self.__update_source_index(by=2)
+                else:
+                    if self.got_num_or_var:
+                        self.__check_next_token(
+                            ["="], ["bitwise_and_equal"], "bitwise_and"
+                        )
+                    else:
+                        self.tokens.append(Token("address_of", "", self.line_num))
+                        self.__update_source_index()
+
+            # Identifying or token
+            elif self.source_code[self.current_source_index] == "|":
+                self.__check_next_token(
+                    ["|", "="], ["or", "bitwise_or_equal"], "bitwise_or"
+                )
+
+            # Identifying divide_equal, single line comments, multi line comments, or divide token
+            elif self.source_code[self.current_source_index] == "/":
+                if self.source_code[self.current_source_index + 1] == "=":
+                    self.tokens.append(Token("divide_equal", "", self.line_num))
+                    self.__update_source_index(by=2)
+                # to check if it is a single line comment
+                elif self.source_code[self.current_source_index + 1] == "/":
+                    self.__update_source_index(by=2)
+                    while self.source_code[self.current_source_index] != "\n":
+                        self.comment_str += str(
+                            self.source_code[self.current_source_index]
+                        )
+                        self.__update_source_index()
+                    self.tokens.append(
+                        Token("single_line_comment", self.comment_str, self.line_num)
+                    )
+                    self.comment_str = ""
+                # to check if it is a multi line comment
+                elif self.source_code[self.current_source_index + 1] == "*":
+                    self.__update_source_index(by=2)
+                    while (
+                        self.source_code[
+                            self.current_source_index : self.current_source_index + 2
+                        ]
+                        != "*/"
+                    ):
+                        if self.source_code[self.current_source_index] == "\n":
+                            self.line_num += 1
+                        self.comment_str += str(
+                            self.source_code[self.current_source_index]
+                        )
+                        self.__update_source_index()
+                    self.__update_source_index(by=2)
+                    self.tokens.append(
+                        Token("multi_line_comment", self.comment_str, self.line_num)
+                    )
+                    self.comment_str = ""
+                else:
+                    self.tokens.append(Token("divide", "", self.line_num))
+                    self.__update_source_index()
+
+            # Identifying modulus_equal or modulus token
+            elif self.source_code[self.current_source_index] == "%":
+                self.__check_next_token(["="], ["modulus_equal"], "modulus")
+
+            # Identifying comma token
+            elif self.source_code[self.current_source_index] == ",":
+                self.tokens.append(Token("comma", "", self.line_num))
+                self.__update_source_index()
+
+            # Identifying not_equal token
+            elif (
+                self.source_code[self.current_source_index] == "!"
+                and self.source_code[self.current_source_index + 1] == "="
+            ):
+                self.tokens.append(Token("not_equal", "", self.line_num))
+                self.__update_source_index(by=2)
+
+            # Identifying greater_than or greater_than_equal token
+            elif self.source_code[self.current_source_index] == ">":
+                self.__check_next_token(
+                    [">", "="], ["right_shift", "greater_than_equal"], "greater_than"
+                )
+
+            # Identifying less_than or less_than_equal token
+            elif self.source_code[self.current_source_index] == "<":
+                self.__check_next_token(
+                    ["<", "="], ["left_shift", "less_than_equal"], "less_than"
+                )
+
+            # Identifiying colon token
+            elif self.source_code[self.current_source_index] == ":":
+                self.tokens.append(Token("colon", "", self.line_num))
+                self.__update_source_index()
+
+            # Otherwise increment the index
             else:
-                tokens.append(Token("bitwise_or", "", line_num))
-                i += 1
-            got_num_or_var = False
+                self.__update_source_index()
 
-        # Identifying divide_equal or divide token
-        elif source_code[i] == "/":
-            if source_code[i + 1] == "=":
-                tokens.append(Token("divide_equal", "", line_num))
-                i += 2
-            # to check if it is a single line comment
-            elif source_code[i + 1] == "/":
-                i += 2
-                while source_code[i] != "\n":
-                    comment_str += str(source_code[i])
-                    i += 1
-                tokens.append(Token("single_line_comment", comment_str, line_num))
-                comment_str = ""
-            # to check if it is a multi line comment
-            elif source_code[i + 1] == "*":
-                i += 2
-                while source_code[i : i + 2] != "*/":
-                    if source_code[i] == "\n":
-                        line_num += 1
-                    comment_str += str(source_code[i])
-                    i += 1
-                i += 2
-                tokens.append(Token("multi_line_comment", comment_str, line_num))
-                comment_str = ""
-            else:
-                tokens.append(Token("divide", "", line_num))
-                i += 1
-            got_num_or_var = False
+        # By the end, if stack is not empty, there are extra opening brackets
+        if self.top != -1:
+            error("Unbalanced parentheses/braces/brackets error", self.line_num)
 
-        # Identifying modulus_equal or modulus token
-        elif source_code[i] == "%":
-            if source_code[i + 1] == "=":
-                tokens.append(Token("modulus_equal", "", line_num))
-                i += 2
-            else:
-                tokens.append(Token("modulus", "", line_num))
-                i += 1
-            got_num_or_var = False
-
-        # Identifying comma token
-        elif source_code[i] == ",":
-            tokens.append(Token("comma", "", line_num))
-            i += 1
-            got_num_or_var = False
-
-        # Identifying not_equal token
-        elif source_code[i] == "!" and source_code[i + 1] == "=":
-            tokens.append(Token("not_equal", "", line_num))
-            i += 2
-            got_num_or_var = False
-
-        # Identifying greater_than or greater_than_equal token
-        elif source_code[i] == ">":
-            if source_code[i + 1] not in ["=", ">"]:
-                tokens.append(Token("greater_than", "", line_num))
-                i += 1
-            elif source_code[i + 1] == "=":
-                tokens.append(Token("greater_than_equal", "", line_num))
-                i += 2
-            else:
-                tokens.append(Token("right_shift", "", line_num))
-                i += 2
-            got_num_or_var = False
-
-        # Identifying less_than or less_than_equal token
-        elif source_code[i] == "<":
-            if source_code[i + 1] not in ["<", "="]:
-                tokens.append(Token("less_than", "", line_num))
-                i += 1
-            elif source_code[i + 1] == "=":
-                tokens.append(Token("less_than_equal", "", line_num))
-                i += 2
-            elif source_code[i + 1] == "<":
-                tokens.append(Token("left_shift", "", line_num))
-                i += 2
-            got_num_or_var = False
-
-        # Identifiying colon token
-        elif source_code[i] == ":":
-            tokens.append(Token("colon", "", line_num))
-            i += 1
-            got_num_or_var = False
-
-        # Otherwise increment the index
-        else:
-            i += 1
-
-    # By the end, if stack is not empty, there are extra opening brackets
-    if top != -1:
-        error("Unbalanced parenthesis error", line_num)
-
-    # Return the generated tokens
-    return tokens, module_source_paths
+        # Return the generated tokens and module source paths
+        return self.tokens, self.module_source_paths
