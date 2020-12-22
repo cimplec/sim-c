@@ -5,6 +5,7 @@ import sys
 def check_if(given_type, should_be_types, msg, line_num):
     """
     Check if type matches what it should be otherwise throw an error and exit
+
     Params
     ======
     given_type      (string)      = Type of token to be checked
@@ -40,7 +41,7 @@ def error(msg, line_num):
 
 def is_digit(char):
     """
-    Checks if character is digit or not
+    Checks if character is digit or not, includes 0-9 and .
 
     Params
     ======
@@ -48,8 +49,7 @@ def is_digit(char):
 
     Returns
     =======
-    bool: Checks whether the character is number or not, since '.' is not considered an alphabet by the
-          standard isdigit function
+    bool: Checks whether the character is number or not
     """
 
     return char in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]
@@ -57,7 +57,7 @@ def is_digit(char):
 
 def is_alpha(char):
     """
-    Checks if character is alphabet or not
+    Checks if character is alphabet or not, includes a-z and _
 
     Params
     ======
@@ -65,8 +65,7 @@ def is_alpha(char):
 
     Returns
     =======
-    bool: Checks whether the character is alphabet or not, since '_' is not considered a digit by the
-          standard isalpha function
+    bool: Checks whether the character is alphabet or not
     """
 
     return char.isalpha() or char == "_"
@@ -74,7 +73,7 @@ def is_alpha(char):
 
 def is_alnum(char):
     """
-    Checks if character is alphabet or digit or none
+    Checks if character is alphabet or digit or none, checks if character is in a-z, 0-9, _, and . for alphanumeric character
 
     Params
     ======
@@ -82,8 +81,7 @@ def is_alnum(char):
 
     Returns
     =======
-    bool: Checks whether the character is alphabet/digit not, since '_' is not considered an alphabet by the
-          isalpha function, and '.' is not considered a digit by the standard isdigit function
+    bool: Checks whether the character is alphabet/digit not
     """
 
     return (

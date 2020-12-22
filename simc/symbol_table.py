@@ -6,11 +6,6 @@ class SymbolTable:
     def __init__(self):
         """
         Initializer of SymbolTable class
-
-        Values
-        ======
-        id            (int)  = Global id which acts as unique id for a symbol (identifier/constant)
-        symbol_table  (dict) = Dictionary containing the actual symbol table
         """
 
         self.id = 1
