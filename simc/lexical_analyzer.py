@@ -9,52 +9,143 @@ from .global_helpers import error, is_alpha, is_alnum, is_digit
 # Module to import Token class
 from .token_class import Token
 
+
 class LexicalAnalyzer:
+    """
+    Lexical analyzer class is responsible for performing lexical analysis and generating tokens
+    """
 
     def __init__(self, source_filename, symbol_table):
-        self.source_filename = source_filename 
+        """
+        Class initializer
+
+        Params
+        ======
+        source_filename (string)                        = Name of file containing sim-C source code
+        symbol_table    (simc.symbol_table.SymbolTable) = Shared symbol table
+        """
+
+        self.source_filename = source_filename
         self.symbol_table = symbol_table
 
         self.common_simc_c_keywords = [
-            'break', 'case', 'continue', 'default', 'do', 'else', 'for', 'if', 'return', 'struct', 'switch', 'while'
+            "break",
+            "case",
+            "continue",
+            "default",
+            "do",
+            "else",
+            "for",
+            "if",
+            "return",
+            "struct",
+            "switch",
+            "while",
         ]
 
         self.simc_unique_keywords = [
-            'BEGIN_C', 'END_C', 'END_MAIN', 'MAIN', 'by', 'exit', 'false', 'fun', 'import', 'in', 
-            'input', 'print', 'to', 'true', 'var'
+            "BEGIN_C",
+            "END_C",
+            "END_MAIN",
+            "MAIN",
+            "by",
+            "exit",
+            "false",
+            "fun",
+            "import",
+            "in",
+            "input",
+            "print",
+            "to",
+            "true",
+            "var",
         ]
 
         self.c_unique_keywords = [
-            'auto', 'char', 'const', 'double', 'enum', 'extern', 'float', 'goto', 'int', 'long', 'register', 
-            'short', 'signed', 'sizeof', 'static', 'typedef', 'union', 'unsigned', 'void', 'volatile'
+            "auto",
+            "char",
+            "const",
+            "double",
+            "enum",
+            "extern",
+            "float",
+            "goto",
+            "int",
+            "long",
+            "register",
+            "short",
+            "signed",
+            "sizeof",
+            "static",
+            "typedef",
+            "union",
+            "unsigned",
+            "void",
+            "volatile",
         ]
 
     def read_source_code(self):
+        """
+        Read source code from source file path and return it in a string
+
+        Returns
+        =======
+        str: sim-C source code
+        """
+
+        # Open file and read sim-C source code
         source_code = ""
         with open(self.source_filename, "r") as file:
             source_code = file.read()
-        
+
+        # Add end of string character to indicate end of source code
         source_code += "\0"
 
         return source_code
 
     def update_filename(self, source_filename):
+        """
+        Update sim-C source file path, used during lexical analysis of module sources
+        """
+
         self.source_filename = source_filename
 
     def update_source_index(self, by=1):
+        """
+        Update current source index by an integer
+        """
+
         self.current_source_index += by
 
-    def check_next_token(self, next_tokens, tokens_if_true, token_if_false):
-        for next_token, token_if_true in zip(next_tokens, tokens_if_true):
-            if self.source_code[self.current_source_index + 1] == next_token:
+    def check_next_token(self, next_chars, tokens_if_true, token_if_false):
+        """
+        Generates token based on value of next token
+
+        Params
+        ======
+        next_chars      (list) = Characters to be checked in the next index
+        tokens_if_true  (list) = Corresponding tokens to be generated based on which character matches
+        tokens_if_false (str)  = Token to be generated if none of these characters succeeds the current character
+        """
+
+        # Loop through all next characters and corresponding tokens if they match 
+        for next_char, token_if_true in zip(next_chars, tokens_if_true):
+
+            # If there is a match append to tokens and return 
+            if self.source_code[self.current_source_index + 1] == next_char:
                 self.tokens.append(Token(token_if_true, "", self.line_num))
                 self.update_source_index(by=2)
                 return
 
+        # If none of the characters match then generate the token of type token_if_false
         self.tokens.append(Token(token_if_false, "", self.line_num))
         self.update_source_index()
 
     def initialize_flags_counters(self):
+        """
+        Initialize flags and counter variables used for lexical analysis
+        """
+
         # Line number
         self.line_num = 1
 
@@ -97,23 +188,12 @@ class LexicalAnalyzer:
         =======
         bool: Whether the value passed is a keyword or not
         """
+
         return value in (self.common_simc_c_keywords + self.simc_unique_keywords)
 
     def numeric_val(self):
         """
         Processes numeric values in the source code
-
-        Params
-        ======
-        source_code (string)      = The string containing simc source code
-        i           (int)         = The current index in the source code
-        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-        line_num    (int)         = Line number
-
-        Returns
-        =======
-        Token, int: The token generated for the numeric constant and the current position in source code,
-                    this is done only if there is no error in the numeric constant
         """
 
         numeric_constant = ""
@@ -132,7 +212,9 @@ class LexicalAnalyzer:
             )
 
         # Check the length after . to distinguish between float and double
-        length_after_decimal = len(numeric_constant.split(".")[1]) if "." in numeric_constant else 0
+        length_after_decimal = (
+            len(numeric_constant.split(".")[1]) if "." in numeric_constant else 0
+        )
 
         # Determine type of numeric value
         type_ = "int"
@@ -148,49 +230,49 @@ class LexicalAnalyzer:
         # Return number token and current index in source code
         self.tokens.append(Token("number", id_, self.line_num))
 
-
     def string_val(self, start_char='"'):
         """
         Processes string values in the source code
-
-        Params
-        ======
-        source_code (string) = The string containing simc source code
-        self.current_source_index           (int)    = The current index in the source code
-        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-        line_num    (int)         = Line number
-        start_char  (str) (Optional) = Character with which string starts
-
-        Returns
-        =======
-        Token, int: The token generated for the string constant and the current position in source code,
-                    this is done only if there is no error in the string constant
         """
 
+        # Temporary buffer to save string contents
         string_constant = ""
 
-        # Skip the first " so that the string atleast makes into the while loop
+        # Skip the first " or ' so that the string atleast makes into the while loop
         self.update_source_index()
 
-        while (self.current_source_index < len(self.source_code)) and (self.source_code[self.current_source_index] != start_char):
+        # Loop until " or ' is matched (with whichever it started)
+        while (self.current_source_index < len(self.source_code)) and (
+            self.source_code[self.current_source_index] != start_char
+        ):
+            # If we reach the end of source code then the string is unterminated
             if self.source_code[self.current_source_index] in ["\0", "\n"]:
                 error("Unterminated string", self.line_num)
 
-            if self.source_code[self.current_source_index] == f"\\" and self.source_code[self.current_source_index + 1] == start_char:
-                string_constant += self.source_code[self.current_source_index] + self.source_code[self.current_source_index + 1]
+            # Process \" and \' escape sequences
+            if (
+                self.source_code[self.current_source_index] == f"\\"
+                and self.source_code[self.current_source_index + 1] == start_char
+            ):
+                string_constant += (
+                    self.source_code[self.current_source_index]
+                    + self.source_code[self.current_source_index + 1]
+                )
                 self.update_source_index(by=2)
             else:
                 string_constant += self.source_code[self.current_source_index]
                 self.update_source_index()
 
+        # If we reached end of source code without terminating string then it is unterminated
         if self.current_source_index == len(self.source_code):
             error("Unterminated string", self.line_num)
 
-        # Skip the " character so that it does not loop back to this function incorrectly
+        # Skip the " or ' character so that it does not loop back to this function incorrectly
         self.update_source_index()
 
         # Determine the type of data
         type_ = "char"
+
         escape_sequences = [
             "\\\\",
             "\\0",
@@ -211,7 +293,9 @@ class LexicalAnalyzer:
 
         # Put appropriate quote
         string_constant = (
-            '"' + string_constant + '"' if type == "string" else "'" + string_constant + "'"
+            '"' + string_constant + '"'
+            if type == "string"
+            else "'" + string_constant + "'"
         )
 
         # Make entry in symbol table
@@ -220,39 +304,38 @@ class LexicalAnalyzer:
         # Return string token and current index in source code
         self.tokens.append(Token("string", id_, self.line_num))
 
-
     def keyword_identifier(self):
         """
         Process keywords and identifiers in source code
-
-        Params
-        ======
-        self.source_code (string) = The string containing simc source code
-        self.current_source_index           (int)    = The current index in the source code
-        self.symbol_table       (SymbolTable) = Symbol self.symbol_table constructed holding information about identifiers and constants
-        self.line_num    (int)         = Line number
-
-        Returns
-        =======
-        Token, int: The token generated for the keyword or identifier and the current position in source code
         """
 
+        # Temporary buffer to hold identifier name
         value = ""
 
-        # Loop until we get a non-digit character
+        # Loop until we get a non-alphanumeric character
         while is_alnum(self.source_code[self.current_source_index]):
             value += self.source_code[self.current_source_index]
             self.update_source_index()
 
-        types = namedtuple('types', ['data_type', 'token_type'])
-        const_with_types = {"true": types("bool", "bool"), "false": types("bool", "bool"), 
-                            "PI": types("double", "number"), "E": types("double", "number"), 
-                            "inf": types("double", "number"), "NaN": types("double", "number")}
+        # For generating bool or math constant type tokens
+        types = namedtuple("types", ["data_type", "token_type"])
+        const_with_types = {
+            "true": types("bool", "bool"),
+            "false": types("bool", "bool"),
+            "PI": types("double", "number"),
+            "E": types("double", "number"),
+            "inf": types("double", "number"),
+            "NaN": types("double", "number"),
+        }
 
-        #converts boolean const true to integer 1
+        # Handle boolean and math constants
         if value in const_with_types.keys():
-            id_ = self.symbol_table.entry(value, const_with_types[value].data_type, "constant")
-            self.tokens.append(Token(const_with_types[value].token_type, id_, self.line_num))
+            id_ = self.symbol_table.entry(
+                value, const_with_types[value].data_type, "constant"
+            )
+            self.tokens.append(
+                Token(const_with_types[value].token_type, id_, self.line_num)
+            )
             return
 
         # Check if value is keyword or not
@@ -260,11 +343,7 @@ class LexicalAnalyzer:
             self.tokens.append(Token(value, "", self.line_num))
             return
 
-        C_keywords = [
-            "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum",
-            "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short", "signed",
-            "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while"
-        ]
+        C_keywords = self.c_unique_keywords + self.common_simc_c_keywords
 
         # Check if identifier is a keyword in class
         if value in C_keywords:
@@ -280,31 +359,20 @@ class LexicalAnalyzer:
         # Return id token and current index in source code
         self.tokens.append(Token("id", id_, self.line_num))
 
-
     def get_raw_tokens(self):
         """
-        makes tokens of each line in C, written between BEGIN_C and END_C
-
-        Params
-        ======
-        self.source_code (string) = The string containing simc source code
-        self.current_source_index           (int)    = The current index in the source code
-        self.line_num    (int)         = Line number
-
-        Returns
-        =======
-        [Token], int,int: List of raw tokens, current place in self.source_code, current line_number in self.source_code
+        Makes RAW_C tokens for each line of C code written between BEGIN_C and END_C
         """
-        
+
         while True:
             raw_c_code = ""
 
-            # capture whole line
+            # Loop until end of line
             while self.source_code[self.current_source_index] not in ["\n", "\0"]:
                 raw_c_code += self.source_code[self.current_source_index]
                 self.update_source_index()
 
-            # if END_C found, add 1 to account for newline, and return
+            # If END_C found, add 1 to account for newline, and return
             if raw_c_code.strip() == "END_C":
                 self.update_source_index()
                 self.line_num += 1
@@ -318,22 +386,17 @@ class LexicalAnalyzer:
             self.update_source_index()
             self.line_num += 1
 
-
     def lexical_analyze(self):
         """
         Generate tokens from source code
 
-        Params
-        ======
-        filename    (string)      = The string containing simc source code filename
-        self.symbol_table       (SymbolTable) = Symbol self.symbol_table constructed holding information about identifiers and constants
-
         Returns
         ========
-        list: A list of tokens of the source code, if the code is lexically correct, otherwise
-            presents user with an error
+        list: A list of tokens of the source code, if the code is lexically correct
+        list: A list of module source paths
         """
 
+        # Read source code from file, initialize flags and counters
         self.source_code = self.read_source_code()
         self.current_source_index = 0
 
@@ -341,8 +404,10 @@ class LexicalAnalyzer:
 
         self.tokens = []
 
+        # Loop until end of source code
         while self.source_code[self.current_source_index] != "\0":
 
+            # This is set to true only if number or variable is found
             self.got_num_or_var = False
 
             # If we have encountered BEGIN_C, copy everything exactly same until END_C
@@ -350,8 +415,7 @@ class LexicalAnalyzer:
                 self.get_raw_tokens()
                 self.raw_c_begin = False
 
-            # If a digit appears, call numeric_val function and add the numeric token to list,
-            # if it was correct
+            # If a digit appears, call numeric_val function and add the numeric token to list
             if is_digit(self.source_code[self.current_source_index]):
                 self.numeric_val()
                 self.got_num_or_var = True
@@ -368,14 +432,24 @@ class LexicalAnalyzer:
             elif is_alnum(self.source_code[self.current_source_index]):
                 self.keyword_identifier()
 
+                # If token is an id it might be name of a module
                 if self.tokens[-1].type == "id":
                     self.got_num_or_var = True
+
                     if self.is_id_module_name:
+                        # Switch off the flag
                         self.is_id_module_name = not self.is_id_module_name
 
-                        module_name, _, _ = self.symbol_table.get_by_id(self.tokens[-1].val)
-                        module_path = os.path.join(self.module_dir, module_name + ".simc")
+                        # Get name of module from symbol table
+                        module_name, _, _ = self.symbol_table.get_by_id(
+                            self.tokens[-1].val
+                        )
 
+                        module_path = os.path.join(
+                            self.module_dir, module_name + ".simc"
+                        )
+
+                        # Check if module is installed
                         if os.path.exists(module_path):
                             self.module_source_paths.append(module_path)
                         else:
@@ -397,7 +471,7 @@ class LexicalAnalyzer:
 
             # Identifying left paren token
             elif self.source_code[self.current_source_index] == "(":
-                # To check if brackets are balanced:
+                # To check if parantheses are balanced:
                 self.top += 1
                 self.balanced_brackets_stack.append("(")
 
@@ -407,9 +481,9 @@ class LexicalAnalyzer:
 
             # Identifying right paren token
             elif self.source_code[self.current_source_index] == ")":
-                # To check if brackets are balanced:
+                # To check if parantheses are balanced:
                 if self.top == -1:
-                    # If at any time there is underflow, there are too many closing brackets.
+                    # If at any time there is underflow, there are too many closing parantheses.
                     self.top -= 1
                     self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
                     error("Too many closing parentheses", self.line_num)
@@ -428,7 +502,12 @@ class LexicalAnalyzer:
                         self.update_source_index()
 
                     # Add call_end at end of an expression, which is detected as ")" followed by end line or "{"
-                    if self.source_code[self.current_source_index + 1] in ["\n", "{", "}", ","]:
+                    if self.source_code[self.current_source_index + 1] in [
+                        "\n",
+                        "{",
+                        "}",
+                        ",",
+                    ]:
                         self.tokens.append(Token("call_end", "", self.line_num))
 
                 else:
@@ -448,7 +527,7 @@ class LexicalAnalyzer:
 
             # Identifying left brace token
             elif self.source_code[self.current_source_index] == "{":
-                # To check if brackets are balanced:
+                # To check if braces are balanced
                 self.top += 1
                 self.balanced_brackets_stack.append("{")
 
@@ -457,9 +536,9 @@ class LexicalAnalyzer:
 
             # Identifying right brace token
             elif self.source_code[self.current_source_index] == "}":
-                # To check if brackets are balanced:
+                # To check if braces are balanced:
                 if self.top == -1:
-                    # If at any time there is underflow, there are too many closing brackets.
+                    # If at any time there is underflow, there are too many closing braces.
                     self.top -= 1
                     self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
                     error("Too many closing braces", self.line_num)
@@ -512,31 +591,37 @@ class LexicalAnalyzer:
             elif self.source_code[self.current_source_index] == "-":
                 self.check_next_token(["=", "-"], ["minus_equal", "decrement"], "minus")
 
-            # Identifying multiply_equal or multiply token
+            # Identifying multiply_equal, power or multiply token
             elif self.source_code[self.current_source_index] == "*":
-                self.check_next_token(["=", "*"], ["multiply_equal", "power"], "multiply")
+                self.check_next_token(
+                    ["=", "*"], ["multiply_equal", "power"], "multiply"
+                )
 
-            # Identifying xor token
+            # Identifying bitwise xor equal or bitwise xor token
             elif self.source_code[self.current_source_index] == "^":
                 self.check_next_token(["="], ["bitwise_xor_equal"], "bitwise_or")
 
-            # Identifying 'address of','and', 'bitwise and' token
+            # Identifying address of, and, or bitwise and token
             elif self.source_code[self.current_source_index] == "&":
                 if self.source_code[self.current_source_index + 1] == "&":
                     self.tokens.append(Token("and", "", self.line_num))
                     self.update_source_index(by=2)
                 else:
                     if self.got_num_or_var:
-                        self.check_next_token(["="], ["bitwise_and_equal"], "bitwise_and")
+                        self.check_next_token(
+                            ["="], ["bitwise_and_equal"], "bitwise_and"
+                        )
                     else:
                         self.tokens.append(Token("address_of", "", self.line_num))
                         self.update_source_index()
 
-            # Identifying 'or' token
+            # Identifying or token
             elif self.source_code[self.current_source_index] == "|":
-                self.check_next_token(["|", "="], ["or", "bitwise_or_equal"], "bitwise_or")
+                self.check_next_token(
+                    ["|", "="], ["or", "bitwise_or_equal"], "bitwise_or"
+                )
 
-            # Identifying divide_equal or divide token
+            # Identifying divide_equal, single line comments, multi line comments, or divide token
             elif self.source_code[self.current_source_index] == "/":
                 if self.source_code[self.current_source_index + 1] == "=":
                     self.tokens.append(Token("divide_equal", "", self.line_num))
@@ -545,20 +630,33 @@ class LexicalAnalyzer:
                 elif self.source_code[self.current_source_index + 1] == "/":
                     self.update_source_index(by=2)
                     while self.source_code[self.current_source_index] != "\n":
-                        self.comment_str += str(self.source_code[self.current_source_index])
+                        self.comment_str += str(
+                            self.source_code[self.current_source_index]
+                        )
                         self.update_source_index()
-                    self.tokens.append(Token("single_line_comment", self.comment_str, self.line_num))
+                    self.tokens.append(
+                        Token("single_line_comment", self.comment_str, self.line_num)
+                    )
                     self.comment_str = ""
                 # to check if it is a multi line comment
                 elif self.source_code[self.current_source_index + 1] == "*":
                     self.update_source_index(by=2)
-                    while self.source_code[self.current_source_index : self.current_source_index + 2] != "*/":
+                    while (
+                        self.source_code[
+                            self.current_source_index : self.current_source_index + 2
+                        ]
+                        != "*/"
+                    ):
                         if self.source_code[self.current_source_index] == "\n":
                             self.line_num += 1
-                        self.comment_str += str(self.source_code[self.current_source_index])
+                        self.comment_str += str(
+                            self.source_code[self.current_source_index]
+                        )
                         self.update_source_index()
                     self.update_source_index(by=2)
-                    self.tokens.append(Token("multi_line_comment", self.comment_str, self.line_num))
+                    self.tokens.append(
+                        Token("multi_line_comment", self.comment_str, self.line_num)
+                    )
                     self.comment_str = ""
                 else:
                     self.tokens.append(Token("divide", "", self.line_num))
@@ -574,17 +672,24 @@ class LexicalAnalyzer:
                 self.update_source_index()
 
             # Identifying not_equal token
-            elif self.source_code[self.current_source_index] == "!" and self.source_code[self.current_source_index + 1] == "=":
+            elif (
+                self.source_code[self.current_source_index] == "!"
+                and self.source_code[self.current_source_index + 1] == "="
+            ):
                 self.tokens.append(Token("not_equal", "", self.line_num))
                 self.update_source_index(by=2)
 
             # Identifying greater_than or greater_than_equal token
             elif self.source_code[self.current_source_index] == ">":
-                self.check_next_token([">", "="], ["right_shift", "greater_than_equal"], "greater_than")
+                self.check_next_token(
+                    [">", "="], ["right_shift", "greater_than_equal"], "greater_than"
+                )
 
             # Identifying less_than or less_than_equal token
             elif self.source_code[self.current_source_index] == "<":
-                self.check_next_token(["<", "="], ["left_shift", "less_than_equal"], "less_than")
+                self.check_next_token(
+                    ["<", "="], ["left_shift", "less_than_equal"], "less_than"
+                )
 
             # Identifiying colon token
             elif self.source_code[self.current_source_index] == ":":
@@ -597,7 +702,7 @@ class LexicalAnalyzer:
 
         # By the end, if stack is not empty, there are extra opening brackets
         if self.top != -1:
-            error("Unbalanced parenthesis error", self.line_num)
+            error("Unbalanced parentheses/braces/brackets error", self.line_num)
 
-        # Return the generated tokens
+        # Return the generated tokens and module source paths
         return self.tokens, self.module_source_paths
