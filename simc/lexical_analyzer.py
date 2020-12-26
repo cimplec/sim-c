@@ -569,12 +569,12 @@ class LexicalAnalyzer:
                     self.top -= 1
                     self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
                     error("Too many closing brackets", self.line_num)
-                elif balanced_brackets_stack[top] != "[":
+                elif self.balanced_brackets_stack[self.top] != "[":
                     error("Unbalanced brackets error", self.line_num)
 
                 else:
                     self.top -= 1
-                    balanced_brackets_stack = balanced_brackets_stack[:-1]
+                    self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
 
                 self.tokens.append(Token("right_bracket", "", self.line_num))
                 self.__update_source_index()
