@@ -1,3 +1,4 @@
 MAIN
 	var name[30] = {1,2,3}
+    print(name[0])
 END_MAIN
