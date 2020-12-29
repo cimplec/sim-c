@@ -100,7 +100,7 @@ def var_statement(tokens, i, table, func_ret_type):
         6: "bool",
     }
 
-    # Check if it is a array initializer
+    # Check if it is an array declaration (+ initializer list)
     if tokens[i + 1].type == "left_bracket":
 
         # Size of array
@@ -193,7 +193,7 @@ def var_statement(tokens, i, table, func_ret_type):
                 func_ret_type,
             )
 
-    # Check if variable is also initialized
+    # Check if variable is assigned with declaration
     elif i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
         # Store the index of identifier
         id_idx = i
@@ -219,7 +219,7 @@ def var_statement(tokens, i, table, func_ret_type):
                     + "---"
                     + op_value
                     + "---"
-                    + str(count_ast),
+                    + str(asterisk_count),
                     prec_to_type[op_type],
                 ),
                 i,
@@ -238,6 +238,8 @@ def var_statement(tokens, i, table, func_ret_type):
             )
     elif i + 1 < len(tokens) and tokens[i + 1].type in invalid_tokens:
         error("Invalid Syntax for declaration", tokens[i].line_num)
+
+    # If it is of pointer or variable type but has no value yet
     else:
         # Get the value from symbol table by id
         value, type, _ = table.get_by_id(tokens[i].val)
