@@ -6,16 +6,22 @@ from ..op_code import OpCode
 def check_ptr(tokens, i):
     # Check if a pointer is being declared
     is_ptr = False
+
     # Count the depth of pointer
     count_ast = 0
+
     if tokens[i].type == "multiply":
-        j = 0
-        while tokens[i + j].type == "multiply":
-            j += 1
-        i += j
-        count_ast = j
+        asterisk_count = 0
+
+        # Accumulate count of * in j
+        while tokens[i + asterisk_count].type == "multiply":
+            asterisk_count += 1
+
+        # Add asterisk count to token index to get index of token after all asterisks  
+        i += asterisk_count
+
         is_ptr = True
-        return is_ptr, count_ast, i
+        return is_ptr, asterisk_count, i
     else:
         return False, 0, i
 
@@ -45,28 +51,40 @@ def var_statement(tokens, i, table, func_ret_type):
     from .array_parser import array_initializer
     from .simc_parser import expression
 
-    is_ptr, count_ast, i = check_ptr(tokens, i)
+    # Check if the variable is a pointer, and if it is then get the depth of pointer
+    is_ptr, asterisk_count, i = check_ptr(tokens, i)
+
     # Check if identifier is present after var
-    check_if(tokens[i].type, "id", "Expected id after var keyword", tokens[i].line_num)
+    check_if(expected_type=tokens[i].type, should_be_types="id", 
+             error_msg="Expected id after var keyword", line_num=tokens[i].line_num)
 
     # Tokens that are not accepted after declaration of a variable
     invalid_tokens = [
+        # Shortcut arithmetic assignments
         "plus_equal",
         "minus_equal",
-        "divide_equal",
         "multiply_equal",
+        "divide_equal",
+        "modulus_equal",
+
+        # Arithmetic operators
         "plus",
         "minus",
+        "multiply",
         "divide",
+        "modulus",
+
+        # Bitwise operators
         "bitwise_and",
         "bitwise_or",
         "bitwise_xor",
+
+        # Shortcut bitwise assignments
         "bitwise_and_equal",
         "bitwise_or_equal",
         "bitwise_xor_equal",
-        "multiply",
-        "modulus",
-        "modulus_equal",
+
+        # Relational operators
         "equal",
         "not_equal",
     ]
@@ -85,38 +103,38 @@ def var_statement(tokens, i, table, func_ret_type):
     # Check if it is a array initializer
     if tokens[i + 1].type == "left_bracket":
 
-        # Number of position allocated in array
-        num_field_expec = ""
+        # Size of array
+        size_of_array = ""
 
         # Store the index of identifier
         id_idx = i
 
-        # Fetch information from symbol table
-        value, type, _ = table.get_by_id(tokens[i + 2].val)
+        # If the next token after [ is a number
+        if tokens[i+2].type == "number":
+            # Fetch information from symbol table
+            value, type_, _ = table.get_by_id(tokens[i + 2].val)
 
-        # Expect the number be integer
-        if type == "int":
-            num_field_expec = value
+            if type_ == "int":
+                size_of_array = value
+            else:
+                error(f"Expected integer size of array but got {type_}", tokens[i+2].line_num)
 
             # Check if array statement has closing ] (right_bracket)
             check_if(
-                tokens[i + 3].type,
-                "right_bracket",
-                "Expected ] after expression in array statement",
-                tokens[i + 3].line_num,
+                expected_type=tokens[i + 3].type,
+                should_be_types="right_bracket",
+                error_msg="Expected ] after expression in array statement",
+                line_num=tokens[i + 3].line_num,
             )
-            # Position indice to end of array declaration (right bracket)
+
+            # Move token index to end of array declaration (right bracket)
             i += 3
         elif tokens[i + 2].type == "right_bracket":
-            # Define max array length
-            num_field_expec = ""
-            # Position indice to end of array declaration (right bracket)
+            # Size of array is not known
+            size_of_array = ""
+
+            # Move token index to end of array declaration (right bracket)
             i += 2
-        else:
-            error(
-                "Expected integer number after expression in array statement",
-                tokens[i + 2].line_num,
-            )
 
         # Check if array is also initialized
         if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
@@ -126,7 +144,7 @@ def var_statement(tokens, i, table, func_ret_type):
                 tokens,
                 i + 2,
                 table,
-                num_field_expec,
+                size_of_array,
                 "Required expression after assignment operator",
             )
 
@@ -139,7 +157,7 @@ def var_statement(tokens, i, table, func_ret_type):
                     "array_assign",
                     table.symbol_table[tokens[id_idx].val][0]
                     + "---"
-                    + str(num_field_expec)
+                    + str(size_of_array)
                     + "---"
                     + op_value,
                     prec_to_type[op_type],
@@ -151,10 +169,10 @@ def var_statement(tokens, i, table, func_ret_type):
             error("Invalid Syntax for declaration", tokens[i].line_num)
         else:
             # Get the value from symbol table by id
-            value, type, _ = table.get_by_id(tokens[id_idx].val)
+            value, type_, _ = table.get_by_id(tokens[id_idx].val)
 
             # If already declared then throw error
-            if type in [
+            if type_ in [
                 "declared",
                 "int",
                 "char",
@@ -170,7 +188,7 @@ def var_statement(tokens, i, table, func_ret_type):
             table.symbol_table[tokens[id_idx].val][1] = "declared"
 
             return (
-                OpCode("array_no_assign", value + "---" + str(num_field_expec)),
+                OpCode("array_no_assign", value + "---" + str(size_of_array)),
                 i,
                 func_ret_type,
             )

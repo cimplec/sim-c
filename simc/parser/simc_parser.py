@@ -517,6 +517,7 @@ def parse(tokens, table):
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
             op_codes.append(var_opcode)
+            
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
             # If '(' follows id then it is function calling else variable assignment
