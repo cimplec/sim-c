@@ -232,10 +232,10 @@ def print_statement(tokens, i, table, func_ret_type):
 
     # Check if ( follows print statement
     check_if(
-        tokens[i].type,
-        "left_paren",
-        "Expected ( after print statement",
-        tokens[i].line_num,
+        expected_type=tokens[i].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after print statement",
+        line_num=tokens[i].line_num,
     )
 
     # Check if expression follows ( in print statement
@@ -261,10 +261,10 @@ def print_statement(tokens, i, table, func_ret_type):
 
     # Check if print statement has closing )
     check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in print statement",
-        tokens[i - 1].line_num,
+        expected_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after expression in print statement",
+        line_num=tokens[i - 1].line_num,
     )
 
     # Return the opcode and i+1 (the token after print statement)
@@ -486,6 +486,7 @@ def parse(tokens, table):
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
             op_codes.append(print_opcode)
+
         # If token is of type import then generate import opcode
         elif tokens[i].type == "import":
             i += 1
