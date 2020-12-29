@@ -232,10 +232,10 @@ def print_statement(tokens, i, table, func_ret_type):
 
     # Check if ( follows print statement
     check_if(
-        tokens[i].type,
-        "left_paren",
-        "Expected ( after print statement",
-        tokens[i].line_num,
+        expected_type=tokens[i].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after print statement",
+        line_num=tokens[i].line_num,
     )
 
     # Check if expression follows ( in print statement
@@ -261,10 +261,10 @@ def print_statement(tokens, i, table, func_ret_type):
 
     # Check if print statement has closing )
     check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in print statement",
-        tokens[i - 1].line_num,
+        expected_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after expression in print statement",
+        line_num=tokens[i - 1].line_num,
     )
 
     # Return the opcode and i+1 (the token after print statement)
@@ -379,6 +379,12 @@ def exit_statement(tokens, i, table, func_ret_type):
 
     return OpCode("exit", op_value[1:-1]), i, func_ret_type
 
+def skip_all_nextlines(tokens, i):
+    i += 1
+    while tokens[i].type == "newline":
+        i += 1
+
+    return i
 
 def parse(tokens, table):
     """
@@ -438,41 +444,33 @@ def parse(tokens, table):
     single_stat_func_flag = NO_FUNC_CALLED
 
     while i <= len(tokens) - 1:
+        # If a function body has started
         if single_stat_func_flag == START_FUNCTION:
             # If \n follows ) then skip all the \n characters
             if tokens[i].type == "newline":
-                i += 1
-                while tokens[i].type == "newline":
-                    i += 1
+                skip_all_nextlines(tokens, i)
+
             # If we encounter MAIN or a new function then
             # the function body is empty
             if (tokens[i].type == "MAIN") or (tokens[i].type == "fun"):
-                single_stat_func_flag = NO_FUNC_CALLED
+                error("Function definition cannot be empty", tokens[i].line_num)
+
+        # At the end of the single statement function add a right brace
+        # scope_over OpCode compiles to }\n
+        elif single_stat_func_flag == END_FUNCTION:
+            # If \n follows ) then skip all the \n characters
+            if tokens[i].type == "newline":
+                skip_all_nextlines(tokens, i)
+
+            if tokens[i].type != "right_brace":
                 op_codes.append(OpCode("scope_over", "", ""))
+                brace_count -= 1
 
-        # at the end of the single statement function
-        # introduce a right brace if not there
-        if single_stat_func_flag == END_FUNCTION:
-            if not in_do:
-                # If \n follows ) then skip all the \n characters
-                if tokens[i].type == "newline":
-                    i += 1
-                    while tokens[i].type == "newline":
-                        i += 1
-                if tokens[i].type != "right_brace":
-                    op_codes.append(OpCode("scope_over", "", ""))
-                    brace_count -= 1
-
-                    if brace_count < 0:
-                        error(
-                            "Closing brace doesn't match any previous opening brace",
-                            tokens[i].line_num,
-                        )
-
-                    if brace_count == 0:
-                        # The Function scope is over
-                        func_name = ""
-                single_stat_func_flag = NO_FUNC_CALLED
+                # The function scope is over
+                if brace_count == 0:
+                    func_name = ""
+                    
+            single_stat_func_flag = NO_FUNC_CALLED
 
         # If token is raw c type
         if tokens[i].type == "RAW_C":
@@ -481,25 +479,36 @@ def parse(tokens, table):
             continue
 
         # If token is of type print then generate print opcode
-        if tokens[i].type == "print":
+        elif tokens[i].type == "print":
             print_opcode, i, func_ret_type = print_statement(
                 tokens, i + 1, table, func_ret_type
             )
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
             op_codes.append(print_opcode)
+
         # If token is of type import then generate import opcode
         elif tokens[i].type == "import":
+            # Skip import token, next token should be module name
             i += 1
+
+            # Identifier (module name) should follow import
             check_if(
-                tokens[i].type,
-                "id",
-                "Expected module name after import",
-                tokens[i].line_num,
+                expected_type=tokens[i].type,
+                should_be_types="id",
+                error_msg="Expected module name after import",
+                line_num=tokens[i].line_num,
             )
+
+            # Get the name of the module
             value, _, _ = table.get_by_id(tokens[i].val)
+
+            # Generate opcode for the module
             op_codes.append(OpCode("import", value))
+
+            # Skip the module name to get to the next token
             i += 1
+
         # If token is of type var then generate var opcode
         elif tokens[i].type == "var":
             var_opcode, i, func_ret_type = var_statement(
@@ -508,6 +517,7 @@ def parse(tokens, table):
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
             op_codes.append(var_opcode)
+            
         # If token is of type id then generate assign opcode
         elif tokens[i].type == "id":
             # If '(' follows id then it is function calling else variable assignment
