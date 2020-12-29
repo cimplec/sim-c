@@ -518,9 +518,9 @@ def parse(tokens, table):
                 single_stat_func_flag += 1
             op_codes.append(var_opcode)
             
-        # If token is of type id then generate assign opcode
+        # If token is of type id 
         elif tokens[i].type == "id":
-            # If '(' follows id then it is function calling else variable assignment
+            # If '(' follows id then it is function calling 
             if tokens[i + 1].type == "left_paren":
                 fun_opcode, i, func_ret_type = function_call_statement(
                     tokens, i, table, func_ret_type
@@ -531,6 +531,7 @@ def parse(tokens, table):
                     tokens, i, table, func_ret_type
                 )
                 op_codes.append(unary_opcode)
+            # Handle variables inside for loop
             elif tokens[i + 1].type in ["to", "by"] or tokens[i - 2].type == "by":
                 i += 1
             else:
