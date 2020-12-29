@@ -379,6 +379,12 @@ def exit_statement(tokens, i, table, func_ret_type):
 
     return OpCode("exit", op_value[1:-1]), i, func_ret_type
 
+def skip_all_nextlines(tokens, i):
+    i += 1
+    while tokens[i].type == "newline":
+        i += 1
+
+    return i
 
 def parse(tokens, table):
     """
@@ -438,40 +444,33 @@ def parse(tokens, table):
     single_stat_func_flag = NO_FUNC_CALLED
 
     while i <= len(tokens) - 1:
+        # If a function body has started
         if single_stat_func_flag == START_FUNCTION:
             # If \n follows ) then skip all the \n characters
             if tokens[i].type == "newline":
-                i += 1
-                while tokens[i].type == "newline":
-                    i += 1
+                skip_all_nextlines(tokens, i)
+
             # If we encounter MAIN or a new function then
             # the function body is empty
             if (tokens[i].type == "MAIN") or (tokens[i].type == "fun"):
                 error("Function definition cannot be empty", tokens[i].line_num)
 
-        # at the end of the single statement function
-        # introduce a right brace if not there
-        if single_stat_func_flag == END_FUNCTION:
-            if not in_do:
-                # If \n follows ) then skip all the \n characters
-                if tokens[i].type == "newline":
-                    i += 1
-                    while tokens[i].type == "newline":
-                        i += 1
-                if tokens[i].type != "right_brace":
-                    op_codes.append(OpCode("scope_over", "", ""))
-                    brace_count -= 1
+        # At the end of the single statement function add a right brace
+        # scope_over OpCode compiles to }\n
+        elif single_stat_func_flag == END_FUNCTION:
+            # If \n follows ) then skip all the \n characters
+            if tokens[i].type == "newline":
+                skip_all_nextlines(tokens, i)
 
-                    if brace_count < 0:
-                        error(
-                            "Closing brace doesn't match any previous opening brace",
-                            tokens[i].line_num,
-                        )
+            if tokens[i].type != "right_brace":
+                op_codes.append(OpCode("scope_over", "", ""))
+                brace_count -= 1
 
-                    if brace_count == 0:
-                        # The Function scope is over
-                        func_name = ""
-                single_stat_func_flag = NO_FUNC_CALLED
+                # The function scope is over
+                if brace_count == 0:
+                    func_name = ""
+                    
+            single_stat_func_flag = NO_FUNC_CALLED
 
         # If token is raw c type
         if tokens[i].type == "RAW_C":
@@ -480,7 +479,7 @@ def parse(tokens, table):
             continue
 
         # If token is of type print then generate print opcode
-        if tokens[i].type == "print":
+        elif tokens[i].type == "print":
             print_opcode, i, func_ret_type = print_statement(
                 tokens, i + 1, table, func_ret_type
             )
