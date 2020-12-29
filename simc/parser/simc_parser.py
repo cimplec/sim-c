@@ -289,15 +289,38 @@ def unary_statement(tokens, i, table, func_ret_type):
     operator        -> ++ | --
     """
 
-    # Check if assignment operator follows identifier name
-    if tokens[i].type not in ["increment", "decrement"]:
+    # Pre-increment/decrement
+    if tokens[i].type in ["increment", "decrement"]:
+        op_value = -1
+
+        if tokens[i].type == "increment":
+            op_value = "++ "
+        else:
+            op_value = "-- "
+
         check_if(
-            tokens[i + 1].type,
-            ["increment", "decrement"],
-            "Expected unary operator after identifier",
-            tokens[i + 1].line_num,
+            expected_type=tokens[i + 1].type,
+            should_be_types="id",
+            error_msg="Expected identifier after unary operator",
+            line_num=tokens[i + 1].line_num,
         )
-        # Check if expression follows = in assign statement
+        
+        # Get the identifier name from symbol table
+        value, _, _ = table.get_by_id(tokens[i + 1].val)
+        op_value += str(value)
+        
+        return OpCode("unary", op_value), i + 2, func_ret_type
+
+    # Post-increment/decrement
+    else:
+        check_if(
+            expected_type=tokens[i + 1].type,
+            should_be_types=["increment", "decrement"],
+            error_msg="Expected unary operator after identifier",
+            line_num=tokens[i + 1].line_num,
+        )
+
+        # Get expression of form <id>(++|--)
         op_value, _, i, func_ret_type = expression(
             tokens,
             i,
@@ -307,24 +330,9 @@ def unary_statement(tokens, i, table, func_ret_type):
             expect_paren=False,
             func_ret_type=func_ret_type,
         )
+
         # Return the opcode and i (the token after unary statement)
         return OpCode("unary", op_value), i, func_ret_type
-
-    else:
-        check_if(
-            tokens[i + 1].type,
-            "id",
-            "Expected identifier after unary operator",
-            tokens[i + 1].line_num,
-        )
-        op_value = -1
-        if tokens[i].type == "increment":
-            op_value = "++ --- "
-        else:
-            op_value = "-- --- "
-        value, func_ret_type, _ = table.get_by_id(tokens[i + 1].val)
-        op_value += str(value)
-        return OpCode("unary", op_value), i + 2, func_ret_type
 
 
 def exit_statement(tokens, i, table, func_ret_type):
@@ -518,9 +526,9 @@ def parse(tokens, table):
                 single_stat_func_flag += 1
             op_codes.append(var_opcode)
             
-        # If token is of type id then generate assign opcode
+        # If token is of type id 
         elif tokens[i].type == "id":
-            # If '(' follows id then it is function calling else variable assignment
+            # If '(' follows id then it is function calling 
             if tokens[i + 1].type == "left_paren":
                 fun_opcode, i, func_ret_type = function_call_statement(
                     tokens, i, table, func_ret_type
@@ -531,6 +539,7 @@ def parse(tokens, table):
                     tokens, i, table, func_ret_type
                 )
                 op_codes.append(unary_opcode)
+            # Handle variables inside for loop
             elif tokens[i + 1].type in ["to", "by"] or tokens[i - 2].type == "by":
                 i += 1
             else:
