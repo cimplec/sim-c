@@ -447,8 +447,7 @@ def parse(tokens, table):
             # If we encounter MAIN or a new function then
             # the function body is empty
             if (tokens[i].type == "MAIN") or (tokens[i].type == "fun"):
-                single_stat_func_flag = NO_FUNC_CALLED
-                op_codes.append(OpCode("scope_over", "", ""))
+                error("Function definition cannot be empty", tokens[i].line_num)
 
         # at the end of the single statement function
         # introduce a right brace if not there
