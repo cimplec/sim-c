@@ -489,16 +489,26 @@ def parse(tokens, table):
 
         # If token is of type import then generate import opcode
         elif tokens[i].type == "import":
+            # Skip import token, next token should be module name
             i += 1
+
+            # Identifier (module name) should follow import
             check_if(
-                tokens[i].type,
-                "id",
-                "Expected module name after import",
-                tokens[i].line_num,
+                expected_type=tokens[i].type,
+                should_be_types="id",
+                error_msg="Expected module name after import",
+                line_num=tokens[i].line_num,
             )
+
+            # Get the name of the module
             value, _, _ = table.get_by_id(tokens[i].val)
+
+            # Generate opcode for the module
             op_codes.append(OpCode("import", value))
+
+            # Skip the module name to get to the next token
             i += 1
+
         # If token is of type var then generate var opcode
         elif tokens[i].type == "var":
             var_opcode, i, func_ret_type = var_statement(
