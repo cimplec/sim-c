@@ -21,7 +21,7 @@ def expression(
     i,
     table,
     msg,
-    accept_unkown=False,
+    accept_unknown=False,
     accept_empty_expression=False,
     expect_paren=True,
     func_ret_type={},
@@ -139,9 +139,9 @@ def expression(
                     if type_to_prec["double"] > op_type
                     else op_type
                 )
-            elif type in ["var", "declared"] and not accept_unkown:
+            elif type in ["var", "declared"] and not accept_unknown:
                 error("Cannot find the type of %s" % value, tokens[i].line_num)
-            elif type == "var" and accept_unkown:
+            elif type == "var" and accept_unknown:
                 op_value += str(value)
         elif tokens[i].type in ["newline", "call_end"]:
             break
@@ -352,20 +352,21 @@ def exit_statement(tokens, i, table, func_ret_type):
     expr            -> number
     number          -> [0-9]+
     """
+
     # Check if ( follows exit statement
     check_if(
-        tokens[i].type,
-        "left_paren",
-        "Expected ( after exit statement",
-        tokens[i].line_num,
+        got_type=tokens[i].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after exit statement",
+        line_num=tokens[i].line_num,
     )
 
     # Check if number follows ( in exit statement
     check_if(
-        tokens[i + 1].type,
-        "number",
-        "Expected number after ( in exit statement",
-        tokens[i].line_num,
+        got_type=tokens[i + 1].type,
+        should_be_types="number",
+        error_msg="Expected number after ( in exit statement",
+        line_num=tokens[i].line_num,
     )
 
     # check if expression follows ( in exit statement
@@ -376,13 +377,13 @@ def exit_statement(tokens, i, table, func_ret_type):
         "Expected expression inside exit statement",
         func_ret_type=func_ret_type,
     )
-    op_value_list = op_value.replace(" ", "").split(",")
+
     # check if ) follows expression in exit statement
     check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in exit statement",
-        tokens[i - 1].line_num,
+        got_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after expression in exit statement",
+        line_num=tokens[i - 1].line_num,
     )
 
     return OpCode("exit", op_value[1:-1]), i, func_ret_type
@@ -534,11 +535,14 @@ def parse(tokens, table):
                     tokens, i, table, func_ret_type
                 )
                 op_codes.append(fun_opcode)
+
+            # This handles post-increment/decrement
             elif tokens[i + 1].type in ["increment", "decrement"]:
                 unary_opcode, i, func_ret_type = unary_statement(
                     tokens, i, table, func_ret_type
                 )
                 op_codes.append(unary_opcode)
+
             # Handle variables inside for loop
             elif tokens[i + 1].type in ["to", "by"] or tokens[i - 2].type == "by":
                 i += 1
@@ -687,25 +691,29 @@ def parse(tokens, table):
             if_opcode, i, func_ret_type = if_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             op_codes.append(if_opcode)
+
             # Increment if count on encountering if
             if_count += 1
+
         # If token is of type exit then generate exit opcode
         elif tokens[i].type == "exit":
             exit_opcode, i, func_ret_type = exit_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
+
             op_codes.append(exit_opcode)
+
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
 
             # If \n follows else then skip all the \n characters
             if tokens[i + 1].type == "newline":
-                i += 1
-                while tokens[i].type == "newline":
-                    i += 1
+                i = skip_all_nextlines(tokens, i)
                 i -= 1
 
             # If the next token is if, then it is else if
@@ -713,8 +721,10 @@ def parse(tokens, table):
                 if_opcode, i, func_ret_type = if_statement(
                     tokens, i + 2, table, func_ret_type
                 )
+
                 if_opcode.type = "else_if"
                 op_codes.append(if_opcode)
+
             # Otherwise it is else
             else:
                 op_codes.append(OpCode("else", "", ""))
@@ -727,9 +737,12 @@ def parse(tokens, table):
                     error("Else does not match any if!", tokens[i].line_num)
 
                 i += 1
+
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
+            # Starting token index for return expression
             beg_idx = i + 1
+
             if tokens[i + 1].type not in ["id", "number", "string", "left_paren"]:
                 op_value = ""
                 op_type = 6
@@ -740,8 +753,8 @@ def parse(tokens, table):
                     i + 1,
                     table,
                     "Expected expression after return",
-                    True,
-                    True,
+                    accept_unknown=True,
+                    accept_empty_expression=True,
                     expect_paren=False,
                     func_ret_type=func_ret_type,
                 )
@@ -765,17 +778,22 @@ def parse(tokens, table):
                 # If we are in main function,
                 # the default return is going to be generated anyways, so skip this
                 if main_fn_count == 0:
-                    # We are not in main function
+                    # We are not in main function, if type is not known then add this function to func_ret_type dict
+                    # This is used when return type cannot be inferred right now
                     if op_type == -1:
                         func_ret_type[func_name] = beg_idx
+
                     # Change return type of function
+                    # If type is known
                     if op_type != -1:
                         table.symbol_table[table.get_by_symbol(func_name)][
                             1
                         ] = prec_to_type[op_type]
+                    # Otherwise update type of func to ["not_known", <idx-of-return-expr>, <all-tokens>]
+                    # This is used for import statements
                     else:
                         table.symbol_table[table.get_by_symbol(func_name)][1] = [
-                            prec_to_type[op_type],
+                            "not_known",
                             beg_idx,
                             tokens,
                         ]
@@ -783,55 +801,77 @@ def parse(tokens, table):
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
             op_codes.append(OpCode("return", op_value, ""))
+
         # If token is of type break then generate break opcode
         elif tokens[i].type == "break":
             op_codes.append(OpCode("break", "", ""))
+
             i += 1
+
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
+
         # If token is of type continue then generate continue opcode
         elif tokens[i].type == "continue":
             op_codes.append(OpCode("continue", "", ""))
+
             i += 1
+
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
+
         # If token is of type single_line_statement then generate single_line_comment opcode
         elif tokens[i].type == "single_line_comment":
             op_codes.append(OpCode("single_line_comment", tokens[i].val, ""))
+
             i += 1
+
         # If token is of type multi_line_statement then generate multi_line_comment opcode
         elif tokens[i].type == "multi_line_comment":
             op_codes.append(OpCode("multi_line_comment", tokens[i].val, ""))
+
             i += 1
+
         # If token is of type switch then generate switch opcode
         elif tokens[i].type == "switch":
             switch_opcode, i, func_ret_type = switch_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             op_codes.append(switch_opcode)
+
         # If token is of type case then generate case opcode
         elif tokens[i].type == "case":
             case_opcode, i, func_ret_type = case_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             op_codes.append(case_opcode)
-        # If token is of type default then generate default opcode
+
+        # If token is of type default then generate default opcode (this is used in switch cases)
         elif tokens[i].type == "default":
+            # Check if : (colon) is present after default keyword
             check_if(
-                tokens[i + 1].type,
-                "colon",
-                "Expected : after default statement in switch",
-                tokens[i + 1].line_num,
+                got_type=tokens[i + 1].type,
+                should_be_types="colon",
+                error_msg="Expected : after default statement in switch",
+                line_num=tokens[i + 1].line_num,
             )
+
             op_codes.append(OpCode("default", "", ""))
+
             i += 2
+            
         # If token is the type increment or decrement then generate unary_opcode
+        # This handles pre-increment/decrement
         elif tokens[i].type in ["increment", "decrement"]:
             unary_opcode, i, func_ret_type = unary_statement(
                 tokens, i, table, func_ret_type
             )
+
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
+                
             op_codes.append(unary_opcode)
 
         # Otherwise increment the index
