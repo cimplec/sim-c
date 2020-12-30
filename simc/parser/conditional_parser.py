@@ -25,14 +25,14 @@ def if_statement(tokens, i, table, func_ret_type):
     id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
     operator        -> + | - | * | /
     """
-    from .simc_parser import expression
+    from .simc_parser import expression, skip_all_nextlines
 
     # Check if ( follows if statement
     check_if(
-        tokens[i].type,
-        "left_paren",
-        "Expected ( after if statement",
-        tokens[i].line_num,
+        got_type=tokens[i].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after if statement",
+        line_num=tokens[i].line_num,
     )
 
     # check if expression follows ( in if statement
@@ -43,25 +43,26 @@ def if_statement(tokens, i, table, func_ret_type):
         "Expected expression inside if statement",
         func_ret_type=func_ret_type,
     )
-    op_value_list = op_value.replace(" ", "").split(",")
+
     # check if ) follows expression in if statement
     check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in if statement",
-        tokens[i - 1].line_num,
+        got_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after expression in if statement",
+        line_num=tokens[i - 1].line_num,
     )
 
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
-        i += 1
-        while tokens[i].type == "newline":
-            i += 1
+        i = skip_all_nextlines(tokens, i)
         i -= 1
 
+    # Token index to be returned
     ret_idx = i
+
     if tokens[i].type == "newline":
         ret_idx = i + 1
+
     if tokens[i + 1].type == "left_brace":
         # Loop until } is reached
         i += 1

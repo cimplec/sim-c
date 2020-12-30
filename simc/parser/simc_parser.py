@@ -690,6 +690,7 @@ def parse(tokens, table):
             op_codes.append(if_opcode)
             # Increment if count on encountering if
             if_count += 1
+            
         # If token is of type exit then generate exit opcode
         elif tokens[i].type == "exit":
             exit_opcode, i, func_ret_type = exit_statement(
