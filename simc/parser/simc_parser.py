@@ -844,17 +844,21 @@ def parse(tokens, table):
             )
 
             op_codes.append(case_opcode)
-            
-        # If token is of type default then generate default opcode
+
+        # If token is of type default then generate default opcode (this is used in switch cases)
         elif tokens[i].type == "default":
+            # Check if : (colon) is present after default keyword
             check_if(
-                tokens[i + 1].type,
-                "colon",
-                "Expected : after default statement in switch",
-                tokens[i + 1].line_num,
+                got_type=tokens[i + 1].type,
+                should_be_types="colon",
+                error_msg="Expected : after default statement in switch",
+                line_num=tokens[i + 1].line_num,
             )
+
             op_codes.append(OpCode("default", "", ""))
+
             i += 2
+            
         # If token is the type increment or decrement then generate unary_opcode
         elif tokens[i].type in ["increment", "decrement"]:
             unary_opcode, i, func_ret_type = unary_statement(
