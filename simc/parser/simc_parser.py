@@ -645,23 +645,25 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(for_opcode)
-            
+
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
 
             # If \n follows ) then skip all the \n characters
             if tokens[i + 1].type == "newline":
-                i += 1
-                while tokens[i].type == "newline":
-                    i += 1
+                skip_all_nextlines()
                 i -= 1
 
             in_do = True
+
             op_codes.append(OpCode("do", "", ""))
+
             if tokens[i + 1].type != "left_brace":
                 op_codes.append(OpCode("scope_begin", "", ""))
                 brace_count += 1
+
             i += 1
+            
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
             while_opcode, i, func_ret_type = while_statement(
