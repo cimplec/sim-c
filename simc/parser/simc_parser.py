@@ -704,14 +704,13 @@ def parse(tokens, table):
                 single_stat_func_flag += 1
 
             op_codes.append(exit_opcode)
+
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
 
             # If \n follows else then skip all the \n characters
             if tokens[i + 1].type == "newline":
-                i += 1
-                while tokens[i].type == "newline":
-                    i += 1
+                i = skip_all_nextlines(tokens, i)
                 i -= 1
 
             # If the next token is if, then it is else if
@@ -719,8 +718,10 @@ def parse(tokens, table):
                 if_opcode, i, func_ret_type = if_statement(
                     tokens, i + 2, table, func_ret_type
                 )
+
                 if_opcode.type = "else_if"
                 op_codes.append(if_opcode)
+
             # Otherwise it is else
             else:
                 op_codes.append(OpCode("else", "", ""))
@@ -733,6 +734,7 @@ def parse(tokens, table):
                     error("Else does not match any if!", tokens[i].line_num)
 
                 i += 1
+                
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
             beg_idx = i + 1
