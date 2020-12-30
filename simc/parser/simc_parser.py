@@ -232,7 +232,7 @@ def print_statement(tokens, i, table, func_ret_type):
 
     # Check if ( follows print statement
     check_if(
-        expected_type=tokens[i].type,
+        got_type=tokens[i].type,
         should_be_types="left_paren",
         error_msg="Expected ( after print statement",
         line_num=tokens[i].line_num,
@@ -261,7 +261,7 @@ def print_statement(tokens, i, table, func_ret_type):
 
     # Check if print statement has closing )
     check_if(
-        expected_type=tokens[i - 1].type,
+        got_type=tokens[i - 1].type,
         should_be_types="right_paren",
         error_msg="Expected ) after expression in print statement",
         line_num=tokens[i - 1].line_num,
@@ -299,7 +299,7 @@ def unary_statement(tokens, i, table, func_ret_type):
             op_value = "-- "
 
         check_if(
-            expected_type=tokens[i + 1].type,
+            got_type=tokens[i + 1].type,
             should_be_types="id",
             error_msg="Expected identifier after unary operator",
             line_num=tokens[i + 1].line_num,
@@ -314,7 +314,7 @@ def unary_statement(tokens, i, table, func_ret_type):
     # Post-increment/decrement
     else:
         check_if(
-            expected_type=tokens[i + 1].type,
+            got_type=tokens[i + 1].type,
             should_be_types=["increment", "decrement"],
             error_msg="Expected unary operator after identifier",
             line_num=tokens[i + 1].line_num,
@@ -502,7 +502,7 @@ def parse(tokens, table):
 
             # Identifier (module name) should follow import
             check_if(
-                expected_type=tokens[i].type,
+                got_type=tokens[i].type,
                 should_be_types="id",
                 error_msg="Expected module name after import",
                 line_num=tokens[i].line_num,
@@ -552,19 +552,24 @@ def parse(tokens, table):
                 single_stat_func_flag += 1
         # If token is of type fun then generate function opcode
         elif tokens[i].type == "fun":
+            # Check if function is defined inside MAIN or any other function
             if main_fn_count > 0 or brace_count != 0:
                 error(
                     "Cannot define a function inside another function",
                     tokens[i].line_num,
                 )
 
+            # Parse function defintion
             fun_opcode, i, func_name, func_ret_type = function_definition_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             if len(fun_opcode) == 2:
                 single_stat_func_flag = START_FUNCTION
                 brace_count += 1
+
             op_codes.extend(fun_opcode)
+
         # If token is of type struct then generate structure opcode
         elif tokens[i].type == "struct":
             struct_opcode, i, struct_name = struct_declaration_statement(

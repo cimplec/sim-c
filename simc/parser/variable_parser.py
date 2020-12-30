@@ -55,7 +55,7 @@ def var_statement(tokens, i, table, func_ret_type):
     is_ptr, asterisk_count, i = check_ptr(tokens, i)
 
     # Check if identifier is present after var
-    check_if(expected_type=tokens[i].type, should_be_types="id", 
+    check_if(got_type=tokens[i].type, should_be_types="id", 
              error_msg="Expected id after var keyword", line_num=tokens[i].line_num)
 
     # Tokens that are not accepted after declaration of a variable
@@ -121,7 +121,7 @@ def var_statement(tokens, i, table, func_ret_type):
 
             # Check if array statement has closing ] (right_bracket)
             check_if(
-                expected_type=tokens[i + 3].type,
+                got_type=tokens[i + 3].type,
                 should_be_types="right_bracket",
                 error_msg="Expected ] after expression in array statement",
                 line_num=tokens[i + 3].line_num,
@@ -324,7 +324,7 @@ def assign_statement(tokens, i, table, func_ret_type):
 
     # Check if assignment operator follows identifier name
     check_if(
-        expected_type=tokens[i].type,
+        got_type=tokens[i].type,
         should_be_types=[
             "assignment",
             "plus_equal",
