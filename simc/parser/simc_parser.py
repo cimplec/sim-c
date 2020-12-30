@@ -430,7 +430,7 @@ def parse(tokens, table):
     func_ret_type = {}
 
     # If a struct is declared, make this variable true, then if its true add a semicolon after the next right parenthesis
-    struct_declared = -1
+    struct_declared = False
 
     # Loop through all the tokens
     i = 0
@@ -564,6 +564,7 @@ def parse(tokens, table):
                 tokens, i + 1, table, func_ret_type
             )
 
+            # Fun opcode should consist of func_decl and scope_begin opcodes, otherwise the function has no body
             if len(fun_opcode) == 2:
                 single_stat_func_flag = START_FUNCTION
                 brace_count += 1
@@ -575,8 +576,10 @@ def parse(tokens, table):
             struct_opcode, i, struct_name = struct_declaration_statement(
                 tokens, i + 1, table
             )
-            struct_declared = brace_count
+
+            struct_declared = bool(brace_count)
             op_codes.append(struct_opcode)
+
         # If token is of type left_brace then generate scope_begin opcode
         elif tokens[i].type == "left_brace":
             op_codes.append(OpCode("scope_begin", "", ""))
