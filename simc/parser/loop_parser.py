@@ -111,14 +111,14 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
     id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
     operator        -> + | - | * | /
     """
-    from .simc_parser import expression
+    from .simc_parser import expression, skip_all_nextlines
 
     # Check if ( follows while statement
     check_if(
-        tokens[i].type,
-        "left_paren",
-        "Expected ( after while statement",
-        tokens[i].line_num,
+        got_type=tokens[i].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after while statement",
+        line_num=tokens[i].line_num,
     )
 
     # check if expression follows ( in while statement
@@ -132,19 +132,17 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
 
     # check if ) follows expression in while statement
     check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in while statement",
-        tokens[i - 1].line_num,
+        got_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after expression in while statement",
+        line_num=tokens[i - 1].line_num,
     )
 
     # If while is not part of do-while
     if not in_do:
         # If \n follows ) then skip all the \n characters
         if tokens[i + 1].type == "newline":
-            i += 1
-            while tokens[i].type == "newline":
-                i += 1
+            i = skip_all_nextlines(tokens, i)
             i -= 1
 
         ret_idx = i
@@ -155,6 +153,7 @@ def while_statement(tokens, i, table, in_do, func_ret_type):
             i += 1
             ret_idx = i
             found_right_brace = False
+
             while i < len(tokens) and tokens[i].type != "right_brace":
                 i += 1
 

@@ -456,7 +456,7 @@ def parse(tokens, table):
         if single_stat_func_flag == START_FUNCTION:
             # If \n follows ) then skip all the \n characters
             if tokens[i].type == "newline":
-                skip_all_nextlines(tokens, i)
+                i = skip_all_nextlines(tokens, i)
 
             # If we encounter MAIN or a new function then
             # the function body is empty
@@ -468,7 +468,7 @@ def parse(tokens, table):
         elif single_stat_func_flag == END_FUNCTION:
             # If \n follows ) then skip all the \n characters
             if tokens[i].type == "newline":
-                skip_all_nextlines(tokens, i)
+                i = skip_all_nextlines(tokens, i)
 
             if tokens[i].type != "right_brace":
                 op_codes.append(OpCode("scope_over", "", ""))
@@ -651,7 +651,7 @@ def parse(tokens, table):
 
             # If \n follows ) then skip all the \n characters
             if tokens[i + 1].type == "newline":
-                skip_all_nextlines()
+                i = skip_all_nextlines(tokens, i)
                 i -= 1
 
             in_do = True
@@ -663,12 +663,15 @@ def parse(tokens, table):
                 brace_count += 1
 
             i += 1
-            
+
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
+            # Parse while statement
             while_opcode, i, func_ret_type = while_statement(
                 tokens, i + 1, table, in_do, func_ret_type
             )
+
+            # If the while is part of do-while
             if in_do:
                 if brace_count > 0:
                     op_codes.append(OpCode("scope_over", "", ""))
@@ -678,6 +681,7 @@ def parse(tokens, table):
 
                 in_do = False
             op_codes.append(while_opcode)
+
         # If token is of type if then generate if opcode
         elif tokens[i].type == "if":
             if_opcode, i, func_ret_type = if_statement(

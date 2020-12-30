@@ -31,7 +31,7 @@ def struct_declaration_statement(tokens, i, table):
 
     # If \n follows struct name then skip all the \n characters
     if tokens[i + 1].type == "newline":
-        skip_all_nextlines()
+        i = skip_all_nextlines()
         i -= 1
 
     # Check if { follows the structure name

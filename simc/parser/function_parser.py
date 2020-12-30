@@ -226,7 +226,7 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
-        skip_all_nextlines(tokens, i)
+        i = skip_all_nextlines(tokens, i)
         i -= 1
 
     op_codes = []
