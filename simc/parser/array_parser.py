@@ -41,7 +41,7 @@ def array_initializer(tokens, i, table, size_of_array, msg):
     expected_comma = False
 
     # Check if left brace follows assignment operator
-    check_if(expected_type=tokens[i].type, should_be_types="left_brace", 
+    check_if(got_type=tokens[i].type, should_be_types="left_brace", 
              error_msg="Expected  {", line_num=tokens[i].line_num)
 
     # Begin array initializer
@@ -156,7 +156,7 @@ def array_initializer(tokens, i, table, size_of_array, msg):
         i += 1
 
     # Check if ending right brace is present or not
-    check_if(expected_type=tokens[i].type, should_be_types="right_brace", 
+    check_if(got_type=tokens[i].type, should_be_types="right_brace", 
              error_msg="Expected  }", line_num=tokens[i].line_num)
 
     return op_value, op_type, i + 1

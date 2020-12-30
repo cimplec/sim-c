@@ -2,7 +2,7 @@
 import sys
 
 
-def check_if(expected_type, should_be_types, error_msg, line_num):
+def check_if(got_type, should_be_types, error_msg, line_num):
     """
     Check if type matches what it should be otherwise throw an error and exit
 
@@ -19,7 +19,7 @@ def check_if(expected_type, should_be_types, error_msg, line_num):
         should_be_types = [should_be_types]
 
     # If the given_type is not part of should_be_types then throw error and exit
-    if expected_type not in should_be_types:
+    if got_type not in should_be_types:
         error(error_msg, line_num)
 
 

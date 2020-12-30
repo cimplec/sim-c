@@ -193,8 +193,11 @@ def function_definition_statement(tokens, i, table, func_ret_type):
     id                              -> [a-zA-Z_]?[a-zA-Z0-9_]*
     """
 
+    from .simc_parser import skip_all_nextlines
+
     # Check if identifier follows fun
-    check_if(tokens[i].type, "id", "Expected function name", tokens[i].line_num)
+    check_if(got_type=tokens[i].type, should_be_types="id", 
+             error_msg="Expected function name", line_num=tokens[i].line_num)
 
     # Store the id of function name in symbol table
     func_idx = tokens[i].val
@@ -204,39 +207,42 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     # Check if ( follows id in function
     check_if(
-        tokens[i + 1].type,
-        "left_paren",
-        "Expected ( after function name",
-        tokens[i + 1].line_num,
+        got_type=tokens[i + 1].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after function name",
+        line_num=tokens[i + 1].line_num,
     )
 
+    # Get the function parameter [and default value] tuples
     parameters, i = function_parameters(tokens, i + 2, table)
 
     # Check if ) follows expression in function
     check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after function params list",
-        tokens[i - 1].line_num,
+        got_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after function params list",
+        line_num=tokens[i - 1].line_num,
     )
 
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
-        i += 1
-        while tokens[i].type == "newline":
-            i += 1
+        i = skip_all_nextlines(tokens, i)
         i -= 1
 
     op_codes = []
 
+    # Index to be returned to main parsing loop
     ret_idx = i
+
     if tokens[i].type == "newline":
         ret_idx = i + 1
+
     if tokens[i + 1].type == "left_brace":
         # Loop until } is reached
         i += 1
         ret_idx = i
         found_right_brace = False
+
         while i < len(tokens) and tokens[i].type != "right_brace":
             i += 1
 
@@ -252,19 +258,24 @@ def function_definition_statement(tokens, i, table, func_ret_type):
         op_codes.append(OpCode("scope_begin", "", ""))
 
     # Add the identifier types to function's typedata
-    parameter_names = [p[0] for p in parameters]
-    default_values = [str(p[1]) for p in parameters if p[1] is not None]
+    parameter_names = [parameter[0] for parameter in parameters]
+    default_values = [str(parameter[1]) for parameter in parameters if parameter[1] is not None]
+
     func_typedata = "function"
     if parameter_names:
         func_typedata += "---" + "---".join(parameter_names)
     if default_values:
         func_typedata += "&&&" + "&&&".join(default_values)
+
     table.symbol_table[func_idx][2] = func_typedata
 
     op_codes.append(
         OpCode("func_decl", func_name + "---" + "&&&".join(parameter_names), "")
     )
+
+    # The order now is scope_begin followed by func_decl, but the compiler expects the opposite order
     op_codes.reverse()
+
     return (
         op_codes,
         ret_idx - 1,
@@ -290,26 +301,29 @@ def function_parameters(tokens, i, table):
 
         i += 1
 
-        # check_if(tokens[i].type,
-        #          "call_end",
-        #          "End of call expected",
-        #          tokens[i].line_num)
-
         return [], i
 
     parameters = []
     default_val_required = False
 
+    # Get the first parameter [and default value]
     param_info, i = function_parameter(tokens, i, table, default_val_required)
+
+    # If there are parameters
     if param_info is not None:
 
         parameters.append(param_info)
         _, default_val = param_info
         default_val_required = default_val is not None
 
+        # Continue parsing until comma tokens are encountered
         while tokens[i].type == "comma":
+            # Skip comma token
             i += 1
+
+            # Get parameter [and default value]
             param_info, i = function_parameter(tokens, i, table, default_val_required)
+
             if param_info is not None:
                 parameters.append(param_info)
                 if not default_val_required:
@@ -319,17 +333,14 @@ def function_parameters(tokens, i, table):
                 error("Parameter expected after comma", tokens[i].line_num)
 
         check_if(
-            tokens[i].type,
-            "right_paren",
-            "Right parentheses expected",
-            tokens[i].line_num,
+            got_type=tokens[i].type,
+            should_be_types="right_paren",
+            error_msg="Right parentheses expected",
+            line_num=tokens[i].line_num,
         )
-        i += 1
 
-        # check_if(tokens[i].type,
-        #          "call_end",
-        #          "End of call expected",
-        #          tokens[i].line_num)
+        # Skip right parantheses
+        i += 1
 
     else:
         error("Function parameters must be identifiers", tokens[i].line_num)
@@ -354,19 +365,25 @@ def function_parameter(tokens, i, table, default_val_required):
     if tokens[i].type != "id":
         return None, i
 
+    # Get the parameter from symbol table id stored in token
     parameter, _, _ = table.get_by_id(tokens[i].val)
     i += 1
 
     default_val = None
 
+    # To handle the case when a parameter on left has default value and the current one does not
     if default_val_required:
         check_if(
-            tokens[i].type,
-            "assignment",
-            "Default value expected for parameter {}".format(parameter),
-            tokens[i].line_num,
+            got_type=tokens[i].type,
+            should_be_types="assignment",
+            error_msg="Default value expected for parameter {}".format(parameter),
+            line_num=tokens[i].line_num,
         )
+
+        # Skip the assignment operator
         i += 1
+
+        # Default parameter values can be number or string only as of now
         if tokens[i].type in ["number", "string"]:
             default_val = tokens[i].val
             i += 1

@@ -17,28 +17,29 @@ def struct_declaration_statement(tokens, i, table):
                          parsing function calling statement
     """
 
+    from .simc_parser import skip_all_nextlines
+
     # Check if identifier follows struct
-    check_if(tokens[i].type, "id", "Expected structure name", tokens[i].line_num)
+    check_if(got_type=tokens[i].type, should_be_types="id", 
+             error_msg="Expected structure name", line_num=tokens[i].line_num)
 
     # Store the id of strcuture name in symbol table
     struct_idx = tokens[i].val
 
-    # Get function name
+    # Get struct name
     struct_name, _, _ = table.get_by_id(struct_idx)
 
     # If \n follows struct name then skip all the \n characters
     if tokens[i + 1].type == "newline":
-        i += 1
-        while tokens[i].type == "newline":
-            i += 1
+        i = skip_all_nextlines()
         i -= 1
 
     # Check if { follows the structure name
     check_if(
-        tokens[i + 1].type,
-        "left_brace",
-        "Expected { after structure name body",
-        tokens[i + 1].line_num,
+        got_type=tokens[i + 1].type,
+        should_be_types="left_brace",
+        error_msg="Expected { after structure name body",
+        line_num=tokens[i + 1].line_num,
     )
 
     # Loop until } is reached
