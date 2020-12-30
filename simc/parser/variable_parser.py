@@ -295,6 +295,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     is_ptr = False
     # count depth of pointer
     count_ast = 0
+
     if tokens[i - 2].type == "multiply":
         j = -2
         while tokens[j + i].type == "multiply":
@@ -303,9 +304,9 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    value, type, _ = table.get_by_id(tokens[i - 1].val)
+    value, type_, _ = table.get_by_id(tokens[i - 1].val)
 
-    if type == "var":
+    if type_ == "var":
         error("Variable %s used before declaration" % value, tokens[i - 1].line_num)
 
     # Dictionary to convert tokens to their corresponding assignment types
@@ -320,10 +321,11 @@ def assign_statement(tokens, i, table, func_ret_type):
         "bitwise_xor_equal": "^=",
         "bitwise_or_equal": "|=",
     }
+
     # Check if assignment operator follows identifier name
     check_if(
-        tokens[i].type,
-        [
+        expected_type=tokens[i].type,
+        should_be_types=[
             "assignment",
             "plus_equal",
             "minus_equal",
@@ -334,11 +336,13 @@ def assign_statement(tokens, i, table, func_ret_type):
             "bitwise_xor_equal",
             "bitwise_or_equal",
         ],
-        "Expected assignment operator after identifier",
-        tokens[i].line_num,
+        error_msg="Expected assignment operator after identifier",
+        line_num=tokens[i].line_num,
     )
+
     # Convert the token to respective symbol
     converted_type = assignment_type[tokens[i].type]
+
     # Store the index of identifier
     id_idx = i - 1
 
@@ -351,6 +355,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         expect_paren=False,
         func_ret_type=func_ret_type,
     )
+
     #  Map datatype to appropriate datatype in C
     prec_to_type = {
         0: "string",
@@ -361,9 +366,12 @@ def assign_statement(tokens, i, table, func_ret_type):
         5: "double",
         6: "bool",
     }
+
     op_value = converted_type + "---" + op_value
+
     # Modify datatype of the identifier
     table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
+    
     # Check if a pointer is being assigned
     if is_ptr:
         return (
