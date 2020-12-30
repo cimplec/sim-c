@@ -836,13 +836,15 @@ def parse(tokens, table):
             )
 
             op_codes.append(switch_opcode)
-            
+
         # If token is of type case then generate case opcode
         elif tokens[i].type == "case":
             case_opcode, i, func_ret_type = case_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             op_codes.append(case_opcode)
+            
         # If token is of type default then generate default opcode
         elif tokens[i].type == "default":
             check_if(

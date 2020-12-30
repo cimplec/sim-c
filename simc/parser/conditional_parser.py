@@ -123,6 +123,7 @@ def switch_statement(tokens, i, table, func_ret_type):
 def case_statement(tokens, i, table, func_ret_type):
     from .simc_parser import expression
 
+    # Expected expression after case keyword
     op_value, _, i, func_ret_type = expression(
         tokens,
         i,
@@ -132,11 +133,12 @@ def case_statement(tokens, i, table, func_ret_type):
         func_ret_type=func_ret_type,
     )
 
+    # Check if expression is followed by : (colon) in case statement
     check_if(
-        tokens[i].type,
-        "colon",
-        "Expected : after case in switch statement",
-        tokens[i].line_num,
+        got_type=tokens[i].type,
+        should_be_types="colon",
+        error_msg="Expected : after case in switch statement",
+        line_num=tokens[i].line_num,
     )
 
     return OpCode("case", op_value, ""), i + 1, func_ret_type
