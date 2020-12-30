@@ -630,19 +630,22 @@ def parse(tokens, table):
             op_codes.append(OpCode("MAIN", "", ""))
             main_fn_count += 1
             if main_fn_count > 1:
-                error("Presence of two MAIN in a single file", tokens[i].line_num)
+                error("Cannot have more than one MAIN in a single file", tokens[i].line_num)
             i += 1
+
         # If token is of type END_MAIN then generate MAIN opcode
         elif tokens[i].type == "END_MAIN":
             op_codes.append(OpCode("END_MAIN", "", ""))
             main_fn_count -= 1
             i += 1
+
         # If token is of type for then generate for code
         elif tokens[i].type == "for":
             for_opcode, i, func_ret_type = for_statement(
                 tokens, i + 1, table, func_ret_type
             )
             op_codes.append(for_opcode)
+            
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
 
