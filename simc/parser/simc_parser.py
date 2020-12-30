@@ -535,11 +535,14 @@ def parse(tokens, table):
                     tokens, i, table, func_ret_type
                 )
                 op_codes.append(fun_opcode)
+
+            # This handles post-increment/decrement
             elif tokens[i + 1].type in ["increment", "decrement"]:
                 unary_opcode, i, func_ret_type = unary_statement(
                     tokens, i, table, func_ret_type
                 )
                 op_codes.append(unary_opcode)
+
             # Handle variables inside for loop
             elif tokens[i + 1].type in ["to", "by"] or tokens[i - 2].type == "by":
                 i += 1
@@ -860,12 +863,15 @@ def parse(tokens, table):
             i += 2
             
         # If token is the type increment or decrement then generate unary_opcode
+        # This handles pre-increment/decrement
         elif tokens[i].type in ["increment", "decrement"]:
             unary_opcode, i, func_ret_type = unary_statement(
                 tokens, i, table, func_ret_type
             )
+
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
+                
             op_codes.append(unary_opcode)
 
         # Otherwise increment the index
