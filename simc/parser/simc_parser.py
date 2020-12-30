@@ -828,13 +828,15 @@ def parse(tokens, table):
             op_codes.append(OpCode("multi_line_comment", tokens[i].val, ""))
 
             i += 1
-            
+
         # If token is of type switch then generate switch opcode
         elif tokens[i].type == "switch":
             switch_opcode, i, func_ret_type = switch_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             op_codes.append(switch_opcode)
+            
         # If token is of type case then generate case opcode
         elif tokens[i].type == "case":
             case_opcode, i, func_ret_type = case_statement(

@@ -79,12 +79,15 @@ def if_statement(tokens, i, table, func_ret_type):
 
 
 def switch_statement(tokens, i, table, func_ret_type):
-    from .simc_parser import expression
+    from .simc_parser import expression, skip_all_nextlines
 
+    # Check if ( is present after switch keyword
     check_if(
-        tokens[i].type, "left_paren", "Expected ( after switch", tokens[i].line_num
+        got_type=tokens[i].type, should_be_types="left_paren", 
+        error_msg="Expected ( after switch", line_num=tokens[i].line_num
     )
 
+    # Expected expression after ( in switch
     op_value, _, i, func_ret_type = expression(
         tokens,
         i,
@@ -93,24 +96,25 @@ def switch_statement(tokens, i, table, func_ret_type):
         func_ret_type=func_ret_type,
     )
 
+    # Check if ) is present after expression in switch
     check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in switch",
-        tokens[i - 1].line_num,
+        got_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after expression in switch",
+        line_num=tokens[i - 1].line_num,
     )
 
+    # Skip all next lines before {
     if tokens[i + 1].type == "newline":
-        i += 1
-        while tokens[i].type == "newline":
-            i += 1
+        i = skip_all_nextlines(tokens, i)
         i -= 1
 
+    # Check if opening { is present, as switch cannot be single line
     check_if(
-        tokens[i + 1].type,
-        "left_brace",
-        "Expected { after switch statement",
-        tokens[i + 1].line_num,
+        got_type=tokens[i + 1].type,
+        should_be_types="left_brace",
+        error_msg="Expected { after switch statement",
+        line_num=tokens[i + 1].line_num,
     )
 
     return OpCode("switch", op_value[1:-1], ""), i, func_ret_type
