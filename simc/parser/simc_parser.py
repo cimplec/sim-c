@@ -352,20 +352,21 @@ def exit_statement(tokens, i, table, func_ret_type):
     expr            -> number
     number          -> [0-9]+
     """
+
     # Check if ( follows exit statement
     check_if(
-        tokens[i].type,
-        "left_paren",
-        "Expected ( after exit statement",
-        tokens[i].line_num,
+        got_type=tokens[i].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after exit statement",
+        line_num=tokens[i].line_num,
     )
 
     # Check if number follows ( in exit statement
     check_if(
-        tokens[i + 1].type,
-        "number",
-        "Expected number after ( in exit statement",
-        tokens[i].line_num,
+        got_type=tokens[i + 1].type,
+        should_be_types="number",
+        error_msg="Expected number after ( in exit statement",
+        line_num=tokens[i].line_num,
     )
 
     # check if expression follows ( in exit statement
@@ -376,13 +377,13 @@ def exit_statement(tokens, i, table, func_ret_type):
         "Expected expression inside exit statement",
         func_ret_type=func_ret_type,
     )
-    op_value_list = op_value.replace(" ", "").split(",")
+
     # check if ) follows expression in exit statement
     check_if(
-        tokens[i - 1].type,
-        "right_paren",
-        "Expected ) after expression in exit statement",
-        tokens[i - 1].line_num,
+        got_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after expression in exit statement",
+        line_num=tokens[i - 1].line_num,
     )
 
     return OpCode("exit", op_value[1:-1]), i, func_ret_type
@@ -687,17 +688,21 @@ def parse(tokens, table):
             if_opcode, i, func_ret_type = if_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             op_codes.append(if_opcode)
+
             # Increment if count on encountering if
             if_count += 1
-            
+
         # If token is of type exit then generate exit opcode
         elif tokens[i].type == "exit":
             exit_opcode, i, func_ret_type = exit_statement(
                 tokens, i + 1, table, func_ret_type
             )
+
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
+
             op_codes.append(exit_opcode)
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
