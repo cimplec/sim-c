@@ -24,22 +24,26 @@ def for_statement(tokens, i, table, func_ret_type):
     from .simc_parser import expression
 
     # Check if identifier follows for keyword
-    check_if(tokens[i].type, "id", "Expected variable name", tokens[i].line_num)
+    check_if(got_type=tokens[i].type, should_be_types="id", 
+             error_msg="Expected variable name", line_num=tokens[i].line_num)
 
     # Check if in follows identifier
-    check_if(tokens[i + 1].type, "in", "Expected in keyword", tokens[i + 1].line_num)
+    check_if(got_type=tokens[i + 1].type, should_be_types="in", 
+             error_msg="Expected in keyword", line_num=tokens[i + 1].line_num)
 
     # Check if number follows in keyword
     expression(tokens, i + 2, table, "Expected starting value", expect_paren=False)
 
     # Check if to keyword follows number
-    check_if(tokens[i + 3].type, "to", "Expected to keyword", tokens[i + 3].line_num)
+    check_if(got_type=tokens[i + 3].type, should_be_types="to", 
+             error_msg="Expected to keyword", line_num=tokens[i + 3].line_num)
 
     # Check if number follows in keyword
     expression(tokens, i + 4, table, "Expected ending value", expect_paren=False)
 
     # Check if by keyword follows number
-    check_if(tokens[i + 5].type, "by", "Expected by keyword", tokens[i + 5].line_num)
+    check_if(got_type=tokens[i + 5].type, should_be_types="by", 
+             error_msg="Expected by keyword", line_num=tokens[i + 5].line_num)
 
     word_to_op = {"plus": "+", "minus": "-", "multiply": "*", "divide": "/"}
 
@@ -48,7 +52,10 @@ def for_statement(tokens, i, table, func_ret_type):
 
     # Get required values
     var_name, _, _ = table.get_by_id(tokens[i].val)
+
+    # Set the value
     table.symbol_table[tokens[i].val][1] = "int"
+
     starting_val, _, _ = table.get_by_id(tokens[i + 2].val)
     ending_val, _, _ = table.get_by_id(tokens[i + 4].val)
     operator_type = word_to_op[tokens[i + 6].type]
