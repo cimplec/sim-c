@@ -21,7 +21,7 @@ def expression(
     i,
     table,
     msg,
-    accept_unkown=False,
+    accept_unknown=False,
     accept_empty_expression=False,
     expect_paren=True,
     func_ret_type={},
@@ -139,9 +139,9 @@ def expression(
                     if type_to_prec["double"] > op_type
                     else op_type
                 )
-            elif type in ["var", "declared"] and not accept_unkown:
+            elif type in ["var", "declared"] and not accept_unknown:
                 error("Cannot find the type of %s" % value, tokens[i].line_num)
-            elif type == "var" and accept_unkown:
+            elif type == "var" and accept_unknown:
                 op_value += str(value)
         elif tokens[i].type in ["newline", "call_end"]:
             break
@@ -734,10 +734,12 @@ def parse(tokens, table):
                     error("Else does not match any if!", tokens[i].line_num)
 
                 i += 1
-                
+
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
+            # Starting token index for return expression
             beg_idx = i + 1
+
             if tokens[i + 1].type not in ["id", "number", "string", "left_paren"]:
                 op_value = ""
                 op_type = 6
@@ -748,8 +750,8 @@ def parse(tokens, table):
                     i + 1,
                     table,
                     "Expected expression after return",
-                    True,
-                    True,
+                    accept_unknown=True,
+                    accept_empty_expression=True,
                     expect_paren=False,
                     func_ret_type=func_ret_type,
                 )
@@ -773,17 +775,22 @@ def parse(tokens, table):
                 # If we are in main function,
                 # the default return is going to be generated anyways, so skip this
                 if main_fn_count == 0:
-                    # We are not in main function
+                    # We are not in main function, if type is not known then add this function to func_ret_type dict
+                    # This is used when return type cannot be inferred right now
                     if op_type == -1:
                         func_ret_type[func_name] = beg_idx
+
                     # Change return type of function
+                    # If type is known
                     if op_type != -1:
                         table.symbol_table[table.get_by_symbol(func_name)][
                             1
                         ] = prec_to_type[op_type]
+                    # Otherwise update type of func to ["not_known", <idx-of-return-expr>, <all-tokens>]
+                    # This is used for import statements
                     else:
                         table.symbol_table[table.get_by_symbol(func_name)][1] = [
-                            prec_to_type[op_type],
+                            "not_known",
                             beg_idx,
                             tokens,
                         ]
@@ -791,6 +798,7 @@ def parse(tokens, table):
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
             op_codes.append(OpCode("return", op_value, ""))
+
         # If token is of type break then generate break opcode
         elif tokens[i].type == "break":
             op_codes.append(OpCode("break", "", ""))
