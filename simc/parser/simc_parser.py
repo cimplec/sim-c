@@ -430,7 +430,7 @@ def parse(tokens, table):
     func_ret_type = {}
 
     # If a struct is declared, make this variable true, then if its true add a semicolon after the next right parenthesis
-    struct_declared = False
+    struct_declared = -1
 
     # Loop through all the tokens
     i = 0
@@ -576,8 +576,8 @@ def parse(tokens, table):
             struct_opcode, i, struct_name = struct_declaration_statement(
                 tokens, i + 1, table
             )
-
-            struct_declared = bool(brace_count)
+            
+            struct_declared = brace_count
             op_codes.append(struct_opcode)
 
         # If token is of type left_brace then generate scope_begin opcode
@@ -585,16 +585,21 @@ def parse(tokens, table):
             op_codes.append(OpCode("scope_begin", "", ""))
             brace_count += 1
             i += 1
-        # If token is of type right_brace then generate scope_over opcode, if a struct was declared earlier, generate struct_scope_over opcode
+
+        # If token is of type right_brace then generate scope_over opcode, if a struct was declared earlier
+        # generate struct_scope_over opcode
         elif tokens[i].type == "right_brace":
             brace_count -= 1
+
             if struct_declared == brace_count:
                 # instance_name stores the name of structure instance (seperated by commas if multiple instances), if defined
                 instance_names = ""
-                # loop through the subsequent tokens to find all instantiated objects
+
+                # loop through the subsequent tokens to find all instantiated objects (after structure body)
                 for j in range(i + 1, len(tokens)):
                     if tokens[j].type == "id":
                         instance_names += table.get_by_id(tokens[j].val)[0] + ", "
+
                         # Skip over the id type token
                         i += 1
                     elif tokens[j].type == "comma":
@@ -602,6 +607,7 @@ def parse(tokens, table):
                         continue
                     else:
                         break
+
                 op_codes.append(OpCode("struct_scope_over", instance_names[:-2], ""))
                 struct_declared = -1
 
