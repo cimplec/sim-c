@@ -112,6 +112,7 @@ def expression(
 
                     # Replace all {} in string
                     value = value.replace("{", "").replace("}", "")
+
                 op_value += value
                 op_type = 0 if typedata == "constant" else 1
             elif type == "char":
@@ -184,15 +185,17 @@ def expression(
 
         # Check if there exists a prompt message
         if '"' in op_value:
-            i1 = op_value.index('"') + 1
-            i2 = op_value.index('"', i1)
+            prompt_start_idx = op_value.index('"') + 1
+            prompt_end_idx = op_value.index('"', prompt_start_idx)
+
             # Extracting the prompt
-            p_msg = op_value[i1:i2]
+            p_msg = op_value[prompt_start_idx:prompt_end_idx]
+
             # Checking if dtype is mentioned
-            if "'" in op_value[i2 + 1 :]:
-                i1 = op_value.index("'", i2 + 1) + 1
-                i2 = op_value.index("'", i1)
-                dtype = op_value[i1:i2]
+            if "'" in op_value[prompt_end_idx + 1 :]:
+                dtype_start_idx = op_value.index("'", prompt_end_idx + 1) + 1
+                dtype_end_idx = op_value.index("'", dtype_start_idx)
+                dtype = op_value[dtype_start_idx:dtype_end_idx]
             else:
                 # default dtype is string
                 dtype = "s"
@@ -202,6 +205,7 @@ def expression(
         dtype_to_prec = {"i": 3, "f": 4, "d": 5, "s": 1, "c": 2}
         op_value = str(p_msg) + "---" + str(dtype)
         op_type = dtype_to_prec[dtype]
+        
     # Return the expression, type of expression, and current index in source codes
     return op_value, op_type, i, func_ret_type
 
