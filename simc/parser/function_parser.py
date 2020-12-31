@@ -30,9 +30,15 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     from .simc_parser import expression
 
-    # Get information about the function from symbol table
-    func_name, _, metadata = table.get_by_id(tokens[i].val)
+    # Store the beginning index for function call from imported libraries
+    beg_idx = i
 
+    # Get information about the function from symbol table
+    func_info = table.get_by_id(tokens[i].val)
+    func_name = func_info[0]
+    metadata = func_info[2]
+
+    # Get all parameter ids (default and non-default) and the default values (if any)
     params, default_values = extract_func_typedata(metadata, table)
     num_formal_params = len(params)
     num_required_args = num_formal_params - len(default_values)
@@ -58,22 +64,15 @@ def function_call_statement(tokens, i, table, func_ret_type):
     num_actual_params = len(op_value_list) if op_value_list != [")"] else 0
 
     # Check if number of actual and formal parameters match
-    if num_actual_params < num_required_args:
+    if num_actual_params != num_required_args:
         error(
-            "Expected at least {} arguments but got {} in function {}".format(
+            "Expected {} arguments but got {} in function {}".format(
                 num_required_args, num_actual_params, func_name
             ),
             tokens[i].line_num,
         )
 
-    if num_actual_params > num_formal_params:
-        error(
-            "Expected not more than {} arguments but got {} in function {}".format(
-                num_formal_params, num_actual_params, func_name
-            ),
-            tokens[i].line_num,
-        )
-
+    # Fill the missing values in function call with default values
     op_value_list = fill_missing_args_with_defaults(
         op_value_list, default_values, num_actual_params, num_formal_params
     )
@@ -91,18 +90,26 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
         # Set the datatype of the formal parameter
         table.symbol_table[table.get_by_symbol(params[j])][1] = dtype
-
-    func_token_val = table.symbol_table.get(table.get_by_symbol(func_name), -1)
+    
     use_module_tokens = False
-    if func_token_val != -1 and type(func_token_val[1][2]) == list:
-        func_ret_type = {func_name: func_token_val[1][1]}
+
+    # If it an imported function the type of the function will be a list containing tokens from module's lexing results
+    # Push all the function names and the corresponding position from where to parse
+    if func_info != -1 and type(func_info[1][2]) == list:
+        func_ret_type = {func_name: func_info[1][1]}
         use_module_tokens = True
 
+    # Handles delayed inference of return types, this can occur in two situations 
+    # 1 - When the function is part of third party module, 2 - When the function's parameter are contained in return expression
     if func_name in func_ret_type.keys():
+        # Case 1
         if use_module_tokens:
+            # Parse the tokens which will help in deciding on the return type
             _, op_type, _, _ = expression(
-                func_token_val[1][2], func_ret_type[func_name], table, ""
+                func_info[1][2], func_ret_type[func_name], table, ""
             )
+
+        # Case 2
         else:
             _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "")
 
@@ -139,11 +146,16 @@ def extract_func_typedata(typedata, table):
     parameters      (list)  = Parameter names
     default_values  (list)  = Default values
     """
-    segments = typedata.split("&&&")
-    param_segment = segments[0]
+
+    func_typedata_split = typedata.split("&&&")
+
+    param_segment = func_typedata_split[0]
+
+    # Ignore the first index as it contains function's name
     parameters = param_segment.split("---")[1:]
+
     default_values = []
-    for seg in segments[1:]:
+    for seg in func_typedata_split[1:]:
         default_value, _, _ = table.get_by_id(int(seg))
         default_values.append(default_value)
 
@@ -154,9 +166,11 @@ def fill_missing_args_with_defaults(
     op_value_list, default_values, num_actual_params, num_formal_params
 ):
 
+    # Compute the offset of default values according to the missing values count
     offset = len(default_values) - num_formal_params + num_actual_params
     default_values = default_values[offset:]
 
+    # If there are not default values to be filled
     if not default_values:
         return op_value_list
 
