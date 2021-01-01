@@ -40,7 +40,6 @@ class Token:
 
         if (
             self.type == other.type
-            and self.typedig == other.typedig
             and self.val == other.val
             and self.line_num == other.line_num
         ):
