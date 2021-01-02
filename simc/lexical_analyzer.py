@@ -601,7 +601,7 @@ class LexicalAnalyzer:
 
             # Identifying bitwise xor equal or bitwise xor token
             elif self.source_code[self.current_source_index] == "^":
-                self.__check_next_token(["="], ["bitwise_xor_equal"], "bitwise_or")
+                self.__check_next_token(["="], ["bitwise_xor_equal"], "bitwise_xor")
 
             # Identifying address of, and, or bitwise and token
             elif self.source_code[self.current_source_index] == "&":
@@ -620,7 +620,7 @@ class LexicalAnalyzer:
             # Identifying or token
             elif self.source_code[self.current_source_index] == "|":
                 self.__check_next_token(
-                    ["|", "="], ["or", "bitwise_or_equal"], "bitwise_xor"
+                    ["|", "="], ["or", "bitwise_or_equal"], "bitwise_or"
                 )
 
             # Identifying divide_equal, single line comments, multi line comments, or divide token
