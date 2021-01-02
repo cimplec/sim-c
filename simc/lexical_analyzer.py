@@ -408,7 +408,7 @@ class LexicalAnalyzer:
         while self.source_code[self.current_source_index] != "\0":
 
             # This is set to true only if number or variable is found
-            self.got_num_or_var = False
+            self.got_num_or_var = False if self.got_num_or_var != True else True
 
             # If we have encountered BEGIN_C, copy everything exactly same until END_C
             if self.raw_c_begin:
@@ -609,6 +609,7 @@ class LexicalAnalyzer:
                     self.tokens.append(Token("and", "", self.line_num))
                     self.__update_source_index(by=2)
                 else:
+                    print(self.got_num_or_var)
                     if self.got_num_or_var:
                         self.__check_next_token(
                             ["="], ["bitwise_and_equal"], "bitwise_and"
