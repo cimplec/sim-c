@@ -620,7 +620,7 @@ class LexicalAnalyzer:
             # Identifying or token
             elif self.source_code[self.current_source_index] == "|":
                 self.__check_next_token(
-                    ["|", "="], ["or", "bitwise_or_equal"], "bitwise_or"
+                    ["|", "="], ["or", "bitwise_or_equal"], "bitwise_xor"
                 )
 
             # Identifying divide_equal, single line comments, multi line comments, or divide token
