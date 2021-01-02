@@ -609,7 +609,6 @@ class LexicalAnalyzer:
                     self.tokens.append(Token("and", "", self.line_num))
                     self.__update_source_index(by=2)
                 else:
-                    print(self.got_num_or_var)
                     if self.got_num_or_var:
                         self.__check_next_token(
                             ["="], ["bitwise_and_equal"], "bitwise_and"
