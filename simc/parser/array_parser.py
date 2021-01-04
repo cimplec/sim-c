@@ -95,8 +95,8 @@ def array_initializer(tokens, i, table, size_of_array, msg):
                 type_of_id = type_
 
             error_message = "Array Initializer parsed incorrectly"
-            op_value_temp, op_type, i, func_ret_type = expression( tokens, i, table, error_message )
-            op_value += op_value_temp
+            op_value, op_type, i_temp, func_ret_type = expression( tokens, i, table, error_message )
+            #op_value += op_value_temp
 
             # Check for function call
             #error_message = "Array Initializer parsed incorrectly"
