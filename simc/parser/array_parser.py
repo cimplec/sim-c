@@ -97,74 +97,13 @@ def array_initializer(tokens, i, table, size_of_array, msg):
             error_message = "Array Initializer parsed incorrectly"
             op_value_temp, op_type, i_temp, func_ret_type = expression( tokens, i, table, error_message )
             op_value += op_value_temp
-            #i = i_temp-1
-
-            # excess elements in array initializer = error message
-            if i_temp - i != int(size_of_array)+1:
-
-                error( error_message, i )
-            i = i_temp-1
-
-            #if i > int(size_of_array)-1:
-            #    error_message = "excess elements in array initializer"
-            #    error( error_message, i )
-
-            # Check for function call
-            '''
-            if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
-                fun_opcode, i, _ = function_call_statement(
-                    tokens, i, table, {}
-                )
-
-                # Function have opcode value of 
-                # <func-name>---[<param-1>&&&<param-2>, ..., <param-n>]
-                # Fetch infor from function's opcode
-                func_info = fun_opcode.val.split("---")
-
-                # Fetch the parameter names
-                params = func_info[1].split("&&&")
-
-                # Convert into format <func-name>([<param-1>, <param-2>, ..., <param-n>])
-                op_value += func_info[0] + "(" + ", ".join(params) + ")"
-
-                # Get return type of function from symbol table
-                type_to_prec = {"char*": 1, "char": 2, "int": 3, "float": 4, "double": 5}
-                op_type = type_to_prec[table.get_by_id(table.get_by_symbol(func_info[0]))[1]]
-
-                type_of_id = op_type
-
-                i -= 1
-            # Process element assigned
-            elif type_ == "string" and typedata == "constant":
-                op_value += value
-                op_type = 1
-            elif type_ == "char":
-                op_value += value
-                op_type = 2
-            elif type_ == "int":
-                op_value += str(value)
-                op_type = (
-                    type_to_prec["int"] if type_to_prec["int"] > op_type else op_type
-                )
-            elif type_ == "float":
-                op_value += str(value)
-                op_type = (
-                    type_to_prec["float"]
-                    if type_to_prec["float"] > op_type
-                    else op_type
-                )
-            elif type_ == "double":
-                op_value += math_constants.get(str(value), str(value))
-                op_type = (
-                    type_to_prec["double"]
-                    if type_to_prec["double"] > op_type
-                    else op_type
-                )
             
-            #if type_ in ["var", "declared"]:
-            elif type_ in ["var", "declared"]:
-                error("Cannot find the type of %s" % value, tokens[i].line_num)
-            '''
+            # If the size of the array is defined, and if the number of tokens parsed is not equal to 
+            # what it should be, then display error
+            if size_of_array != '' and (i_temp - i != int(size_of_array)+1) and tokens[i_temp-1].type != "comma":
+                error( error_message, i )
+            
+            i = i_temp-1
 
             # Expected comma
             expected_comma = True
