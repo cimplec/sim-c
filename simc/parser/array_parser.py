@@ -86,13 +86,23 @@ def array_initializer(tokens, i, table, size_of_array, msg):
             # Fetch information from symbol table
             value, type_, typedata = table.get_by_id(tokens[i].val)
 
+            
+
             # Check if there is more than one type in initializers
             if initialized_value_counts > 1 and type_ != type_of_id:
                 error("Too many unique types in initializers", tokens[i].line_num)
             else:
                 type_of_id = type_
 
+            error_message = "Array Initializer parsed incorrectly"
+            op_value_temp, op_type, i, func_ret_type = expression( tokens, i, table, error_message )
+            op_value += op_value_temp
+
             # Check for function call
+            #error_message = "Array Initializer parsed incorrectly"
+            #op_value_temp, op_type, i, func_ret_type = expression( tokens, i, table, error_message )
+            #op_value += op_value_temp
+            '''
             if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
                 fun_opcode, i, _ = function_call_statement(
                     tokens, i, table, {}
@@ -142,7 +152,9 @@ def array_initializer(tokens, i, table, size_of_array, msg):
                     if type_to_prec["double"] > op_type
                     else op_type
                 )
-            elif type_ in ["var", "declared"]:
+            '''
+            if type_ in ["var", "declared"]:
+            #elif type_ in ["var", "declared"]:
                 error("Cannot find the type of %s" % value, tokens[i].line_num)
 
             # Expected comma
