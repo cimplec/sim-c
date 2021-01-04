@@ -28,3 +28,21 @@ class OpCode:
         """
 
         return "OpCode('%s', '%s', '%s')" % (self.type, self.val, self.dtype)
+
+    def __eq__(self, other):
+        """
+        Check for equality of opcodes
+
+        Returns
+        =======
+        bool: Whether a token object is equal to another or not
+        """
+
+        if (
+            self.type == other.type
+            and self.val == other.val
+            and self.dtype == other.dtype
+        ):
+            return True
+
+        return False
