@@ -97,12 +97,19 @@ def array_initializer(tokens, i, table, size_of_array, msg):
             error_message = "Array Initializer parsed incorrectly"
             op_value_temp, op_type, i_temp, func_ret_type = expression( tokens, i, table, error_message )
             op_value += op_value_temp
+            #i = i_temp-1
+
+            # excess elements in array initializer = error message
+            if i_temp - i != int(size_of_array)+1:
+
+                error( error_message, i )
             i = i_temp-1
 
+            #if i > int(size_of_array)-1:
+            #    error_message = "excess elements in array initializer"
+            #    error( error_message, i )
+
             # Check for function call
-            #error_message = "Array Initializer parsed incorrectly"
-            #op_value_temp, op_type, i, func_ret_type = expression( tokens, i, table, error_message )
-            #op_value += op_value_temp
             '''
             if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
                 fun_opcode, i, _ = function_call_statement(
@@ -153,17 +160,18 @@ def array_initializer(tokens, i, table, size_of_array, msg):
                     if type_to_prec["double"] > op_type
                     else op_type
                 )
-            '''
-            if type_ in ["var", "declared"]:
-            #elif type_ in ["var", "declared"]:
+            
+            #if type_ in ["var", "declared"]:
+            elif type_ in ["var", "declared"]:
                 error("Cannot find the type of %s" % value, tokens[i].line_num)
+            '''
 
             # Expected comma
             expected_comma = True
 
         initialized_value_counts += 1
         i += 1
-
+    
     # one comma after expression is allowed
     if tokens[i].type == "comma":
         i += 1
