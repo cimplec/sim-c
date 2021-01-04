@@ -86,8 +86,6 @@ def array_initializer(tokens, i, table, size_of_array, msg):
             # Fetch information from symbol table
             value, type_, typedata = table.get_by_id(tokens[i].val)
 
-            
-
             # Check if there is more than one type in initializers
             if initialized_value_counts > 1 and type_ != type_of_id:
                 error("Too many unique types in initializers", tokens[i].line_num)
