@@ -82,7 +82,7 @@ def expression(
             if block_type_promotion == True:
                 if previous_type != type and previous_type != "":
                     error_message = "Cannot have more than one type in initializer list"
-                    error( error_message, i )
+                    error( error_message, tokens[i].line_num )
             
             previous_type = type
 

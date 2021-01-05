@@ -100,7 +100,7 @@ def array_initializer(tokens, i, table, size_of_array, msg):
             # If the size of the array is defined, and if the number of tokens parsed is not equal to 
             # what it should be, then display error
             if size_of_array != '' and (i_temp - i != int(size_of_array)*2 - 1) and tokens[i_temp-1].type != "comma":
-                error( error_message, i )
+                error( error_message, tokens[i].line_num )
             
             if size_of_array == '':
                 i = i_temp - 1
