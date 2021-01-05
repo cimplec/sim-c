@@ -97,12 +97,33 @@ def array_initializer(tokens, i, table, size_of_array, msg):
                                                                         error_message, block_type_promotion=True )
             op_value += op_value_temp
             
+            print("CHECKING CONDITION: ", i_temp-i )
+
             # If the size of the array is defined, and if the number of tokens parsed is not equal to 
             # what it should be, then display error
-            if size_of_array != '' and (i_temp - i != int(size_of_array)+1) and tokens[i_temp-1].type != "comma":
+            if size_of_array != '' and (i_temp - i != int(size_of_array)*2 - 1) and tokens[i_temp-1].type != "comma":
                 error( error_message, i )
             
-            i = i_temp-1
+            print("OPVAL, bud: ", op_value )
+            print( "TOKENTYPE: ", tokens[ i_temp-1 ].type )
+            print( "TOKE NEXT: ", tokens[ i_temp ].type )
+            
+            ##i = i_temp-1
+            if size_of_array == '':
+                #i += i_temp - i - 1
+                i = i_temp - 1
+                
+            elif tokens[i_temp-1].type == "comma":
+                print("SIZE OF ARRAY (with comma) ", int(size_of_array))
+                #i += int(size_of_array)
+                #i = i_temp - 1
+                i += int(size_of_array) * 2 - 1 #rhis is right
+            else:
+                print("SIZE OF ARRAY222 (no comma) ", int(size_of_array))
+                #i += int(size_of_array)
+                #i = i_temp - int(size_of_array) + 1
+                i += int(size_of_array) * 2 - 2
+
 
             # Expected comma
             expected_comma = True
