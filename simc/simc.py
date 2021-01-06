@@ -59,6 +59,10 @@ def run():
             for token in module_tokens:
                 print(token)
 
+    # Option to check symbol table after parsing
+    if len(sys.argv) > 2 and sys.argv[2] == "table_after_lexing":
+        print(table.symbol_table)
+
     # Parse the modules first as these function definitions will be important during calls
     all_module_opcodes = {}
 
@@ -106,8 +110,8 @@ def run():
             for op_code in module_opcodes:
                 print(op_code)
 
-    # Option to check symbol table
-    if len(sys.argv) > 2 and sys.argv[2] == "table":
+    # Option to check symbol table after parsing
+    if len(sys.argv) > 2 and sys.argv[2] == "table_after_parsing":
         print(table.symbol_table)
 
     # Compile to C code
