@@ -116,8 +116,15 @@ def array_initializer(tokens, i, table, size_of_array, msg):
                 i = i_temp - 1
                 
             elif tokens[i_temp-1].type == "comma":
-                i += int(size_of_array) * 2 - 1 
+                # If the token following the last element inserted is a comma, then we will skip the following tokens. 
+                # For example, int arr[2] =  { 1,2, } 
+                # 3 Skipped Tokens after the first element (We need to account for 2 commas and 1 element)
+                i += int(size_of_array) * 2 - 1
             else:
+                # Same logic as before, but in this case, the last element inserted has no
+                # comma at the end, which means that we will have to skip 1 less token from before. For example,
+                # int arr[2] = { 1,2 }
+                # 2 Skipped Tokens after the first element (We need to account for 1 comma and 1 element)
                 i += int(size_of_array) * 2 - 2
 
             # Expected comma
