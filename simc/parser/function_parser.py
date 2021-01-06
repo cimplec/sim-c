@@ -40,6 +40,11 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     # Get all parameter ids (default and non-default) and the default values (if any)
     params, default_values = extract_func_typedata(metadata, table)
+
+    # Check if the function is defined or not
+    if params == -1 and default_values == -1:
+        error("Function '{}' is not defined".format(func_name), tokens[i].line_num,)
+
     num_formal_params = len(params)
     num_required_args = num_formal_params - len(default_values)
 
@@ -146,6 +151,10 @@ def extract_func_typedata(typedata, table):
     parameters      (list)  = Parameter names
     default_values  (list)  = Default values
     """
+
+    # The value of typedata is "variable" when a function is not defined but called in MAIN
+    if typedata == "variable":
+        return -1, -1
 
     func_typedata_split = typedata.split("&&&")
 
