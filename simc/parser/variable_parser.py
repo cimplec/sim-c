@@ -17,7 +17,7 @@ def check_ptr(tokens, i):
         while tokens[i + asterisk_count].type == "multiply":
             asterisk_count += 1
 
-        # Add asterisk count to token index to get index of token after all asterisks  
+        # Add asterisk count to token index to get index of token after all asterisks
         i += asterisk_count
 
         is_ptr = True
@@ -55,7 +55,7 @@ def var_statement(tokens, i, table, func_ret_type):
     is_ptr, asterisk_count, i = check_ptr(tokens, i)
 
     # Check if identifier is present after var
-    check_if(got_type=tokens[i].type, should_be_types="id", 
+    check_if(got_type=tokens[i].type, should_be_types="id",
              error_msg="Expected id after var keyword", line_num=tokens[i].line_num)
 
     # Tokens that are not accepted after declaration of a variable
@@ -110,7 +110,7 @@ def var_statement(tokens, i, table, func_ret_type):
         id_idx = i
 
         # If the next token after [ is a number
-        if tokens[i+2].type == "number":
+        if tokens[i+2].type in ["number", "id"]:
             # Fetch information from symbol table
             value, type_, _ = table.get_by_id(tokens[i + 2].val)
 
@@ -309,6 +309,20 @@ def assign_statement(tokens, i, table, func_ret_type):
     if type_ == "var":
         error("Variable %s used before declaration" % value, tokens[i - 1].line_num)
 
+    #check if array indexing is involved
+    is_arr = False
+    arr_idx = ""
+    if tokens[i].type == "left_bracket":
+        is_arr = True
+        if tokens[i+2].type == "right_bracket":
+            if tokens[i+1].type in ["number", "id"]:
+                value, type_, _ = table.get_by_id(tokens[i + 1].val)
+                if type_ == "int":
+                    arr_idx = value
+                else:
+                    error(f"Expected integer size of array but got {type_}", tokens[i+1].line_num)
+
+
     # Dictionary to convert tokens to their corresponding assignment types
     assignment_type = {
         "assignment": "=",
@@ -321,10 +335,14 @@ def assign_statement(tokens, i, table, func_ret_type):
         "bitwise_xor_equal": "^=",
         "bitwise_or_equal": "|=",
     }
-
+    # Store the index of identifier
+    id_idx = i - 1
     # Check if assignment operator follows identifier name
+    j = 0
+    if is_arr == True:
+        j = 3
     check_if(
-        got_type=tokens[i].type,
+        got_type=tokens[i+j].type,
         should_be_types=[
             "assignment",
             "plus_equal",
@@ -339,12 +357,9 @@ def assign_statement(tokens, i, table, func_ret_type):
         error_msg="Expected assignment operator after identifier",
         line_num=tokens[i].line_num,
     )
-
+    i += j
     # Convert the token to respective symbol
     converted_type = assignment_type[tokens[i].type]
-
-    # Store the index of identifier
-    id_idx = i - 1
 
     # Check if expression follows = in assign statement
     op_value, op_type, i, func_ret_type = expression(
@@ -371,13 +386,18 @@ def assign_statement(tokens, i, table, func_ret_type):
 
     # Modify datatype of the identifier
     table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
-    
+
+    #we treat array indexes as an identifier of type "[idx]"
+    arr_surplus = ""
+    if is_arr:
+        arr_surplus = "["+str(arr_idx)+"]"
+
     # Check if a pointer is being assigned
     if is_ptr:
         return (
             OpCode(
                 "ptr_only_assign",
-                table.symbol_table[tokens[id_idx].val][0]
+                table.symbol_table[tokens[id_idx].val][0]+arr_surplus
                 + "---"
                 + op_value
                 + "---"
@@ -391,7 +411,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Return the opcode and i (the token after assign statement)
     return (
         OpCode(
-            "assign", table.symbol_table[tokens[id_idx].val][0] + "---" + op_value, ""
+            "assign", table.symbol_table[tokens[id_idx].val][0]+arr_surplus + "---" + op_value, ""
         ),
         i,
         func_ret_type,

@@ -1,0 +1,10 @@
+MAIN
+var a = 10
+var v
+print(a+15.6)
+var b[10]
+var c = a+2
+var d[a]
+b[1] = 10
+b[2] = 11
+END_MAIN
