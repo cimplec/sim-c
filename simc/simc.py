@@ -106,6 +106,10 @@ def run():
             for op_code in module_opcodes:
                 print(op_code)
 
+    # Option to check symbol table
+    if len(sys.argv) > 2 and sys.argv[2] == "table":
+        print(table.symbol_table)
+
     # Compile to C code
     compile(op_codes, c_filename, table)
 
