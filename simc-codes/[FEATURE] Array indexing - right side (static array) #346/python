@@ -1,0 +1,7 @@
+#array
+from array import *
+arr=array("i",[1,2,3,4,5])
+
+x=int(input("Enter the no. you want to assingn to the variable :"))
+var=arr[x]+2
+print(var)
