@@ -22,6 +22,7 @@ def expression(
     table,
     msg,
     accept_unknown=False,
+    block_type_promotion = False,
     accept_empty_expression=False,
     expect_paren=True,
     func_ret_type={},
@@ -56,6 +57,9 @@ def expression(
     # count parentheses
     count_paren = 0
 
+    # To keep track of Type Promotion
+    previous_type = ""
+
     # Loop until expression is not parsed completely
     while i < len(tokens) and tokens[i].type in OP_TOKENS:
         # Check for function call
@@ -73,6 +77,14 @@ def expression(
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table
             value, type, typedata = table.get_by_id(tokens[i].val)
+
+            # Case to prevent Type Promotion:
+            if block_type_promotion == True:
+                if previous_type != type and previous_type != "":
+                    error_message = "Cannot have more than one type in initializer list"
+                    error( error_message, tokens[i].line_num )
+            
+            previous_type = type
 
             if type == "string" or type == "char*":
                 # If { in string then it is a f-string
@@ -171,6 +183,7 @@ def expression(
             else:
                 op_value += WORD_TO_OP[tokens[i].type]
 
+        
         i += 1
 
     if count_paren > 0:
