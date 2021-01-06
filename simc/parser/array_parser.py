@@ -100,9 +100,19 @@ def array_initializer(tokens, i, table, size_of_array, msg):
             # If the size of the array is defined, and if the number of tokens parsed is not equal to 
             # what it should be, then display error
             if size_of_array != '' and (i_temp - i != int(size_of_array)*2 - 1) and tokens[i_temp-1].type != "comma":
+
+                # Number of elements in parsed array is equal to the
+                # number of tokens parsed in expression minus the number of commas
+                number_of_elements = (i_temp - i) - int( (i_temp-i-1) / 2 )
+                error_message = f"Expected {size_of_array} entries, got {number_of_elements} entries instead."
+
                 error( error_message, tokens[i].line_num )
-            
+
+
+            # We need to update the total number of tokens parsed (i) according to the number of tokens 
+            # parsed in expression( ), which depends on if the second last token is a comma or not. 
             if size_of_array == '':
+                # If the size of the array is not mentioned, number of tokens parsed = i_temp - 1
                 i = i_temp - 1
                 
             elif tokens[i_temp-1].type == "comma":
