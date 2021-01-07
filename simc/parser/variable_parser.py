@@ -309,19 +309,34 @@ def assign_statement(tokens, i, table, func_ret_type):
     if type_ == "var":
         error("Variable %s used before declaration" % value, tokens[i - 1].line_num)
 
-    #check if array indexing is involved
-    is_arr = False
-    arr_idx = ""
-    if tokens[i].type == "left_bracket":
-        is_arr = True
-        if tokens[i+2].type == "right_bracket":
-            if tokens[i+1].type in ["number", "id"]:
-                value, type_, _ = table.get_by_id(tokens[i + 1].val)
-                if type_ == "int":
-                    arr_idx = value
-                else:
-                    error(f"Expected integer size of array but got {type_}", tokens[i+1].line_num)
+    # Flag to mark array assigment
+    is_arr_assignment = False
 
+    # Index of assignment in array
+    arr_idx = ""
+
+    # Size maximum of the array
+    arr_size = ""
+
+    # Shift the index after the right bracket when the assignment is an array
+    shift_id = 0
+
+    # Check if is a array indexing case
+    if tokens[i].type == "left_bracket":
+        is_arr_assignment = True
+
+        # Check if the index if of a value and has type integer
+        if tokens[i + 2].type == "right_bracket":
+            shift_id += 3
+            value, type_, _ = table.get_by_id(tokens[i + 1].val)
+            if type_ == "int":
+                arr_idx = value
+            else: 
+                error(f"Expected integer index for array but got {type_}", tokens[i+1].line_num)
+        # Expression array indexing: if it is not a value, there is a expression indexing istead a value
+        else: 
+            error("TODO: expression indexing", 0)
+            
 
     # Dictionary to convert tokens to their corresponding assignment types
     assignment_type = {
@@ -337,12 +352,12 @@ def assign_statement(tokens, i, table, func_ret_type):
     }
     # Store the index of identifier
     id_idx = i - 1
-    # Check if assignment operator follows identifier name
-    j = 0
-    if is_arr == True:
-        j = 3
+
+    # Shift to after variable
+    i += shift_id
+
     check_if(
-        got_type=tokens[i+j].type,
+        got_type=tokens[i].type,
         should_be_types=[
             "assignment",
             "plus_equal",
@@ -357,7 +372,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         error_msg="Expected assignment operator after identifier",
         line_num=tokens[i].line_num,
     )
-    i += j
+    
     # Convert the token to respective symbol
     converted_type = assignment_type[tokens[i].type]
 
@@ -387,17 +402,17 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Modify datatype of the identifier
     table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
 
-    #we treat array indexes as an identifier of type "[idx]"
-    arr_surplus = ""
-    if is_arr:
-        arr_surplus = "["+str(arr_idx)+"]"
+    # If it is array assignment  array indexes as an identifier of type "[idx]"
+    arr_idx_val = ""
+    if is_arr_assignment:
+        arr_idx_val = '[' + str(arr_idx) + ']'
 
     # Check if a pointer is being assigned
     if is_ptr:
         return (
             OpCode(
                 "ptr_only_assign",
-                table.symbol_table[tokens[id_idx].val][0]+arr_surplus
+                table.symbol_table[tokens[id_idx].val][0] + arr_idx_val
                 + "---"
                 + op_value
                 + "---"
@@ -411,7 +426,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Return the opcode and i (the token after assign statement)
     return (
         OpCode(
-            "assign", table.symbol_table[tokens[id_idx].val][0]+arr_surplus + "---" + op_value, ""
+            "assign", table.symbol_table[tokens[id_idx].val][0] + arr_idx_val + "---" + op_value, ""
         ),
         i,
         func_ret_type,
