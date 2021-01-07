@@ -73,6 +73,19 @@ def expression(
             type_to_prec = {"char*": 1, "char": 2, "int": 3, "float": 4, "double": 5}
             op_type = type_to_prec[table.get_by_id(table.get_by_symbol(val[0]))[1]]
             i -= 1
+        # Array indexing
+        elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
+            arr_id_idx = i
+            i += 2
+
+            # Check if index is of integer type or not
+            _, type_, _ = table.get_by_id(tokens[i].val)
+            if tokens[i].type == "number" and type_ == "int":
+                pass
+            else:
+                arr_name, _, _ = table.get_by_id(tokens[arr_id_idx].val)
+                error(f"Index of array {arr_name} should be an integer", tokens[i].line_num)
+                
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table

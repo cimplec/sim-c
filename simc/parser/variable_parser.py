@@ -151,6 +151,9 @@ def var_statement(tokens, i, table, func_ret_type):
             # Modify datatype of the identifier
             table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
 
+            # Add the size of array to metadata (typedata) in symbol table
+            table.symbol_table[tokens[id_idx].val][2] = size_of_array if size_of_array != "" else -1
+
             # Return the opcode and i (the token after var statement)
             return (
                 OpCode(
