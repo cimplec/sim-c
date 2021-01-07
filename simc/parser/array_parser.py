@@ -113,7 +113,9 @@ def array_initializer(tokens, i, table, size_of_array, msg):
                 type_to_prec = {"char*": 1, "char": 2, "int": 3, "float": 4, "double": 5}
                 op_type = type_to_prec[table.get_by_id(table.get_by_symbol(func_info[0]))[1]]
 
-                type_of_id = op_type
+                # The element corresponding to the key op_type is assigned to type_of_id
+                type_of_id = [k for k,v in type_to_prec.items() if v == op_type]
+                type_of_id = type_of_id[0]
 
                 i -= 1
             # Process element assigned
