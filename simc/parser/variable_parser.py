@@ -425,7 +425,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     # If it is an array then generate array_only_assign
     if is_arr:
         # Add (<type> [<size>]) to op_value
-        op_value = op_value.split("---")[0] + "(" + prec_to_type[op_type] + " [" + size_of_array + "])" + op_value.split("---")[1]
+        op_value = " " + op_value.split("---")[0] + " (" + prec_to_type[op_type] + " [" + size_of_array + "])" + op_value.split("---")[1]
 
         return (
             OpCode(

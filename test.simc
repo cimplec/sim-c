@@ -1,0 +1,4 @@
+var arr[2]
+var b
+b = 1
+arr = {1, 2}
