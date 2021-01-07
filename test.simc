@@ -7,4 +7,5 @@ var c = a+2
 var d[a]
 b[1] = 10
 b[2] = 11
+b[] = 2
 END_MAIN

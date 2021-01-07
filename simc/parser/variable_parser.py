@@ -313,16 +313,18 @@ def assign_statement(tokens, i, table, func_ret_type):
     is_arr = False
     arr_idx = ""
     if tokens[i].type == "left_bracket":
-        is_arr = True
+        if tokens[i+1].type in ["number", "id"]:
+            value, type_, _ = table.get_by_id(tokens[i + 1].val)
+            if type_ == "int":
+                arr_idx = value
+            else:
+                error(f"Expected integer size of array but got {type_}", tokens[i+1].line_num)
+        else:
+            error(f"Expected Integer or Identifier but got {tokens[i+1].type}", tokens[i+1].line_num)
         if tokens[i+2].type == "right_bracket":
-            if tokens[i+1].type in ["number", "id"]:
-                value, type_, _ = table.get_by_id(tokens[i + 1].val)
-                if type_ == "int":
-                    arr_idx = value
-                else:
-                    error(f"Expected integer size of array but got {type_}", tokens[i+1].line_num)
-
-
+            is_arr = True
+        else:
+            error(f"Expected ']' but got {tokens[i+2].type}", tokens[i+2].line_num)
     # Dictionary to convert tokens to their corresponding assignment types
     assignment_type = {
         "assignment": "=",
@@ -337,12 +339,14 @@ def assign_statement(tokens, i, table, func_ret_type):
     }
     # Store the index of identifier
     id_idx = i - 1
-    # Check if assignment operator follows identifier name
-    j = 0
+    # Determining the number of tokens to skip
+    num_tokens_skipped = 0
     if is_arr == True:
-        j = 3
+        num_tokens_skipped = 3
+
+    # Check if assignment operator follows identifier name
     check_if(
-        got_type=tokens[i+j].type,
+        got_type=tokens[i+num_tokens_skipped].type,
         should_be_types=[
             "assignment",
             "plus_equal",
@@ -357,7 +361,9 @@ def assign_statement(tokens, i, table, func_ret_type):
         error_msg="Expected assignment operator after identifier",
         line_num=tokens[i].line_num,
     )
-    i += j
+
+    # Skipping tokens
+    i += num_tokens_skipped
     # Convert the token to respective symbol
     converted_type = assignment_type[tokens[i].type]
 
@@ -388,16 +394,16 @@ def assign_statement(tokens, i, table, func_ret_type):
     table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
 
     #we treat array indexes as an identifier of type "[idx]"
-    arr_surplus = ""
+    arr_idx_val = ""
     if is_arr:
-        arr_surplus = "["+str(arr_idx)+"]"
+        arr_idx_val = "["+str(arr_idx)+"]"
 
     # Check if a pointer is being assigned
     if is_ptr:
         return (
             OpCode(
                 "ptr_only_assign",
-                table.symbol_table[tokens[id_idx].val][0]+arr_surplus
+                table.symbol_table[tokens[id_idx].val][0]+arr_idx_val
                 + "---"
                 + op_value
                 + "---"
@@ -411,7 +417,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Return the opcode and i (the token after assign statement)
     return (
         OpCode(
-            "assign", table.symbol_table[tokens[id_idx].val][0]+arr_surplus + "---" + op_value, ""
+            "assign", table.symbol_table[tokens[id_idx].val][0]+arr_idx_val + "---" + op_value, ""
         ),
         i,
         func_ret_type,
