@@ -15,7 +15,7 @@
 
 ## New Issue (New feature or bug)
 
-- The time period for reviewing of a new issue is a maximum of 36 hours, you can expect to hear from a maintainer within this/
+- The time period for reviewing of a new issue is a maximum of 36 hours, you can expect to hear from a maintainer within this time frame.
 - The implementation of the new feature or fixing of the bug should only be started after a maintainer approves the feature or bug report in the discussion. 
 - Once approved start implementing the feature or fix the bug and submit a pull request.
 
