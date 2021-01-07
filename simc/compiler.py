@@ -207,7 +207,7 @@ def compile(opcodes, c_filename, table):
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += (
-                "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + ";\n"
+                "\t" + opcode.dtype + " *" + str(val[0]) + ";\n"
             )
         elif opcode.type == "array_assign":
             # val contains - <identifier>---<expression>, split that into a list
@@ -228,6 +228,12 @@ def compile(opcodes, c_filename, table):
                 + val[2]
                 + ";\n"
             )
+        elif opcode.type == "array_only_assign":
+            # val contains - <identifier>---=(<type> [<size>])<initializer-list>, split that into a list
+            val = opcode.val.split("---")
+
+            # val[0] contains identifier and val[1] contains =(<type> [<size>])<initializer-list>
+            code += "\t" + val[0] + val[1] + ";\n"
         # If opcode is of type ptr_no_assign then generate declaration statement
         elif opcode.type == "ptr_no_assign":
             val = opcode.val.split("---")
