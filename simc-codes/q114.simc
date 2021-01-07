@@ -6,4 +6,3 @@ vol2 = 4/3*math.pi*((1.5/1000)**3)
 # dividing the volume of metal cube by volume will give us numbers of balls formed
 no_balls = vol1/vol2
 print("The number of balls formed are: ",no_balls)
-input()
