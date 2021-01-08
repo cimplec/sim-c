@@ -205,7 +205,7 @@ def expression(
         dtype_to_prec = {"i": 3, "f": 4, "d": 5, "s": 1, "c": 2}
         op_value = str(p_msg) + "---" + str(dtype)
         op_type = dtype_to_prec[dtype]
-        
+
     # Return the expression, type of expression, and current index in source codes
     return op_value, op_type, i, func_ret_type
 
@@ -308,11 +308,11 @@ def unary_statement(tokens, i, table, func_ret_type):
             error_msg="Expected identifier after unary operator",
             line_num=tokens[i + 1].line_num,
         )
-        
+
         # Get the identifier name from symbol table
         value, _, _ = table.get_by_id(tokens[i + 1].val)
         op_value += str(value)
-        
+
         return OpCode("unary", op_value), i + 2, func_ret_type
 
     # Post-increment/decrement
@@ -399,6 +399,67 @@ def skip_all_nextlines(tokens, i):
 
     return i
 
+def typeof_statement(tokens, i, table, func_ret_type):
+    """
+    Parse typeof statement
+    Params
+    ======
+    tokens        (list)        = List of tokens
+    i             (int)         = Current index in token
+    table         (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+    func_ret_type (string)      = Function return type
+    Returns
+    =======
+    OpCode, int: The opcode for the typeof code and the index after parsing typeof statement
+    Grammar
+    =======
+    typeof_statement -> typeof(expr)
+    expr             -> string | number
+    string           -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
+    quote            -> "
+    number           -> [0-9]+
+    """
+    # Check if ( follows typeof statement
+    check_if(
+        got_type=tokens[i].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after typeof statement",
+        line_num=tokens[i].line_num,
+    )
+
+    # Check if expression follows ( in typeof statement
+    op_value, op_type, i, func_ret_type = expression(
+        tokens,
+        i,
+        table,
+        "Expected expression inside typeof statement",
+        func_ret_type=func_ret_type,
+    )
+
+    # Map datatype to appropriate format specifiers
+    prec_to_type = {
+        0: "",
+        1: 'str',
+        2: 'char',
+        3: 'int',
+        4: 'float',
+        5: 'double',
+        6: 'bool',
+    }
+    op_value = prec_to_type[op_type]
+
+    # Check if typeof statement has closing )
+    check_if(
+        got_type=tokens[i - 1].type,
+        should_be_types="right_paren",
+        error_msg="Expected ) after expression in typeof statement",
+        line_num=tokens[i - 1].line_num,
+    )
+
+    # Return the opcode and i+1 (the token after typeof statement)
+    return OpCode("typeof", op_value), i+1 , func_ret_type
+
+
 def parse(tokens, table):
     """
     Parse tokens and generate opcodes
@@ -482,7 +543,7 @@ def parse(tokens, table):
                 # The function scope is over
                 if brace_count == 0:
                     func_name = ""
-                    
+
             single_stat_func_flag = NO_FUNC_CALLED
 
         # If token is raw c type
@@ -530,10 +591,10 @@ def parse(tokens, table):
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
             op_codes.append(var_opcode)
-            
-        # If token is of type id 
+
+        # If token is of type id
         elif tokens[i].type == "id":
-            # If '(' follows id then it is function calling 
+            # If '(' follows id then it is function calling
             if tokens[i + 1].type == "left_paren":
                 fun_opcode, i, func_ret_type = function_call_statement(
                     tokens, i, table, func_ret_type
@@ -584,7 +645,7 @@ def parse(tokens, table):
             struct_opcode, i, struct_name = struct_declaration_statement(
                 tokens, i + 1, table
             )
-            
+
             struct_declared = brace_count
             op_codes.append(struct_opcode)
 
@@ -865,7 +926,7 @@ def parse(tokens, table):
             op_codes.append(OpCode("default", "", ""))
 
             i += 2
-            
+
         # If token is the type increment or decrement then generate unary_opcode
         # This handles pre-increment/decrement
         elif tokens[i].type in ["increment", "decrement"]:
@@ -875,8 +936,18 @@ def parse(tokens, table):
 
             if single_stat_func_flag == START_FUNCTION:
                 single_stat_func_flag += 1
-                
+
             op_codes.append(unary_opcode)
+
+        # If token is of type typeof then generate typeof opcode
+        elif tokens[i].type == "typeof":
+            typeof_opcode, i, func_ret_type = typeof_statement(
+                tokens, i + 1, table, func_ret_type
+            )
+            if single_stat_func_flag == START_FUNCTION:
+                single_stat_func_flag += 1
+            op_codes.append(typeof_opcode)
+
 
         # Otherwise increment the index
         else:

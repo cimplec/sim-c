@@ -110,6 +110,10 @@ def compile(opcodes, c_filename, table):
 
             code = "\tprintf(%s);\n" % opcode.val
 
+        # If opcode is of type typeof then generate a typeof statement
+        if opcode.type == "typeof":
+            code = "\tprintf('%s');\n" % opcode.val
+
         # If opcode is of type import then generate include statement
         if opcode.type == "import":
             code = '#include "' + opcode.val + '.h"\n'
