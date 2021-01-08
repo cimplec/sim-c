@@ -100,33 +100,50 @@ def var_statement(tokens, i, table, func_ret_type):
         6: "bool",
     }
 
-    # Store the index of identifier
-    id_idx = i
-
-    # Check if it is an array declaration "var <name>[<number>]"
+   # Check if it is an array declaration (+ initializer list)
     if tokens[i + 1].type == "left_bracket":
-        op_value_idx, op_type_idx, i, func_ret_type = expression(
-            tokens,
-            i + 1,
-            table,
-            "Expected integer an index for array",
-            block_type_promotion=True,
-            expect_paren=False,
-            func_ret_type=func_ret_type,
-        )
 
-        # Type 3 is for integer expressions and -1 for empty
-        if op_type_idx not in [-1, 3]:
-            error("Expected integer value or expression in array idexing", tokens[i].line_num)    
+        # Size of array
+        size_of_array = ""
+
+        # Store the index of identifier
+        id_idx = i
+
+        # If the next token after [ is a number
+        if tokens[i + 2].type == "number":
+            # Fetch information from symbol table
+            value, type_, _ = table.get_by_id(tokens[i + 2].val)
+
+            if type_ == "int":
+                size_of_array = value
+            else:
+                error(f"Expected integer size of array but got {type_}", tokens[i+2].line_num)
+
+            # Check if array statement has closing ] (right_bracket)
+            check_if(
+                got_type=tokens[i + 3].type,
+                should_be_types="right_bracket",
+                error_msg="Expected ] after expression in array statement",
+                line_num=tokens[i + 3].line_num,
+            )
+
+            # Move token index to end of array declaration (right bracket)
+            i += 3
+        elif tokens[i + 2].type == "right_bracket":
+            # Size of array is not known
+            size_of_array = ""
+
+            # Move token index to end of array declaration (right bracket)
+            i += 2
 
         # Check if array is initialized as var <name>[] = {1, 2, ...} 
-        if i < len(tokens) and tokens[i].type == "assignment":
+        if i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
             # Check if expression follows = in array statement
             op_value, op_type, i = array_initializer(
                 tokens,
-                i + 1,
+                i + 2,
                 table,
-                "",
+                size_of_array,
                 "Required expression after assignment operator",
             )
             i += 1
@@ -134,19 +151,22 @@ def var_statement(tokens, i, table, func_ret_type):
             # Modify datatype of the identifier
             table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
 
+            # Add the size of array to metadata (typedata) in symbol table
+            table.symbol_table[tokens[id_idx].val][2] = size_of_array if size_of_array != "" else -1
+
             # Return the opcode and i (the token after var statement)
             return (
                 OpCode(
                     "array_assign",
                     table.symbol_table[tokens[id_idx].val][0]
                     + "---"
-                    + op_value_idx
+                    + str(size_of_array)
                     + "---"
                     + op_value,
                     prec_to_type[op_type],
                 ),
                 i,
-                func_ret_type,
+                op_type,
             )
         elif i + 1 < len(tokens) and tokens[i + 1].type in invalid_tokens:
             error("Invalid Syntax for declaration", tokens[i].line_num)
@@ -167,14 +187,22 @@ def var_statement(tokens, i, table, func_ret_type):
             ]:
                 error("Variable %s already declared" % value, tokens[i].line_num)
 
-            # Set declared
-            table.symbol_table[tokens[id_idx].val][1] = "declared"
+            # Set type to declared
+            table.symbol_table[tokens[id_idx].val][1] = "arr_declared"
+
+            # Check if size of array has been determined or not, it isn't then throw error
+            # Since for later assignment size needs to be known
+            if size_of_array == "":
+                error("Size of array needs to be known if assignment is not done while declaration", tokens[i].line_num)
+            else:
+                table.symbol_table[tokens[id_idx].val][2] = size_of_array
 
             return (
-                OpCode("array_no_assign", value + "---" + op_value_idx),
+                OpCode("array_no_assign", value + "---" + str(size_of_array)),
                 i,
                 func_ret_type,
             )
+
 
     # Check if variable is assigned with declaration
     elif i + 1 < len(tokens) and tokens[i + 1].type == "assignment":
@@ -273,7 +301,8 @@ def assign_statement(tokens, i, table, func_ret_type):
     operator        -> + | - | * | /
     """
     from .simc_parser import expression
-
+    from .array_parser import array_initializer
+    
     # Check if the identifier is a pointer
     is_ptr = False
     # count depth of pointer
@@ -314,6 +343,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         if op_type_idx != 3:
             error("Expected integer value or expression in array idexing", tokens[i].line_num)    
         
+
     # Dictionary to convert tokens to their corresponding assignment types
     assignment_type = {
         "assignment": "=",
@@ -347,16 +377,43 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Convert the token to respective symbol
     converted_type = assignment_type[tokens[i].type]
 
-    # Check if expression follows = in assign statement
-    op_value, op_type, i, func_ret_type = expression(
-        tokens,
-        i + 1,
-        table,
-        "Required expression after assignment operator",
-        expect_paren=False,
-        func_ret_type=func_ret_type,
-    )
 
+    # Get the symbol table entry for the identifier
+    id_table_entry = table.symbol_table[tokens[id_idx].val]
+    type_ = id_table_entry[1]
+
+    # Flag to check array assignment
+    is_arr = False
+
+    # Check if assignment is an array initializer or a simple expression type
+    if tokens[i+1].type == "left_brace":
+        is_arr = True
+        if type_ != "arr_declared":
+            error("Cannot assign an initializer list to a variable", tokens[i].line_num)
+
+        size_of_array = id_table_entry[2]
+
+        op_value, op_type, i = array_initializer(
+            tokens,
+            i + 1,
+            table,
+            size_of_array,
+            "Required expression after assignment operator",
+        )
+    else:
+        if type_ == "arr_declared" and tokens[id_idx + 1].type != "left_bracket":
+            error("Array assignment requires initializer list, cannot assign expression", tokens[i].line_num)
+
+        # Check if expression follows = in assign statement
+        op_value, op_type, i, func_ret_type = expression(
+            tokens,
+            i + 1,
+            table,
+            "Required expression after assignment operator",
+            expect_paren=False,
+            func_ret_type=func_ret_type,
+        )
+        
     #  Map datatype to appropriate datatype in C
     prec_to_type = {
         0: "string",
@@ -384,6 +441,19 @@ def assign_statement(tokens, i, table, func_ret_type):
                 + "---"
                 + str(count_ast),
                 "",
+            ),
+            i,
+            func_ret_type,
+        )
+
+    # If it is an array then generate array_only_assign
+    if is_arr:
+        # Add (<type> [<size>]) to op_value
+        op_value = " " + op_value.split("---")[0] + " (" + prec_to_type[op_type] + " [" + size_of_array + "])" + op_value.split("---")[1]
+        return (
+            OpCode(
+                "array_only_assign", 
+                table.symbol_table[tokens[id_idx].val][0] + "---" + op_value, ""
             ),
             i,
             func_ret_type,
