@@ -1,0 +1,6 @@
+MAIN
+	var vol1 = 3*3*3
+	var vol2 = 4/3 * 3.141592653589793238 * ((1.5/1000) *(1.5/1000) *(1.5/1000))
+	var balls = vol1/vol2
+	print("The number of balls formed are: {balls}")
+END_MAIN
