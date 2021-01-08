@@ -95,7 +95,7 @@ def compile(opcodes, c_filename, table):
 
     # Check if the function has returned or not
     has_returned = False
-
+    
     # Loop through all opcodes
     for opcode in opcodes:
         code = ""
@@ -207,7 +207,7 @@ def compile(opcodes, c_filename, table):
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += (
-                "\t" + opcode.dtype + " " + str(val[0]) + "[" + (val[1]) + "]" + ";\n"
+                "\t" + opcode.dtype + " " + str(val[0]) + (val[1]) + ";\n"
             )
         elif opcode.type == "array_assign":
             # val contains - <identifier>---<expression>, split that into a list
