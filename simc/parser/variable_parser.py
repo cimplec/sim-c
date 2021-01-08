@@ -329,6 +329,16 @@ def assign_statement(tokens, i, table, func_ret_type):
 
     # Check if is a array indexing case
     if tokens[i].type == "left_bracket":
+        if(tokens[i + 1].type == "number"):
+            # Fetch information from symbol table
+            value, type_, _ = table.get_by_id(tokens[i + 1].val)
+
+            if type_ == "int":
+                if value >= table.symbol_table[tokens[id_idx].val][2]:
+                    error("Integer indexing array out of range",tokens[i].line_num )
+            else:
+                error("Expected integer value or expression in array idexing", tokens[i].line_num) 
+        
         op_value_idx, op_type_idx, i, func_ret_type = expression(
             tokens,
             i,
