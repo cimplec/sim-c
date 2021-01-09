@@ -575,7 +575,7 @@ class LexicalAnalyzer:
                 else:
                     self.top -= 1
                     self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
-
+                
                 self.tokens.append(Token("right_bracket", "", self.line_num))
                 self.__update_source_index()
 

@@ -95,7 +95,7 @@ def compile(opcodes, c_filename, table):
 
     # Check if the function has returned or not
     has_returned = False
-
+    
     # Loop through all opcodes
     for opcode in opcodes:
         code = ""

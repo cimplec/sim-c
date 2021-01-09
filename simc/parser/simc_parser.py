@@ -75,13 +75,16 @@ def expression(
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
+            op_value += table.get_by_id(tokens[i].val)[0]
+            op_value += "["
             arr_id_idx = i
             i += 2
 
             # Check if index is of integer type or not
             _, type_, _ = table.get_by_id(tokens[i].val)
             if tokens[i].type == "number" and type_ == "int":
-                pass
+                op_value += table.get_by_id(tokens[i].val)[0]
+                pass    
             else:
                 arr_name, _, _ = table.get_by_id(tokens[arr_id_idx].val)
                 error(f"Index of array {arr_name} should be an integer", tokens[i].line_num)
