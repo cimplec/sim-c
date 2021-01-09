@@ -74,4 +74,4 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 
 ## Contributor blogs
 
-Follow this [link](./BLOGS.MD) to read blogs written by contributors after completing the above mentioned OSS programs. 
+Follow this [link](./BLOGS.md) to read blogs written by contributors after completing various OSS programs. 
