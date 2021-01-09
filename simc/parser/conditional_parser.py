@@ -54,7 +54,10 @@ def if_statement(tokens, i, table, func_ret_type):
 
     # If \n follows ) then skip all the \n characters
     if tokens[i + 1].type == "newline":
-        i = skip_all_nextlines(tokens, i)
+        try:
+            i = skip_all_nextlines(tokens, i)
+        except IndexError:
+            error("If statement incomplete", tokens[i].line_num)
         i -= 1
 
     # Token index to be returned
