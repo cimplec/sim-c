@@ -92,60 +92,40 @@ def array_initializer(tokens, i, table, size_of_array, msg):
             else:
                 type_of_id = type_
 
-            # Check for function call
-            if tokens[i].type == "id" and tokens[i + 1].type == "left_paren":
-                fun_opcode, i, _ = function_call_statement(
-                    tokens, i, table, {}
-                )
+            error_message = "Array Initializer parsed incorrectly"
+            op_value_temp, op_type, i_temp, func_ret_type = expression( tokens, i, table, 
+                                                                        error_message, block_type_promotion=True )
+            op_value += op_value_temp
 
-                # Function have opcode value of 
-                # <func-name>---[<param-1>&&&<param-2>, ..., <param-n>]
-                # Fetch infor from function's opcode
-                func_info = fun_opcode.val.split("---")
+            # If the size of the array is defined, and if the number of tokens parsed is not equal to 
+            # what it should be, then display error
+            if size_of_array != '' and (i_temp - i != int(size_of_array)*2 - 1) and tokens[i_temp-1].type != "comma":
 
-                # Fetch the parameter names
-                params = func_info[1].split("&&&")
+                # Number of elements in parsed array is equal to the
+                # number of tokens parsed in expression minus the number of commas
+                number_of_elements = (i_temp - i) - int( (i_temp-i-1) / 2 )
+                error_message = f"Expected {size_of_array} entries, got {number_of_elements} entries instead."
 
-                # Convert into format <func-name>([<param-1>, <param-2>, ..., <param-n>])
-                op_value += func_info[0] + "(" + ", ".join(params) + ")"
+                error( error_message, tokens[i].line_num )
 
-                # Get return type of function from symbol table
-                type_to_prec = {"char*": 1, "char": 2, "int": 3, "float": 4, "double": 5}
-                op_type = type_to_prec[table.get_by_id(table.get_by_symbol(func_info[0]))[1]]
 
-                # The element corresponding to the key op_type is assigned to type_of_id
-                type_of_id = [k for k,v in type_to_prec.items() if v == op_type]
-                type_of_id = type_of_id[0]
-
-                i -= 1
-            # Process element assigned
-            elif type_ == "string" and typedata == "constant":
-                op_value += value
-                op_type = 1
-            elif type_ == "char":
-                op_value += value
-                op_type = 2
-            elif type_ == "int":
-                op_value += str(value)
-                op_type = (
-                    type_to_prec["int"] if type_to_prec["int"] > op_type else op_type
-                )
-            elif type_ == "float":
-                op_value += str(value)
-                op_type = (
-                    type_to_prec["float"]
-                    if type_to_prec["float"] > op_type
-                    else op_type
-                )
-            elif type_ == "double":
-                op_value += math_constants.get(str(value), str(value))
-                op_type = (
-                    type_to_prec["double"]
-                    if type_to_prec["double"] > op_type
-                    else op_type
-                )
-            elif type_ in ["var", "declared"]:
-                error("Cannot find the type of %s" % value, tokens[i].line_num)
+            # We need to update the total number of tokens parsed (i) according to the number of tokens 
+            # parsed in expression( ), which depends on if the second last token is a comma or not. 
+            if size_of_array == '':
+                # If the size of the array is not mentioned, number of tokens parsed = i_temp - 1
+                i = i_temp - 1
+                
+            elif tokens[i_temp-1].type == "comma":
+                # If the token following the last element inserted is a comma, then we will skip the following tokens. 
+                # For example, int arr[2] =  { 1,2, } 
+                # 3 Skipped Tokens after the first element (We need to account for 2 commas and 1 element)
+                i += int(size_of_array) * 2 - 1
+            else:
+                # Same logic as before, but in this case, the last element inserted has no
+                # comma at the end, which means that we will have to skip 1 less token from before. For example,
+                # int arr[2] = { 1,2 }
+                # 2 Skipped Tokens after the first element (We need to account for 1 comma and 1 element)
+                i += int(size_of_array) * 2 - 2
 
             # Expected comma
             expected_comma = True

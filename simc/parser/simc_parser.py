@@ -22,6 +22,7 @@ def expression(
     table,
     msg,
     accept_unknown=False,
+    block_type_promotion = False,
     accept_empty_expression=False,
     expect_paren=True,
     func_ret_type={},
@@ -56,6 +57,9 @@ def expression(
     # count parentheses
     count_paren = 0
 
+    # To keep track of Type Promotion
+    previous_type = ""
+
     # Loop until expression is not parsed completely
     while i < len(tokens) and tokens[i].type in OP_TOKENS:
         # Check for function call
@@ -69,10 +73,31 @@ def expression(
             type_to_prec = {"char*": 1, "char": 2, "int": 3, "float": 4, "double": 5}
             op_type = type_to_prec[table.get_by_id(table.get_by_symbol(val[0]))[1]]
             i -= 1
+        # Array indexing
+        elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
+            arr_id_idx = i
+            i += 2
+
+            # Check if index is of integer type or not
+            _, type_, _ = table.get_by_id(tokens[i].val)
+            if tokens[i].type == "number" and type_ == "int":
+                pass
+            else:
+                arr_name, _, _ = table.get_by_id(tokens[arr_id_idx].val)
+                error(f"Index of array {arr_name} should be an integer", tokens[i].line_num)
+                
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table
             value, type, typedata = table.get_by_id(tokens[i].val)
+
+            # Case to prevent Type Promotion:
+            if block_type_promotion == True:
+                if previous_type != type and previous_type != "":
+                    error_message = "Cannot have more than one type in initializer list"
+                    error( error_message, tokens[i].line_num )
+            
+            previous_type = type
 
             if type == "string" or type == "char*":
                 # If { in string then it is a f-string
@@ -171,6 +196,7 @@ def expression(
             else:
                 op_value += WORD_TO_OP[tokens[i].type]
 
+        
         i += 1
 
     if count_paren > 0:

@@ -151,6 +151,9 @@ def var_statement(tokens, i, table, func_ret_type):
             # Modify datatype of the identifier
             table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
 
+            # Add the size of array to metadata (typedata) in symbol table
+            table.symbol_table[tokens[id_idx].val][2] = size_of_array if size_of_array != "" else -1
+
             # Return the opcode and i (the token after var statement)
             return (
                 OpCode(
@@ -184,8 +187,15 @@ def var_statement(tokens, i, table, func_ret_type):
             ]:
                 error("Variable %s already declared" % value, tokens[i].line_num)
 
-            # Set declared
-            table.symbol_table[tokens[id_idx].val][1] = "declared"
+            # Set type to declared
+            table.symbol_table[tokens[id_idx].val][1] = "arr_declared"
+
+            # Check if size of array has been determined or not, it isn't then throw error
+            # Since for later assignment size needs to be known
+            if size_of_array == "":
+                error("Size of array needs to be known if assignment is not done while declaration", tokens[i].line_num)
+            else:
+                table.symbol_table[tokens[id_idx].val][2] = size_of_array
 
             return (
                 OpCode("array_no_assign", value + "---" + str(size_of_array)),
@@ -290,6 +300,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     operator        -> + | - | * | /
     """
     from .simc_parser import expression
+    from .array_parser import array_initializer
 
     # Check if the identifier is a pointer
     is_ptr = False
@@ -346,15 +357,41 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Store the index of identifier
     id_idx = i - 1
 
-    # Check if expression follows = in assign statement
-    op_value, op_type, i, func_ret_type = expression(
-        tokens,
-        i + 1,
-        table,
-        "Required expression after assignment operator",
-        expect_paren=False,
-        func_ret_type=func_ret_type,
-    )
+    # Get the symbol table entry for the identifier
+    id_table_entry = table.symbol_table[tokens[id_idx].val]
+    type_ = id_table_entry[1]
+
+    # Flag to check array assignment
+    is_arr = False
+
+    # Check if assignment is an array initializer or a simple expression type
+    if tokens[i+1].type == "left_brace":
+        is_arr = True
+        if type_ != "arr_declared":
+            error("Cannot assign an initializer list to a variable", tokens[i].line_num)
+
+        size_of_array = id_table_entry[2]
+
+        op_value, op_type, i = array_initializer(
+            tokens,
+            i + 1,
+            table,
+            size_of_array,
+            "Required expression after assignment operator",
+        )
+    else:
+        if type_ == "arr_declared":
+            error("Array assignment requires initializer list, cannot assign expression", tokens[i].line_num)
+
+        # Check if expression follows = in assign statement
+        op_value, op_type, i, func_ret_type = expression(
+            tokens,
+            i + 1,
+            table,
+            "Required expression after assignment operator",
+            expect_paren=False,
+            func_ret_type=func_ret_type,
+        )
 
     #  Map datatype to appropriate datatype in C
     prec_to_type = {
@@ -383,6 +420,20 @@ def assign_statement(tokens, i, table, func_ret_type):
                 + "---"
                 + str(count_ast),
                 "",
+            ),
+            i,
+            func_ret_type,
+        )
+
+    # If it is an array then generate array_only_assign
+    if is_arr:
+        # Add (<type> [<size>]) to op_value
+        op_value = " " + op_value.split("---")[0] + " (" + prec_to_type[op_type] + " [" + size_of_array + "])" + op_value.split("---")[1]
+
+        return (
+            OpCode(
+                "array_only_assign", 
+                table.symbol_table[tokens[id_idx].val][0] + "---" + op_value, ""
             ),
             i,
             func_ret_type,
