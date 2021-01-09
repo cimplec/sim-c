@@ -579,6 +579,22 @@ def parse(tokens, table):
             # Handle variables inside for loop
             elif tokens[i + 1].type in ["to", "by"] or tokens[i - 2].type == "by":
                 i += 1
+
+            # Handle local struct instantiation
+            elif tokens[i+1].type == "id":
+                # Get the details of id at index i - expected to be name of struct
+                struct_name, type_, _ = table.get_by_id(tokens[i].val)
+
+                # Check if the structure is declared or not
+                if(type_ != "struct_var"):
+                    error(f"Structure {struct_name} not declared", tokens[i].line_num)
+
+                # If there is no error then get the name of the instance variable
+                instance_var_name, _, _ = table.get_by_id(tokens[i+1].val)
+
+                op_codes.append(OpCode("struct_instantiate", instance_var_name))
+
+                i += 2    
             else:
                 assign_opcode, i, func_ret_type = assign_statement(
                     tokens, i + 1, table, func_ret_type
