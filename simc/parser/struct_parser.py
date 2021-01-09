@@ -26,6 +26,9 @@ def struct_declaration_statement(tokens, i, table):
     # Store the id of strcuture name in symbol table
     struct_idx = tokens[i].val
 
+    # Update type to hold struct_var instead of var 
+    table.symbol_table[struct_idx][1] = "struct_var"
+
     # Get struct name
     struct_name, _, _ = table.get_by_id(struct_idx)
 
