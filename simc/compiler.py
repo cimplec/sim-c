@@ -344,6 +344,12 @@ def compile(opcodes, c_filename, table):
 
             # append the struct keyword and structure nameto the code
             code += "\n" + "struct" + " " + struct_name + " "
+        # If opcode is of type struct_instantiate then generate structure instantiation statement
+        elif opcode.type == "struct_instantiate":
+            # Extract the identifier name of instance variable
+            struct_name, instance_var_name = opcode.val.split("---")
+
+            code += "\t" + "struct " + struct_name.strip() + " " + instance_var_name.strip() + ";\n"
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
             code += "{\n"

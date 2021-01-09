@@ -592,7 +592,8 @@ def parse(tokens, table):
                 # If there is no error then get the name of the instance variable
                 instance_var_name, _, _ = table.get_by_id(tokens[i+1].val)
 
-                op_codes.append(OpCode("struct_instantiate", instance_var_name))
+                # OpCode value will be <struct-name>---<instance-variable-name>
+                op_codes.append(OpCode("struct_instantiate", struct_name + "---" + instance_var_name))
 
                 i += 2    
             else:
