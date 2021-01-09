@@ -66,3 +66,12 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 - [Pranshul Dobriyal](https://github.com/PranshulDobriyal)
 - [Aayush Agarwal](https://github.com/Aayush-99)
 - [Mathias Fernandes Duarte Coelho](https://github.com/Math-O5)
+
+## OSS Programs
+
+1) KWoC (Kharagpur Winter of Code) 2020
+2) SWoC (Script Winter of Code) 2021
+
+## Contributor blogs
+
+Follow this [link](./BLOGS.MD) to read blogs written by contributors after completing the above mentioned OSS programs. 
