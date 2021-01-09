@@ -1,6 +1,7 @@
+//If a metal cube of side 3m is melted to make small balls, find the number of balls formed if each ball has a radius of 1.5cm
 MAIN
-	var vol1 = 3*3*3
-	var vol2 = 4/3 * 3.141592653589793238 * ((1.5/1000) *(1.5/1000) *(1.5/1000))
-	var balls = vol1/vol2
-	print("The number of balls formed are: {balls}")
+	var vol1 = 3^3
+	var vol2 = 4/3 * PI * ((1.5/1000)^3)
+	var number_of_balls = vol1/vol2
+	print("The number of balls formed are: {number_of_balls}")
 END_MAIN
