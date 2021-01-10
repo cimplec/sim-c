@@ -317,6 +317,14 @@ class LexicalAnalyzer:
             value += self.source_code[self.current_source_index]
             self.__update_source_index()
 
+        # Check if value (name of type) is valid or not
+        allowed_dtypes_for_casting = ["int", "float", "double"]
+
+        # Check if next character is (, then it can possibly be explicit typecasting
+        allow_c_keyword = False
+        if self.source_code[self.current_source_index] == "(" and value in allowed_dtypes_for_casting:
+            allow_c_keyword = True
+        
         # For generating bool or math constant type tokens
         types = namedtuple("types", ["data_type", "token_type"])
         const_with_types = {
@@ -345,9 +353,14 @@ class LexicalAnalyzer:
 
         C_keywords = self.c_unique_keywords + self.common_simc_c_keywords
 
-        # Check if identifier is a keyword in class
-        if value in C_keywords:
-            error("A keyword cannot be an identifier - %s" % value, self.line_num)
+        # If this flag is true then we won't throw error when C keyword is used as id
+        # This helps in case of explicit type casting
+        if allow_c_keyword:
+            self.tokens.append(Token("type_cast", value, self.line_num))
+            return
+        else:
+            if value in C_keywords:
+                error("A keyword cannot be an identifier - %s" % value, self.line_num)
 
         # Check if identifier is in symbol self.symbol_table
         id_ = self.symbol_table.get_by_symbol(value)

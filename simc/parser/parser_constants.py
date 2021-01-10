@@ -43,6 +43,7 @@ OP_TOKENS = [
     "right_shift",
     "left_shift",
     "bool",
+    "type_cast",
 ]
 
 WORD_TO_OP = {
