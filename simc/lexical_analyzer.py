@@ -357,6 +357,7 @@ class LexicalAnalyzer:
         # This helps in case of explicit type casting
         if allow_c_keyword:
             self.tokens.append(Token("type_cast", value, self.line_num))
+            return
         else:
             if value in C_keywords:
                 error("A keyword cannot be an identifier - %s" % value, self.line_num)

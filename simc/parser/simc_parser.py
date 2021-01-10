@@ -25,6 +25,7 @@ def expression(
     block_type_promotion = False,
     accept_empty_expression=False,
     expect_paren=True,
+    break_at_last_closed_paren=False,
     func_ret_type={},
 ):
     """
@@ -88,7 +89,33 @@ def expression(
             else:
                 arr_name, _, _ = table.get_by_id(tokens[arr_id_idx].val)
                 error(f"Index of array {arr_name} should be an integer", tokens[i].line_num)
-                
+        # Explicit type casting
+        elif tokens[i].type == "type_cast" and tokens[i + 1].type == "left_paren":
+            # Store index i (index for type_cast token) to get the type of explicit typecast later
+            beg_idx = i
+
+            op_value, op_type, i, func_ret_type = expression(
+                tokens,
+                i + 1,
+                table,
+                "Expected expression inside explicit type casting",
+                expect_paren=True,
+                break_at_last_closed_paren=True,
+                func_ret_type=func_ret_type,
+            )
+
+            # To reassign type of expression
+            type_to_prec = {"int": 3, "float": 4, "double": 5}
+
+            explicit_dtype = tokens[beg_idx].val
+
+            # It won't ever fail to find the type in type_to_prec as we force it to these three values
+            # While creating type_cast token in lexical analyzer
+            op_type = type_to_prec[explicit_dtype]
+
+            # Convert (<expr>) to (<dtype>)(<expr>)
+            op_value = "(" + explicit_dtype + ")" + op_value
+
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table
@@ -195,6 +222,9 @@ def expression(
 
                 if count_paren < 0:
                     error("Found unexpected ‘)’ in expression", tokens[i].line_num)
+                elif count_paren == 0 and break_at_last_closed_paren:
+                    op_value += ")"
+                    break
                 op_value += WORD_TO_OP[tokens[i].type]
             else:
                 op_value += WORD_TO_OP[tokens[i].type]
