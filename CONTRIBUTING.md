@@ -21,21 +21,13 @@
 
 ## Start Contributing
 
-<p align="justify">sim-C has a highly intuitive codebase, you'll be ready to contribute in no time! While adding any functionality to sim-C you need to look into following files (primarily):</p>
+<p align="justify">Go through this <a href="https://drive.google.com/file/d/1fbWa6nC5kDfjT4XTe2WhL1DhBpjnL8bX/view?usp=sharing">document</a> to know about the components of sim-C compiler.</p>
 
-<p align="justify">1. <strong>lexical_analyzer.py</strong>
-Lexical analysis is the first phase of a compiler. It takes the modified source code from language preprocessors that are written in the form of sentences. The lexical analyzer breaks these syntaxes into a series of tokens, by removing any whitespace or comments in the source code.</p>
+<p align="justify">Three files are important and if you are contributing to this project, you should have a rough idea of these files, the order is:-</p>
 
-<p align="justify">2. <strong>op_code.py</strong>
-It is responsible for creating opcodes. If need be you need to change the opcode2dig function only which returns the integer representation of opcode type.</p>
-
-<p align="justify">3. <strong>simc_parser.py</strong>
-Parser is an interpreter component that is used to break the data into smaller elements coming from lexical analysis phase. A parser takes input in the form of sequence of tokens and produces output. Here you may need to create a separate function which defines the grammar and checks for the syntax. The function should return the OpCode. Also, if need be you have to append the functionality to the parse function which parses the tokens, calls the particular function and returns opcodes.</p>
-
-<p align="justify">4. <strong>compiler.py</strong>
-Finally you need to define the opcode type in the compiler and write the expected C syntax for the functonality.</p>
-
-<p align="justify">You can write a test in test.simc and verify whether it's producing results in the test.c file.</p>
+- [lexical_analyzer.py](./simc/lexical_analyzer.py)
+- [simc_parser.py](./simc/parser/simc_parser.py)
+- [compiler.py](./simc/compiler.py)
 
 
 ## Contributing
