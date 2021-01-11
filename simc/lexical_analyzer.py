@@ -59,6 +59,7 @@ class LexicalAnalyzer:
             "to",
             "true",
             "var",
+            "size",
         ]
 
         self.c_unique_keywords = [

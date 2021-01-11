@@ -116,6 +116,23 @@ def expression(
             # Convert (<expr>) to (<dtype>)(<expr>)
             op_value = "(" + explicit_dtype + ")" + op_value
 
+        # sizeof operator - size in simC
+        elif tokens[i].type == "size" and tokens[i + 1].type == "left_paren":
+            op_value, op_type, i, func_ret_type = expression(
+                tokens,
+                i + 1,
+                table,
+                "Expected expression inside size statement",
+                expect_paren=True,
+                break_at_last_closed_paren=True,
+                func_ret_type=func_ret_type,
+            )
+
+            op_value = "sizeof" + op_value + ""
+
+            # sizeof returns int
+            op_type = 3
+
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table
