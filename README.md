@@ -28,7 +28,6 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 
 - [Siddhartha Dhar Choudhury](https://github.com/frankhart2018)
 - [Dhairya Jain](https://github.com/dhairyaj)
-- [Aayush Agarwal](https://github.com/Aayush-99)
 - [Mathias Fernandes Duarte Coelho](https://github.com/Math-O5)
 
 ## OSS Programs
