@@ -133,6 +133,27 @@ def expression(
             # sizeof returns int
             op_type = 3
 
+        # type operator - To find the type, compiles to a string
+        elif tokens[i].type == "type" and tokens[i + 1].type == "left_paren":
+            op_value, op_type, i, func_ret_type = expression(
+                tokens,
+                i + 1,
+                table,
+                "Expected expression inside size statement",
+                expect_paren=True,
+                break_at_last_closed_paren=True,
+                func_ret_type=func_ret_type,
+            )
+
+            type_to_prec = {3: "int", 4: "float", 5: "double"}
+            
+            # Convert the type of expression to string
+            op_value = op_value[:-len(op_value)]
+            op_value += "\"" + type_to_prec[op_type] + "\""
+
+            # Change the type of expression (the expression containing type statement) to string
+            op_type = 0
+
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table

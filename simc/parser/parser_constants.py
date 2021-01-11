@@ -45,6 +45,7 @@ OP_TOKENS = [
     "bool",
     "type_cast",
     "size",
+    "type",
 ]
 
 WORD_TO_OP = {
