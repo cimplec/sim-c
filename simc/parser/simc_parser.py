@@ -128,7 +128,10 @@ def expression(
                 func_ret_type=func_ret_type,
             )
 
-            print(tokens[i])
+            op_value = "sizeof" + op_value + ""
+
+            # sizeof returns int
+            op_type = 3
 
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id", "bool"]:
