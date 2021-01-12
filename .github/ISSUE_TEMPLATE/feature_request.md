@@ -1,31 +1,10 @@
----
-name: Feature request
-about: Suggest an idea for this project
-title: "[FEATURE]"
-labels: enhancement
-assignees: ''
-
----
-
----
-name: Feature request
-about: Suggest an idea for this project
-title: "[FEATURE]"
-labels: enhancement
-assignees: ''
-
----
-
-**Is your feature request related to a problem? Please describe.**
+**Describe the feature**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-**Describe the solution you'd like**
+**Describe the solution you'd like (if possible)**
 A clear and concise description of what you want to happen.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
-
-**Additional context**
+**Screenshot(s) (if any)**
 Add any other context or screenshots about the feature request here.
 
 <strong>Note:</strong> You only start working on the feature if a maintainer approves that request in discussion.
