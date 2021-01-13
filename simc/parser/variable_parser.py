@@ -91,6 +91,7 @@ def var_statement(tokens, i, table, func_ret_type):
 
     # Map datatype to appropriate datatype in C
     prec_to_type = {
+        -1: "declared",
         0: "string",
         1: "char*",
         2: "char",
@@ -112,7 +113,7 @@ def var_statement(tokens, i, table, func_ret_type):
         # If the next token after [ is a number
         if tokens[i + 2].type == "number":
             # Fetch information from symbol table
-            value, type_, _ = table.get_by_id(tokens[i + 2].val)
+            value, type_, _, _ = table.get_by_id(tokens[i + 2].val)
 
             if type_ == "int":
                 size_of_array = value
@@ -172,7 +173,7 @@ def var_statement(tokens, i, table, func_ret_type):
             error("Invalid Syntax for declaration", tokens[i].line_num)
         else:
             # Get the value from symbol table by id
-            value, type_, _ = table.get_by_id(tokens[id_idx].val)
+            value, type_, _, _ = table.get_by_id(tokens[id_idx].val)
 
             # If already declared then throw error
             if type_ in [
@@ -252,7 +253,7 @@ def var_statement(tokens, i, table, func_ret_type):
     # If it is of pointer or variable type but has no value yet
     else:
         # Get the value from symbol table by id
-        value, type, _ = table.get_by_id(tokens[i].val)
+        value, type, _, _ = table.get_by_id(tokens[i].val)
 
         # If already declared then throw error
         if type in [
@@ -315,7 +316,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    value, type_, _ = table.get_by_id(int(tokens[i - 1].val))
+    value, type_, _, _ = table.get_by_id(int(tokens[i - 1].val))
 
     if type_ == "var":
         error("Variable %s used before declaration" % value, tokens[i - 1].line_num)
@@ -337,7 +338,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     if tokens[i].type == "left_bracket":
         if(tokens[i + 1].type == "number"):
             # Fetch information from symbol table
-            value_, type_, _ = table.get_by_id(tokens[i + 1].val)
+            value_, type_, _, _ = table.get_by_id(tokens[i + 1].val)
 
             if type_ == "int":
                 if value_ >= table.symbol_table[tokens[id_idx].val][2]:
@@ -464,6 +465,8 @@ def assign_statement(tokens, i, table, func_ret_type):
             i,
             func_ret_type,
         )
+    
+    resolve_dependency(tokens, i, table, var_id)
 
     # If it is an array then generate array_only_assign
     if is_arr:
@@ -486,3 +489,20 @@ def assign_statement(tokens, i, table, func_ret_type):
         i,
         func_ret_type,
     )
+
+
+
+def add_dependency(table, var_father_id, var_child_id):
+    table.symbol_table[var_father_id][3] += '-' + str(var_child_id)
+
+def resolve_dependency(tokens, i, table, var_id):
+    _, type_, _, list_dependency = table.symbol_table[var_id]
+    table.symbol_table[var_id][3] = ''
+    list_dependency = [i for i in list_dependency.split('-') if i != '']
+    for var_child_id in list_dependency: 
+        child_type = table.symbol_table[int(var_child_id)][1]
+        if child_type is "declared":
+            table.symbol_table[int(var_child_id)][1] = type_
+            resolve_dependency(tokens, i, table, int(var_child_id))
+        elif child_type != type_:
+            error("Cannot assign more than one type for variable", tokens[i].line_num)
