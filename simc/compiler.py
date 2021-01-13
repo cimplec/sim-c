@@ -273,7 +273,7 @@ def compile(opcodes, c_filename, table):
         elif opcode.type == "ptr_only_assign":
             # val contains - <identifier>---<expression>---<count_ast>, split that into a list
             val = opcode.val.split("---")
-            code += "\t" + int(val[2]) * "*" + val[0] + " = " + val[1] + ";\n"
+            code += "\t" + int(val[3]) * "*" + val[0] + " = " + val[2] + ";\n"
 
         # If opcode is of type unary then generate an uanry statement
         elif opcode.type == "unary":
