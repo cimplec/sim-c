@@ -11,7 +11,7 @@ class SymbolTable:
         self.id = 1
         self.symbol_table = {}
 
-    def entry(self, value, type, typedata):
+    def entry(self, value, type, typedata, dependency=''):
         """
         Returns id in symbol table after making an entry
 
@@ -26,7 +26,7 @@ class SymbolTable:
         int: The id of the current entry in symbol table
         """
 
-        self.symbol_table[self.id] = [value, type, typedata]
+        self.symbol_table[self.id] = [value, type, typedata, dependency]
         self.id += 1
         return self.id - 1
 
@@ -43,7 +43,7 @@ class SymbolTable:
         list: [value, type, typedata], typedata = constant/variable
         """
 
-        return self.symbol_table.get(id, [None, None, None])
+        return self.symbol_table.get(id, [None, None, None, None])
 
     def get_by_symbol(self, value):
         """
