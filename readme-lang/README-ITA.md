@@ -58,6 +58,5 @@ sim-C è concesso in licenza con GNU General Public License (GPL) v3.0. [LICENSE
 ##   Il gruppo
 
 - [Siddhartha Dhar Choudhury](https://github.com/frankhart2018)
-- [Aayush Agarwal](https://github.com/Aayush-99)
-- [Pranshul Dobriyal](https://github.com/PranshulDobriyal)
 - [Dhairya Jain](https://github.com/dhairyaj)
+- [Mathias Fernandes Duarte Coelho](https://github.com/Math-O5)
