@@ -196,7 +196,6 @@ def var_statement(tokens, i, table, func_ret_type):
                 error("Size of array needs to be known if assignment is not done while declaration", tokens[i].line_num)
             else:
                 table.symbol_table[tokens[id_idx].val][2] = size_of_array
-
             return (
                 OpCode("array_no_assign", value + "---" + str(size_of_array)),
                 i,
@@ -316,7 +315,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    value, type_, _ = table.get_by_id(tokens[i - 1].val)
+    value, type_, _ = table.get_by_id(int(tokens[i - 1].val))
 
     if type_ == "var":
         error("Variable %s used before declaration" % value, tokens[i - 1].line_num)
@@ -327,14 +326,21 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Store the index of identifier
     id_idx = i - 1
 
+    # Store the id of variable in Symbol Table
+    var_id = tokens[id_idx].val
+
+    if(len(value.split('.')) > 1):
+        var_id = int(type_)
+
+
     # Check if is a array indexing case
     if tokens[i].type == "left_bracket":
         if(tokens[i + 1].type == "number"):
             # Fetch information from symbol table
-            value, type_, _ = table.get_by_id(tokens[i + 1].val)
+            value_, type_, _ = table.get_by_id(tokens[i + 1].val)
 
             if type_ == "int":
-                if value >= table.symbol_table[tokens[id_idx].val][2]:
+                if value_ >= table.symbol_table[tokens[id_idx].val][2]:
                     error("Integer indexing array out of range",tokens[i].line_num )
             else:
                 error("Expected integer value or expression in array idexing", tokens[i].line_num) 
@@ -437,15 +443,18 @@ def assign_statement(tokens, i, table, func_ret_type):
 
     op_value = converted_type + "---" + op_value
 
-    # Modify datatype of the identifier
-    table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
+    if table.symbol_table[var_id][1] in ["var", "declared"]:
+        # Modify datatype of the identifier
+        table.symbol_table[var_id][1] = prec_to_type[op_type]
+    elif prec_to_type[op_type] != table.symbol_table[var_id][1]:
+        error("Cannot assign more than one type to varible", tokens[i].line_num)
 
     # Check if a pointer is being assigned
     if is_ptr:
         return (
             OpCode(
                 "ptr_only_assign",
-                table.symbol_table[tokens[id_idx].val][0] + op_value_idx
+                table.symbol_table[var_id][0] + op_value_idx
                 + "---"
                 + op_value
                 + "---"
@@ -463,7 +472,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         return (
             OpCode(
                 "array_only_assign", 
-                table.symbol_table[tokens[id_idx].val][0] + "---" + op_value, ""
+                table.symbol_table[var_id][0] + "---" + op_value, ""
             ),
             i,
             func_ret_type,
@@ -472,7 +481,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Return the opcode and i (the token after assign statement)
     return (
         OpCode(
-            "assign", table.symbol_table[tokens[id_idx].val][0] + op_value_idx + "---" + op_value, ""
+            "assign", value + op_value_idx + "---" + op_value, ""
         ),
         i,
         func_ret_type,
