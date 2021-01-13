@@ -10,7 +10,7 @@ from .array_parser import array_initializer
 from .loop_parser import for_statement, while_statement
 from .conditional_parser import if_statement, switch_statement, case_statement
 from .variable_parser import var_statement, assign_statement
-from .struct_parser import struct_declaration_statement
+from .struct_parser import struct_declaration_statement, initializate_struct
 
 # Import parser constants
 from .parser_constants import OP_TOKENS, WORD_TO_OP
@@ -303,7 +303,7 @@ def expression(
         op_value = str(p_msg) + "---" + str(dtype)
         op_type = dtype_to_prec[dtype]
         
-    # Return the expression, type of expression, and current index in source codes
+    # Retf=urn the expression, type of expression, and current index in source codes
     return op_value, op_type, i, func_ret_type
 
 
@@ -546,6 +546,7 @@ def parse(tokens, table):
     # Loop through all the tokens
     i = 0
     while i <= len(tokens) - 1:
+
         # Skip empty lines in global scope
         if scope_mapping == SCOPE_GLOBAL:
             i = skip_all_nextlines(tokens, i)
@@ -610,6 +611,10 @@ def parse(tokens, table):
 
         # If token is of type var then generate var opcode
         elif tokens[i].type == "var":
+            
+            # Store variable index
+            idx = i + 1
+
             var_opcode, i, func_ret_type = var_statement(
                 tokens, i + 1, table, func_ret_type
             )
@@ -619,8 +624,8 @@ def parse(tokens, table):
             op_codes.append(var_opcode)
 
             # Struct name is added to the insiders variables as  "<struct_name>---<variable_name>"
-            # if scope_mapping == SCOPE_STRUCT:
-            #     op_codes[-1][2] = struct_name + "---" + op_codes[-1][2] 
+            if scope_mapping == SCOPE_STRUCT:
+                table.symbol_table[table.get_by_symbol(struct_name)][1] += "-" + str(tokens[idx].val)
 
         # If token is of type id 
         elif tokens[i].type == "id":
@@ -657,11 +662,14 @@ def parse(tokens, table):
                 struct_name, type_, _ = table.get_by_id(tokens[i].val)
 
                 # Check if the structure is declared or not
-                if(type_ != "struct_var"):
+                if(type_.startswith("struct_var") is False):
                     error(f"Structure {struct_name} not declared", tokens[i].line_num)
 
-                # If there is no error then get the name of the instance variable
+               # If there is no error then get the name of the instance variable
                 instance_var_name, _, _ = table.get_by_id(tokens[i + 1].val)
+  
+                # Init instance vars
+                initializate_struct(table, instance_var_name, type_)
 
                 # OpCode value will be <struct-name>---<instance-variable-name>
                 op_codes.append(OpCode("struct_instantiate", struct_name + "---" + instance_var_name))
@@ -733,7 +741,14 @@ def parse(tokens, table):
                 # loop through the subsequent tokens to find all instantiated objects (after structure body)
                 for j in range(i + 1, len(tokens)):
                     if tokens[j].type == "id":
-                        instance_names += table.get_by_id(tokens[j].val)[0] + ", "
+                        instance_name   = table.get_by_id(tokens[j].val)[0]
+                        instance_names += instance_name + ", "
+
+                        # Get the details of id at index i - expected to be name of struct
+                        _, type_, _ = table.get_by_id(table.get_by_symbol(struct_name))
+
+                        # Init instance vars
+                        initializate_struct(table, instance_name, type_)
 
                         # Skip over the id type token
                         i += 1
