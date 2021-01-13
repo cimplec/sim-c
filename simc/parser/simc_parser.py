@@ -234,7 +234,8 @@ def expression(
                     else op_type
                 )
             elif type in ["var", "declared"] and not accept_unknown:
-                error("Cannot find the type of %s" % value, tokens[i].line_num)
+                pass
+                # error("Cannot find the type of %s" % value, tokens[i].line_num)
             elif type == "var" and accept_unknown:
                 op_value += str(value)
         elif tokens[i].type in ["newline", "call_end"]:
