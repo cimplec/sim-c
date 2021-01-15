@@ -657,8 +657,6 @@ def parse(tokens, table):
                  # Struct cannot be called inside this scope
                 if scope_mapping is SCOPE_STRUCT:
                     error("Struct cannot be called inside a struct scope", tokens[i].line_num)
-                elif scope_mapping is SCOPE_GLOBAL:
-                    error("Struct cannot be called inside the global scope", tokens[i].line_num)
                 
                 # Get the details of id at index i - expected to be name of struct
                 struct_name, type_, _ = table.get_by_id(tokens[i].val)
@@ -804,7 +802,7 @@ def parse(tokens, table):
 
             # Do cannot be called inside this scope
             if scope_mapping is SCOPE_STRUCT:
-                error("Do cannot be called inside the struct scope", tokens[i].line_num)
+                error("Do cannot be called inside a struct scope", tokens[i].line_num)
             elif scope_mapping is SCOPE_GLOBAL:
                 error("Do cannot be called inside the global scope", tokens[i].line_num)
             
