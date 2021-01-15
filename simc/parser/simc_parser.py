@@ -537,8 +537,9 @@ def parse(tokens, table):
     SCOPE_GLOBAL = 0
     SCOPE_MAIN = 1
     SCOPE_FUNC = 2
-    SCOPE_SINGLE_FUNC = 3
-    SCOPE_STRUCT = 4
+    SCOPE_SINGLE_FUNC_ST = 3
+    SCOPE_SINGLE_FUNC_EN = 4
+    SCOPE_STRUCT = 5
 
     # This is the state that indicate the actual scope
     scope_mapping = SCOPE_GLOBAL
@@ -551,11 +552,20 @@ def parse(tokens, table):
             i = skip_all_nextlines(tokens, i)
 
         # If a function body has started
-        if scope_mapping == SCOPE_SINGLE_FUNC:
-
+        if scope_mapping == SCOPE_SINGLE_FUNC_ST:
             # If we encounter MAIN or a new function then the function body is empty
             if (tokens[i].type == "MAIN") or (tokens[i].type == "fun"):
                 error("Function definition cannot be empty", tokens[i].line_num)
+        # Add end of scope
+        elif scope_mapping == SCOPE_SINGLE_FUNC_EN:
+            # If \n follows ) then skip all the \n characters	
+            if tokens[i].type == "newline":	
+                i = skip_all_nextlines(tokens, i)	
+
+            op_codes.append(OpCode("scope_over", "", ""))	
+
+            # The next line is the global scope  
+            scope_mapping = SCOPE_GLOBAL
 
         # If token is raw c type
         if tokens[i].type == "RAW_C":
@@ -566,9 +576,9 @@ def parse(tokens, table):
         # If token is of type print then generate print opcode
         elif tokens[i].type == "print":
 
-            # Functions can not be called inside struct scope
+            # Functions cannot be called inside struct scope
             if scope_mapping == SCOPE_STRUCT:
-                error("Function can not be called from struct scope", tokens[i].line_num)
+                error("Print cannot be called from struct scope", tokens[i].line_num)
 
             print_opcode, i, func_ret_type = print_statement(
                 tokens, i + 1, table, func_ret_type
@@ -576,17 +586,17 @@ def parse(tokens, table):
 
 
             # End of one line function scope
-            if scope_mapping == SCOPE_SINGLE_FUNC:
-               scope_mapping = SCOPE_GLOBAL
+            if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+               scope_mapping = SCOPE_SINGLE_FUNC_EN
 
             op_codes.append(print_opcode)
 
         # If token is of type import then generate import opcode
         elif tokens[i].type == "import":
 
-            # Import can not be called inside struct scope
+            # Import cannot be called inside struct scope
             if scope_mapping == SCOPE_STRUCT:
-                error("Import can not be called from struct scope", tokens[i].line_num)
+                error("Import cannot be called from struct scope", tokens[i].line_num)
 
             # Skip import token, next token should be module name
             i += 1
@@ -613,14 +623,11 @@ def parse(tokens, table):
             var_opcode, i, func_ret_type = var_statement(
                 tokens, i + 1, table, func_ret_type
             )
-            if scope_mapping == SCOPE_SINGLE_FUNC:
-                scope_mapping = SCOPE_GLOBAL
+            # End of one line function scope
+            if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+               scope_mapping = SCOPE_SINGLE_FUNC_EN
 
             op_codes.append(var_opcode)
-
-            # Struct name is added to the insiders variables as  "<struct_name>---<variable_name>"
-            # if scope_mapping == SCOPE_STRUCT:
-            #     op_codes[-1][2] = struct_name + "---" + op_codes[-1][2] 
 
         # If token is of type id 
         elif tokens[i].type == "id":
@@ -639,9 +646,6 @@ def parse(tokens, table):
                 )
                 op_codes.append(unary_opcode)
 
-                # End of one line function scope
-                if scope_mapping == SCOPE_SINGLE_FUNC:
-                    scope_mapping = SCOPE_GLOBAL
 
             # Handle variables inside for loop
             elif tokens[i + 1].type in ["to", "by"] or tokens[i - 2].type == "by":
@@ -650,9 +654,12 @@ def parse(tokens, table):
             # Handle local struct instantiation
             elif tokens[i + 1].type == "id":
 
-                if scope_mapping in [SCOPE_STRUCT, SCOPE_SINGLE_FUNC]:
-                    error("Cannot initializate struct inside this scope", tokens[i].line_num)
-
+                 # Struct cannot be called inside this scope
+                if scope_mapping is SCOPE_STRUCT:
+                    error("Struct cannot be called inside a struct scope", tokens[i].line_num)
+                elif scope_mapping is SCOPE_GLOBAL:
+                    error("Struct cannot be called inside the global scope", tokens[i].line_num)
+                
                 # Get the details of id at index i - expected to be name of struct
                 struct_name, type_, _ = table.get_by_id(tokens[i].val)
 
@@ -674,16 +681,19 @@ def parse(tokens, table):
                 op_codes.append(assign_opcode)
 
                 # End of one line function scope
-                if scope_mapping == SCOPE_SINGLE_FUNC:
-                    scope_mapping = SCOPE_GLOBAL
+                if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+                    scope_mapping = SCOPE_SINGLE_FUNC_EN
 
+            # End of one line function scope
+            if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+               scope_mapping = SCOPE_SINGLE_FUNC_EN
 
         # If token is of type fun then generate function opcode
         elif tokens[i].type == "fun":
             # Check if function is defined inside MAIN or any other function
             if scope_mapping == SCOPE_STRUCT:
-                error("Function can not be declared inside struct scope", tokens[i].line_num)
-            elif scope_mapping in [SCOPE_FUNC, SCOPE_SINGLE_FUNC, SCOPE_MAIN]:
+                error("Function cannot be declared inside struct scope", tokens[i].line_num)
+            elif scope_mapping in [SCOPE_FUNC, SCOPE_SINGLE_FUNC_ST, SCOPE_MAIN]:
                 error("Cannot define a function inside another function", tokens[i].line_num)
             
             # Parse function defintion
@@ -693,7 +703,7 @@ def parse(tokens, table):
 
             # Fun opcode should consist of func_decl and scope_begin opcodes, otherwise the function has no body
             if len(fun_opcode) == 2:
-                scope_mapping = SCOPE_SINGLE_FUNC
+                scope_mapping = SCOPE_SINGLE_FUNC_ST
                 brace_count += 1
             else:
                 scope_mapping = SCOPE_FUNC
@@ -704,8 +714,8 @@ def parse(tokens, table):
              # Check if struct is defined inside MAIN or any other struct
             if scope_mapping == SCOPE_STRUCT:
                 error("Struct cannot be declared inside struct scope", tokens[i].line_num)
-            elif scope_mapping in [SCOPE_FUNC, SCOPE_SINGLE_FUNC, SCOPE_MAIN]:
-                error("Cannot define a struct inside another struct", tokens[i].line_num)
+            elif scope_mapping in [SCOPE_FUNC, SCOPE_SINGLE_FUNC_ST, SCOPE_MAIN]:
+                error("Struct cannot be defined inside a function scope", tokens[i].line_num)
 
             struct_opcode, i, struct_name = struct_declaration_statement(
                 tokens, i + 1, table
@@ -731,13 +741,13 @@ def parse(tokens, table):
                 instance_names = ""
 
                 # loop through the subsequent tokens to find all instantiated objects (after structure body)
-                for j in range(i + 1, len(tokens)):
-                    if tokens[j].type == "id":
-                        instance_names += table.get_by_id(tokens[j].val)[0] + ", "
+                for next_id in range(i + 1, len(tokens)):
+                    if tokens[next_id].type == "id":
+                        instance_names += table.get_by_id(tokens[next_id].val)[0] + ", "
 
                         # Skip over the id type token
                         i += 1
-                    elif tokens[j].type == "comma":
+                    elif tokens[next_id].type == "comma":
                         i += 1
                         continue
                     else:
@@ -792,9 +802,11 @@ def parse(tokens, table):
         # If token is of type do then generate do_while code
         elif tokens[i].type == "do":
 
-            # Do can not be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Do cannot be called inside this scope", tokens[i].line_num)
+            # Do cannot be called inside this scope
+            if scope_mapping is SCOPE_STRUCT:
+                error("Do cannot be called inside the struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("Do cannot be called inside the global scope", tokens[i].line_num)
             
             # If \n follows ) then skip all the \n characters
             if tokens[i + 1].type == "newline":
@@ -814,9 +826,11 @@ def parse(tokens, table):
         # If token is of type while then generate while opcode
         elif tokens[i].type == "while":
 
-            # While can not be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("While cannot be called inside this scope", tokens[i].line_num)
+            # While cannot be called inside this scope
+            if scope_mapping is SCOPE_STRUCT:
+                error("While cannot be called inside a struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("While cannot be called inside the global scope ", tokens[i].line_num)
 
             # Parse while statement
             while_opcode, i, func_ret_type = while_statement(
@@ -830,8 +844,8 @@ def parse(tokens, table):
                     brace_count -= 1
 
                 # End of one line function scope
-                if scope_mapping == SCOPE_SINGLE_FUNC:
-                    scope_mapping = SCOPE_GLOBAL
+                if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+                    scope_mapping = SCOPE_SINGLE_FUNC_EN
 
                 in_do = False
             op_codes.append(while_opcode)
@@ -839,9 +853,11 @@ def parse(tokens, table):
         # If token is of type if then generate if opcode
         elif tokens[i].type == "if":
 
-            # If can not be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("If cannot be called inside this scope", tokens[i].line_num)
+            # If cannot be called inside this scope
+            if scope_mapping is SCOPE_STRUCT:
+                error("If cannot be called inside a struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("If cannot be called inside the global scope", tokens[i].line_num)
 
             if_opcode, i, func_ret_type = if_statement(
                 tokens, i + 1, table, func_ret_type
@@ -855,26 +871,30 @@ def parse(tokens, table):
         # If token is of type exit then generate exit opcode
         elif tokens[i].type == "exit":
 
-            # Exist can not be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Exist cannot be called inside this scope", tokens[i].line_num)
+            # Exist cannot be called inside this scope
+            if scope_mapping is SCOPE_STRUCT:
+                error("Exist cannot be called inside a struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("Exist cannot be called inside the global scope", tokens[i].line_num)
 
             exit_opcode, i, func_ret_type = exit_statement(
                 tokens, i + 1, table, func_ret_type
             )
 
             # End of one line function scope
-            if scope_mapping == SCOPE_SINGLE_FUNC:
-               scope_mapping = SCOPE_GLOBAL
+            if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+               scope_mapping = SCOPE_SINGLE_FUNC_EN
 
             op_codes.append(exit_opcode)
 
         # If token is of type else then check whether it is else if or else
         elif tokens[i].type == "else":
 
-            # Else can not be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Else cannot be called inside this scope", tokens[i].line_num)
+            # Else cannot be called inside this scope
+            if scope_mapping is SCOPE_STRUCT:
+                error("Else cannot be called inside a struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("Else cannot be called inside the global scope", tokens[i].line_num)
 
             # If \n follows else then skip all the \n characters
             if tokens[i + 1].type == "newline":
@@ -906,9 +926,11 @@ def parse(tokens, table):
         # If token is of type return then generate return opcode
         elif tokens[i].type == "return":
 
-            # Return can not be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Return cannot be called inside this scope", tokens[i].line_num)
+            # Return cannot be called inside this scope
+            if scope_mapping is SCOPE_STRUCT:
+                error("Return cannot be called inside a struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("Return cannot be called inside the global scope", tokens[i].line_num)
 
             # Starting token index for return expression
             beg_idx = i + 1
@@ -969,15 +991,15 @@ def parse(tokens, table):
                         ]
 
             # End of one line function scope
-            if scope_mapping == SCOPE_SINGLE_FUNC:
-               scope_mapping = SCOPE_GLOBAL
+            if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+               scope_mapping = SCOPE_SINGLE_FUNC_EN
 
             op_codes.append(OpCode("return", op_value, ""))
 
         # If token is of type break then generate break opcode
         elif tokens[i].type == "break":
 
-            # Break can not be called inside this scope
+            # Break cannot be called inside this scope
             if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
                 error("Break cannot be called inside this scope", tokens[i].line_num)
 
@@ -986,23 +1008,25 @@ def parse(tokens, table):
             i += 1
 
             # End of one line function scope
-            if scope_mapping == SCOPE_SINGLE_FUNC:
-               scope_mapping = SCOPE_GLOBAL
+            if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+               scope_mapping = SCOPE_SINGLE_FUNC_EN
 
         # If token is of type continue then generate continue opcode
         elif tokens[i].type == "continue":
 
-            # Continue can not be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Continue cannot be called inside this scope", tokens[i].line_num)
+            # Continue cannot be called inside this scope
+            if scope_mapping is SCOPE_STRUCT:
+                error("Continue cannot be called inside a struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("Continue cannot be called inside the global scope", tokens[i].line_num)
 
             op_codes.append(OpCode("continue", "", ""))
 
             i += 1
 
             # End of one line function scope
-            if scope_mapping == SCOPE_SINGLE_FUNC:
-               scope_mapping = SCOPE_GLOBAL
+            if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+               scope_mapping = SCOPE_SINGLE_FUNC_EN
 
         # If token is of type single_line_statement then generate single_line_comment opcode
         elif tokens[i].type == "single_line_comment":
@@ -1019,9 +1043,11 @@ def parse(tokens, table):
         # If token is of type switch then generate switch opcode
         elif tokens[i].type == "switch":
 
-            # Switch can not be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Switch cannot be called inside this scope", tokens[i].line_num)
+            # Switch cannot be called inside this scope
+            if scope_mapping is SCOPE_STRUCT:
+                error("Switch cannot be called inside a local scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("Switch cannot be called inside the global scope", tokens[i].line_num)
 
             switch_opcode, i, func_ret_type = switch_statement(
                 tokens, i + 1, table, func_ret_type
@@ -1040,7 +1066,7 @@ def parse(tokens, table):
         # If token is of type default then generate default opcode (this is used in switch cases)
         elif tokens[i].type == "default":
 
-            # Default can not be called inside this scope
+            # Default cannot be called inside this scope
             if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
                 error("Default cannot be called inside this scope", tokens[i].line_num)
 
@@ -1064,8 +1090,8 @@ def parse(tokens, table):
             )
 
             # End of one line function scope
-            if scope_mapping == SCOPE_SINGLE_FUNC:
-               scope_mapping = SCOPE_GLOBAL
+            if scope_mapping == SCOPE_SINGLE_FUNC_ST:
+               scope_mapping = SCOPE_SINGLE_FUNC_EN
                 
             op_codes.append(unary_opcode)
 
@@ -1076,8 +1102,6 @@ def parse(tokens, table):
     # Errors that may occur after parsing loop
     if main_fn_count > 1:
         error("Multiple definition of MAIN function", tokens[i - 1].line_num + 1)
-    elif main_fn_count < 1:
-        error("No definition of MAIN function", tokens[i - 1].line_num + 1)
 
     # Return opcodes
     return op_codes
