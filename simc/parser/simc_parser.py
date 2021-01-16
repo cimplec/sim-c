@@ -491,7 +491,7 @@ def exit_statement(tokens, i, table, func_ret_type):
 
 def skip_all_nextlines(tokens, i):
     i += 1
-    while tokens[i].type == "newline":
+    while i < len(tokens) - 1 and tokens[i].type == "newline":
         i += 1
 
     return i
@@ -548,10 +548,7 @@ def parse(tokens, table):
     # Loop through all the tokens
     i = 0
     while i <= len(tokens) - 1:
-        # Skip empty lines in global scope
-        # if scope_mapping == SCOPE_GLOBAL:
-        #     i = skip_all_nextlines(tokens, i)
-
+        
         # If a function body has started
         if scope_mapping == SCOPE_SINGLE_FUNC_ST:
             # If we encounter MAIN or a new function then the function body is empty
@@ -872,7 +869,7 @@ def parse(tokens, table):
         # If token is of type exit then generate exit opcode
         elif tokens[i].type == "exit":
 
-            # Exist cannot be called inside this scope
+            # Exit cannot be called inside this scope
             if scope_mapping is SCOPE_STRUCT:
                 error("Exit cannot be called inside a struct scope", tokens[i].line_num)
             elif scope_mapping is SCOPE_GLOBAL:
