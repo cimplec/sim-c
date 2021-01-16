@@ -871,9 +871,9 @@ def parse(tokens, table):
 
             # Exist cannot be called inside this scope
             if scope_mapping is SCOPE_STRUCT:
-                error("Exist cannot be called inside a struct scope", tokens[i].line_num)
+                error("Exit cannot be called inside a struct scope", tokens[i].line_num)
             elif scope_mapping is SCOPE_GLOBAL:
-                error("Exist cannot be called inside the global scope", tokens[i].line_num)
+                error("Exit cannot be called inside the global scope", tokens[i].line_num)
 
             exit_opcode, i, func_ret_type = exit_statement(
                 tokens, i + 1, table, func_ret_type
