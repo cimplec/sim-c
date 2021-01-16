@@ -490,7 +490,8 @@ def exit_statement(tokens, i, table, func_ret_type):
     return OpCode("exit", op_value[1:-1]), i, func_ret_type
 
 def skip_all_nextlines(tokens, i):
-    while i < len(tokens)-1 and tokens[i].type == "newline":
+    i += 1
+    while tokens[i].type == "newline":
         i += 1
 
     return i
@@ -548,8 +549,8 @@ def parse(tokens, table):
     i = 0
     while i <= len(tokens) - 1:
         # Skip empty lines in global scope
-        if scope_mapping == SCOPE_GLOBAL:
-            i = skip_all_nextlines(tokens, i)
+        # if scope_mapping == SCOPE_GLOBAL:
+        #     i = skip_all_nextlines(tokens, i)
 
         # If a function body has started
         if scope_mapping == SCOPE_SINGLE_FUNC_ST:
@@ -752,7 +753,10 @@ def parse(tokens, table):
                         break
 
                 op_codes.append(OpCode("struct_scope_over", instance_names[:-2], ""))
-
+                scope_mapping = SCOPE_GLOBAL
+            elif scope_mapping == SCOPE_FUNC:
+                scope_mapping = SCOPE_GLOBAL
+                op_codes.append(OpCode("scope_over", "", ""))
             else:
                 op_codes.append(OpCode("scope_over", "", ""))
 
@@ -768,7 +772,6 @@ def parse(tokens, table):
                 func_name = ""
                 struct_name = ""
 
-            scope_mapping = SCOPE_GLOBAL
 
         # If token is of type MAIN then generate MAIN opcode
         elif tokens[i].type == "MAIN":
