@@ -1075,8 +1075,10 @@ def parse(tokens, table):
         elif tokens[i].type == "default":
 
             # Default cannot be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Default cannot be called inside this scope", tokens[i].line_num)
+            if scope_mapping is SCOPE_STRUCT:
+                error("Default cannot be called inside a struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("Default cannot be called inside the global scope", tokens[i].line_num)
 
             # Check if : (colon) is present after default keyword
             check_if(
