@@ -330,15 +330,11 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Store the id of variable in Symbol Table
     var_id = tokens[id_idx].val
 
-    if(len(value.split('.')) > 1):
-        var_id = int(type_)
-
-
     # Check if is a array indexing case
     if tokens[i].type == "left_bracket":
         if(tokens[i + 1].type == "number"):
             # Fetch information from symbol table
-            value_, type_, _, _ = table.get_by_id(tokens[i + 1].val)
+            value_, type_, _ = table.get_by_id(tokens[i + 1].val)
 
             if type_ == "int":
                 if value_ >= table.symbol_table[tokens[id_idx].val][2]:
@@ -447,9 +443,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     if table.symbol_table[var_id][1] in ["var", "declared"]:
         # Modify datatype of the identifier
         table.symbol_table[var_id][1] = prec_to_type[op_type]
-    elif prec_to_type[op_type] != table.symbol_table[var_id][1]:
-        error("Cannot assign more than one type to varible", tokens[i].line_num)
-
+        
     # Check if a pointer is being assigned
     if is_ptr:
         return (
@@ -465,7 +459,7 @@ def assign_statement(tokens, i, table, func_ret_type):
             i,
             func_ret_type,
         )
-    
+
     resolve_dependency(tokens, i, table, var_id)
 
     # If it is an array then generate array_only_assign
@@ -489,8 +483,6 @@ def assign_statement(tokens, i, table, func_ret_type):
         i,
         func_ret_type,
     )
-
-
 
 def add_dependency(table, var_father_id, var_child_id):
     table.symbol_table[var_father_id][3] += '-' + str(var_child_id)
