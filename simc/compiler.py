@@ -121,7 +121,7 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
             get_data_type = {
@@ -203,7 +203,7 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += (
@@ -213,7 +213,7 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += (
