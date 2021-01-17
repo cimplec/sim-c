@@ -334,7 +334,7 @@ def assign_statement(tokens, i, table, func_ret_type):
             value, type_, _ = table.get_by_id(tokens[i + 1].val)
 
             if type_ == "int":
-                if value >= table.symbol_table[tokens[id_idx].val][2]:
+                if int(value) >= int(table.symbol_table[tokens[id_idx].val][2]):
                     error(f"Index {value} out of bounds for array {var_name}", tokens[i].line_num )
             else:
                 error("Expected integer value or expression in array idexing", tokens[i].line_num) 

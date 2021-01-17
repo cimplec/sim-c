@@ -87,7 +87,7 @@ def expression(
             if tokens[i].type == "number" and type_ == "int":
                 index = table.get_by_id(tokens[i].val)[0]
                 
-                if index < array_size:
+                if int(index) < int(array_size):
                     op_value += index
                 else:
                     error(f"Index {index} out of bounds for array {array_name}", tokens[i].line_num)
