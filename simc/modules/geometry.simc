@@ -1,3 +1,0 @@
-fun square_area(square_side) {
-    return square_side ** 2
-}
