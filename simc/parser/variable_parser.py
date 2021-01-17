@@ -316,7 +316,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    var_name, type_, _ = table.get_by_id(tokens[i - 1].val)
+    var_name, type_, _, _ = table.get_by_id(tokens[i - 1].val)
 
     if type_ == "var":
         error("Variable %s used before declaration" % var_name, tokens[i - 1].line_num)
@@ -334,7 +334,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     if tokens[i].type == "left_bracket":
         if(tokens[i + 1].type == "number"):
             # Fetch information from symbol table
-            value, type_, _ = table.get_by_id(tokens[i + 1].val)
+            value, type_, _, _ = table.get_by_id(tokens[i + 1].val)
 
             if type_ == "int":
                 if int(value) >= int(table.symbol_table[tokens[id_idx].val][2]):

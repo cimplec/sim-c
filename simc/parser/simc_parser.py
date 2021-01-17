@@ -80,7 +80,7 @@ def expression(
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
-            array_name, array_dtype, array_size = table.get_by_id(tokens[i].val)
+            array_name, array_dtype, array_size, _ = table.get_by_id(tokens[i].val)
             op_value += array_name
             op_value += "["
             arr_id_idx = i
