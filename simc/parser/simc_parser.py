@@ -1006,8 +1006,10 @@ def parse(tokens, table):
         elif tokens[i].type == "break":
 
             # Break cannot be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Break cannot be called inside this scope", tokens[i].line_num)
+            if scope_mapping == SCOPE_STRUCT:
+                error("Break cannot be called inside struct scope", tokens[i].line_num)
+            elif scope_mapping == SCOPE_GLOBAL:
+                error("Break cannot be called inside global scope", tokens[i].line_num)
 
             op_codes.append(OpCode("break", "", ""))
 
