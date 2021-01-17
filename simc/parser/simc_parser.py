@@ -791,7 +791,7 @@ def parse(tokens, table):
         # If token is of type END_MAIN then generate MAIN opcode
         elif tokens[i].type == "END_MAIN":
             op_codes.append(OpCode("END_MAIN", "", ""))
-            
+            main_fn_count -= 1
             if scope_mapping == SCOPE_MAIN:
                 scope_mapping = SCOPE_GLOBAL
             else:
@@ -1110,8 +1110,8 @@ def parse(tokens, table):
             i += 1
 
     # Errors that may occur after parsing loop
-    if main_fn_count > 1:
-        error("Multiple definition of MAIN function", tokens[i - 1].line_num + 1)
+    if main_fn_count == 1:
+        error("No matching END_MAIN for MAIN", tokens[i - 1].line_num + 1)
 
     # Return opcodes
     return op_codes
