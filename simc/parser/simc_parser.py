@@ -76,7 +76,8 @@ def expression(
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
-            op_value += table.get_by_id(tokens[i].val)[0]
+            array_name, array_dtype, _ = table.get_by_id(tokens[i].val)
+            op_value += array_name
             op_value += "["
             arr_id_idx = i
             i += 2
@@ -89,6 +90,9 @@ def expression(
             else:
                 arr_name, _, _ = table.get_by_id(tokens[arr_id_idx].val)
                 error(f"Index of array {arr_name} should be an integer", tokens[i].line_num)
+            
+            type_to_prec = {"int": 3, "float": 4, "double": 5}
+            op_type = type_to_prec[array_dtype]
         # Explicit type casting
         elif tokens[i].type == "type_cast" and tokens[i + 1].type == "left_paren":
             # Store index i (index for type_cast token) to get the type of explicit typecast later
