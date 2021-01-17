@@ -303,6 +303,18 @@ def assign_statement(tokens, i, table, func_ret_type):
     from .simc_parser import expression
     from .array_parser import array_initializer
     
+    # Map datatype to appropriate datatype in C
+    prec_to_type = {
+        -1: "declared",
+        0: "string",
+        1: "char*",
+        2: "char",
+        3: "int",
+        4: "float",
+        5: "double",
+        6: "bool",
+    }
+    
     # Check if the identifier is a pointer
     is_ptr = False
     # count depth of pointer
@@ -399,7 +411,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     is_arr = False
 
     # Check if assignment is an array initializer or a simple expression type
-    if tokens[i+1].type == "left_brace":
+    if tokens[i + 1].type == "left_brace":
         is_arr = True
         if type_ != "arr_declared":
             error("Cannot assign an initializer list to a variable", tokens[i].line_num)
@@ -413,6 +425,10 @@ def assign_statement(tokens, i, table, func_ret_type):
             size_of_array,
             "Required expression after assignment operator",
         )
+
+        # Modify datatype of the identifier
+        table.symbol_table[var_id][1] = prec_to_type[op_type]
+
     else:
         if type_ == "arr_declared" and tokens[id_idx + 1].type != "left_bracket":
             error("Array assignment requires initializer list, cannot assign expression", tokens[i].line_num)
