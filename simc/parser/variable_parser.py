@@ -316,10 +316,10 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    value, type_, _, _ = table.get_by_id(int(tokens[i - 1].val))
+    var_name, type_, _ = table.get_by_id(tokens[i - 1].val)
 
     if type_ == "var":
-        error("Variable %s used before declaration" % value, tokens[i - 1].line_num)
+        error("Variable %s used before declaration" % var_name, tokens[i - 1].line_num)
 
     # Index of assignment in array
     op_value_idx = ""
@@ -334,11 +334,11 @@ def assign_statement(tokens, i, table, func_ret_type):
     if tokens[i].type == "left_bracket":
         if(tokens[i + 1].type == "number"):
             # Fetch information from symbol table
-            value_, type_, _ = table.get_by_id(tokens[i + 1].val)
+            value, type_, _ = table.get_by_id(tokens[i + 1].val)
 
             if type_ == "int":
-                if value_ >= table.symbol_table[tokens[id_idx].val][2]:
-                    error("Integer indexing array out of range",tokens[i].line_num )
+                if int(value) >= int(table.symbol_table[tokens[id_idx].val][2]):
+                    error(f"Index {value} out of bounds for array {var_name}", tokens[i].line_num )
             else:
                 error("Expected integer value or expression in array idexing", tokens[i].line_num) 
         
@@ -478,7 +478,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Return the opcode and i (the token after assign statement)
     return (
         OpCode(
-            "assign", value + op_value_idx + "---" + op_value, ""
+            "assign", var_name + op_value_idx + "---" + op_value, ""
         ),
         i,
         func_ret_type,

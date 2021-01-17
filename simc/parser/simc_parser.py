@@ -80,7 +80,8 @@ def expression(
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
-            op_value += table.get_by_id(tokens[i].val)[0]
+            array_name, array_dtype, array_size = table.get_by_id(tokens[i].val)
+            op_value += array_name
             op_value += "["
             arr_id_idx = i
             i += 2
@@ -88,11 +89,18 @@ def expression(
             # Check if index is of integer type or not
             _, type_, _, _ = table.get_by_id(tokens[i].val)
             if tokens[i].type == "number" and type_ == "int":
-                op_value += table.get_by_id(tokens[i].val)[0]
-                pass    
+                index = table.get_by_id(tokens[i].val)[0]
+                
+                if int(index) < int(array_size):
+                    op_value += index
+                else:
+                    error(f"Index {index} out of bounds for array {array_name}", tokens[i].line_num)
             else:
                 arr_name, _, _, _ = table.get_by_id(tokens[arr_id_idx].val)
                 error(f"Index of array {arr_name} should be an integer", tokens[i].line_num)
+            
+            type_to_prec = {"int": 3, "float": 4, "double": 5}
+            op_type = type_to_prec[array_dtype]
         # Explicit type casting
         elif tokens[i].type == "type_cast" and tokens[i + 1].type == "left_paren":
             # Store index i (index for type_cast token) to get the type of explicit typecast later
@@ -792,11 +800,11 @@ def parse(tokens, table):
         # If token is of type END_MAIN then generate MAIN opcode
         elif tokens[i].type == "END_MAIN":
             op_codes.append(OpCode("END_MAIN", "", ""))
-            
+            main_fn_count -= 1
             if scope_mapping == SCOPE_MAIN:
                 scope_mapping = SCOPE_GLOBAL
             else:
-                error("No matching END_MAIN for MAIN", tokens[i - 1].line_num + 1)
+                error("No matching MAIN for END_MAIN", tokens[i - 1].line_num + 1)
             i += 1
 
         # If token is of type for then generate for code
@@ -1007,8 +1015,10 @@ def parse(tokens, table):
         elif tokens[i].type == "break":
 
             # Break cannot be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Break cannot be called inside this scope", tokens[i].line_num)
+            if scope_mapping == SCOPE_STRUCT:
+                error("Break cannot be called inside struct scope", tokens[i].line_num)
+            elif scope_mapping == SCOPE_GLOBAL:
+                error("Break cannot be called inside global scope", tokens[i].line_num)
 
             op_codes.append(OpCode("break", "", ""))
 
@@ -1074,8 +1084,10 @@ def parse(tokens, table):
         elif tokens[i].type == "default":
 
             # Default cannot be called inside this scope
-            if scope_mapping in [SCOPE_STRUCT, SCOPE_GLOBAL]:
-                error("Default cannot be called inside this scope", tokens[i].line_num)
+            if scope_mapping is SCOPE_STRUCT:
+                error("Default cannot be called inside a struct scope", tokens[i].line_num)
+            elif scope_mapping is SCOPE_GLOBAL:
+                error("Default cannot be called inside the global scope", tokens[i].line_num)
 
             # Check if : (colon) is present after default keyword
             check_if(
@@ -1107,8 +1119,8 @@ def parse(tokens, table):
             i += 1
 
     # Errors that may occur after parsing loop
-    if main_fn_count > 1:
-        error("Multiple definition of MAIN function", tokens[i - 1].line_num + 1)
+    if main_fn_count == 1:
+        error("No matching END_MAIN for MAIN", tokens[i - 1].line_num + 1)
 
     # Return opcodes
     return op_codes
