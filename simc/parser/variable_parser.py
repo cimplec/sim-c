@@ -316,10 +316,10 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    value, type_, _ = table.get_by_id(tokens[i - 1].val)
+    var_name, type_, _ = table.get_by_id(tokens[i - 1].val)
 
     if type_ == "var":
-        error("Variable %s used before declaration" % value, tokens[i - 1].line_num)
+        error("Variable %s used before declaration" % var_name, tokens[i - 1].line_num)
 
     # Index of assignment in array
     op_value_idx = ""
@@ -335,7 +335,7 @@ def assign_statement(tokens, i, table, func_ret_type):
 
             if type_ == "int":
                 if value >= table.symbol_table[tokens[id_idx].val][2]:
-                    error("Integer indexing array out of range",tokens[i].line_num )
+                    error(f"Index {value} out of bounds for array {var_name}", tokens[i].line_num )
             else:
                 error("Expected integer value or expression in array idexing", tokens[i].line_num) 
         

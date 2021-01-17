@@ -76,7 +76,7 @@ def expression(
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
-            array_name, array_dtype, _ = table.get_by_id(tokens[i].val)
+            array_name, array_dtype, array_size = table.get_by_id(tokens[i].val)
             op_value += array_name
             op_value += "["
             arr_id_idx = i
@@ -85,8 +85,12 @@ def expression(
             # Check if index is of integer type or not
             _, type_, _ = table.get_by_id(tokens[i].val)
             if tokens[i].type == "number" and type_ == "int":
-                op_value += table.get_by_id(tokens[i].val)[0]
-                pass    
+                index = table.get_by_id(tokens[i].val)[0]
+                
+                if index < array_size:
+                    op_value += index
+                else:
+                    error(f"Index {index} out of bounds for array {array_name}", tokens[i].line_num)
             else:
                 arr_name, _, _ = table.get_by_id(tokens[arr_id_idx].val)
                 error(f"Index of array {arr_name} should be an integer", tokens[i].line_num)
