@@ -239,7 +239,7 @@ def expression(
                 )
             elif type in ["var", "declared"] and not accept_unknown:
                 add_dependency(table,  tokens[i].val, tokens[id_idx].val)
-                # error("Cannot find the type of %s" % value, tokens[i].line_num)
+                op_value += str(value)
             elif type == "var" and accept_unknown:
                 op_value += str(value)
         elif tokens[i].type in ["newline", "call_end"]:
