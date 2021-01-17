@@ -795,7 +795,7 @@ def parse(tokens, table):
             if scope_mapping == SCOPE_MAIN:
                 scope_mapping = SCOPE_GLOBAL
             else:
-                error("No matching END_MAIN for MAIN", tokens[i - 1].line_num + 1)
+                error("No matching MAIN for END_MAIN", tokens[i - 1].line_num + 1)
             i += 1
 
         # If token is of type for then generate for code
