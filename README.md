@@ -18,7 +18,7 @@
   
 ## New Developers
 
-<p align="justify">New developers can join simC New Devs slack channel where they can get help from core developers on their issues, link to the slack channel - <a href="https://join.slack.com/t/sim-cnewdevs/shared_invite/zt-jgfthwau-V0INVtZQAaZ4RERZbE2lGg">simC New Devs Slack</a></p>
+<p align="justify">New developers can join simC New Devs slack channel where they can get help from core developers on their issues, link to the slack channel - <a href="https://join.slack.com/t/sim-cnewdevs/shared_invite/zt-ky44bntx-WHiw41q1nam4AmktMggsCg">simC New Devs Slack</a></p>
 
 ## License
 
