@@ -9,7 +9,7 @@ from .function_parser import function_call_statement, function_definition_statem
 from .array_parser import array_initializer
 from .loop_parser import for_statement, while_statement
 from .conditional_parser import if_statement, switch_statement, case_statement
-from .variable_parser import var_statement, assign_statement, add_dependency, resolve_dependency
+from .variable_parser import var_statement, assign_statement
 from .struct_parser import struct_declaration_statement
 
 # Import parser constants
@@ -76,7 +76,11 @@ def expression(
             type_to_prec = {"char*": 1, "char": 2, "int": 3, "float": 4, "double": 5}
             var_id = table.get_by_symbol(val[0])
             op_type = type_to_prec[table.get_by_id(var_id)[1]]
-            resolve_dependency(tokens, i, table, var_id)
+            
+            # Resolve pendenting infer types
+            if table.resolve_dependency(tokens, i, var_id) is False:
+                error("Cannot downgrade the type of variable on this expression", tokens[i].line_num)
+
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
@@ -246,7 +250,7 @@ def expression(
                     else op_type
                 )
             elif type in ["var", "declared"] and not accept_unknown:
-                add_dependency(table,  tokens[i].val, tokens[id_idx].val)
+                table.add_dependency(tokens[i].val, tokens[id_idx].val)
                 op_value += str(value)
             elif type == "var" and accept_unknown:
                 op_value += str(value)
@@ -677,7 +681,7 @@ def parse(tokens, table):
                 struct_name, type_, _, _ = table.get_by_id(tokens[i].val)
 
                 # Check if the structure is declared or not
-                if(type_.startswith("struct_var") is False):
+                if type_ != "struct_var":
                     error(f"Structure {struct_name} not declared", tokens[i].line_num)
 
                # If there is no error then get the name of the instance variable
