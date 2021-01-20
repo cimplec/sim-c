@@ -72,6 +72,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
             tokens[i].line_num,
         )
 
+
     # Fill the missing values in function call with default values
     op_value_list = fill_missing_args_with_defaults(
         op_value_list, default_values, num_actual_params, num_formal_params
@@ -88,9 +89,16 @@ def function_call_statement(tokens, i, table, func_ret_type):
             table.get_by_symbol(op_value_list[j].replace(")", ""))
         )
 
+        param_id = table.get_by_symbol(params[j])
+
         # Set the datatype of the formal parameter
-        table.symbol_table[table.get_by_symbol(params[j])][1] = dtype
-    
+        table.symbol_table[param_id][1] = dtype
+
+        # Resolve pendenting infer types
+        if table.resolve_dependency(tokens, i, param_id) is False:
+            error("Cannot downgrade the type of variable on this expression", tokens[i].line_num)
+
+
     use_module_tokens = False
 
     # If it an imported function the type of the function will be a list containing tokens from module's lexing results
@@ -115,6 +123,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
         #  Map datatype to appropriate datatype in C
         prec_to_type = {
+            -1: "declared",
             0: "char*",
             1: "char*",
             2: "char",

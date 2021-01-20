@@ -80,7 +80,6 @@ def expression(
             # Resolve pendenting infer types
             if table.resolve_dependency(tokens, i, var_id) is False:
                 error("Cannot downgrade the type of variable on this expression", tokens[i].line_num)
-
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
@@ -102,8 +101,7 @@ def expression(
             else:
                 arr_name, _, _, _ = table.get_by_id(tokens[arr_id_idx].val)
                 error(f"Index of array {arr_name} should be an integer", tokens[i].line_num)
-            
-            type_to_prec = {"int": 3, "float": 4, "double": 5}
+                        
             op_type = type_to_prec[array_dtype]
         # Explicit type casting
         elif tokens[i].type == "type_cast" and tokens[i + 1].type == "left_paren":
@@ -174,7 +172,6 @@ def expression(
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table
             value, type, typedata, _ = table.get_by_id(tokens[i].val)
-
             # Case to prevent Type Promotion:
             if block_type_promotion == True:
                 if previous_type != type and previous_type != "":
@@ -252,7 +249,7 @@ def expression(
             elif type in ["var", "declared"] and not accept_unknown:
                 table.add_dependency(tokens[i].val, tokens[id_idx].val)
                 op_value += str(value)
-            elif type == "var" and accept_unknown:
+            elif type in ["var", "declared"] and accept_unknown:
                 op_value += str(value)
         elif tokens[i].type in ["newline", "call_end"]:
             break
