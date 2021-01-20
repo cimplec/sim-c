@@ -442,18 +442,7 @@ def assign_statement(tokens, i, table, func_ret_type):
             expect_paren=False,
             func_ret_type=func_ret_type,
         )
-        
-    #  Map datatype to appropriate datatype in C
-    prec_to_type = {
-        0: "string",
-        1: "string",
-        2: "char",
-        3: "int",
-        4: "float",
-        5: "double",
-        6: "bool",
-    }
-
+    
     op_value = converted_type + "---" + op_value
 
     if table.symbol_table[var_id][1] in ["var", "declared"]:
@@ -476,7 +465,9 @@ def assign_statement(tokens, i, table, func_ret_type):
             func_ret_type,
         )
 
-    resolve_dependency(tokens, i, table, var_id)
+    # Resolve pendenting infer types
+    if table.resolve_dependency(tokens, i, var_id) is False:
+        error("Cannot downgrade the type of variable on this expression", tokens[i].line_num)
 
     # If it is an array then generate array_only_assign
     if is_arr:
@@ -500,62 +491,3 @@ def assign_statement(tokens, i, table, func_ret_type):
         func_ret_type,
     )
 
-
-def add_dependency(table, var_father_id, var_child_id):
-    """
-    Add dependency adds a relation of dependecy beetween two variables.
-    It's used when the variable is assigned to other varible before it is type had been defined. 
-    When the type of the varible is discovered, use the function resolve_dependency to update the child variables.
-    ======
-    Params
-    ======
-    table           (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-    var_father_id   (int)         = ID of varible father in SymbolTable
-    var_father_id   (int)         = ID of varibl child in SymbolTable
-   
-    """
-    # Add the variable to list in the expression:: "<-ID>"
-    table.symbol_table[var_father_id][3] += '-' + str(var_child_id)
-
-
-def resolve_dependency(tokens, i, table, var_id):
-    """
-    Resolve Dependency
-
-    This is a recursive function, it is used when you discover the type of a varible which had been 
-    assign to another one, then the type of the assigned one dependes on this.
-    Params
-    ======
-    tokens      (list) = List of tokens
-    i           (int)  = Current index in token
-    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-    var_id      (int)  = ID in Symbol table where the function will look at for child dependencies
-    """
-    # Extract the type of variable and the list of variable which dependies on it
-    _, type_, _, list_dependency = table.symbol_table[var_id]
-    
-    # Nothing to do
-    if type_ == "var":
-        return
-
-    # Clear the dependencies
-    table.symbol_table[var_id][3] = ''
-
-    # Split the list "ID-ID-...-ID" => ['ID', 'ID', ..., 'ID']
-    list_dependency = [int(child_var_id) for child_var_id in \
-                        list_dependency.split('-') if child_var_id != '']
-
-    # For each child variable assign the new type and check up for its dependencies. 
-    for var_child_id in list_dependency: 
-
-        # Extract the current type of child variable
-        child_type = table.symbol_table[var_child_id][1]
-
-        # If the type is not defined
-        if child_type is "declared":
-            table.symbol_table[var_child_id][1] = type_
-            resolve_dependency(tokens, i, table, var_child_id)
-
-        # If the type is defined, it cannot change 
-        elif child_type != type_:
-            error("Cannot assign more than one type for variable", tokens[i].line_num)
