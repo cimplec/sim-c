@@ -115,7 +115,7 @@ class SymbolTable:
 
             if is_allowed is False:
                 break
-            
+
             # Extract the current type of child variable
             child_type = self.symbol_table[var_child_id][1]
 
