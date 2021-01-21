@@ -29,7 +29,7 @@ def struct_declaration_statement(tokens, i, table):
     table.symbol_table[struct_idx][1] = "struct_var"
 
     # Get struct name
-    struct_name, _, _ = table.get_by_id(struct_idx)
+    struct_name, _, _, _ = table.get_by_id(struct_idx)
 
     # If \n follows struct name then skip all the \n characters
     if tokens[i + 1].type == "newline":

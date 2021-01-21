@@ -26,13 +26,13 @@ class TestSymbolTableClass(unittest.TestCase):
         id_1 = self.table.entry("hello", "int", "variable")
         id_2 = self.table.entry("world", "float", "constant")
 
-        value, type, typedata = self.table.get_by_id(2)
+        value, type, typedata, _ = self.table.get_by_id(2)
 
         self.assertEqual(value, "world")
         self.assertEqual(type, "float")
         self.assertEqual(typedata, "constant")
 
-        value, type, typedata = self.table.get_by_id(10)
+        value, type, typedata, _ = self.table.get_by_id(10)
 
         self.assertEqual(value, None)
         self.assertEqual(type, None)
