@@ -466,8 +466,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         )
 
     # Resolve pendenting infer types
-    if table.resolve_dependency(tokens, i, var_id) is False:
-        error("Cannot downgrade the type of variable on this expression", tokens[i].line_num)
+    table.resolve_dependency(tokens, i, var_id)
 
     # If it is an array then generate array_only_assign
     if is_arr:

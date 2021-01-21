@@ -124,11 +124,12 @@ class SymbolTable:
                 self.symbol_table[var_child_id][1] = type_
                 is_allowed = self.resolve_dependency(tokens, i, var_child_id)
 
-            # if the type is defined and the type of child is greater or equal than the father
-            elif child_type <= type_:
-                self.symbol_table[var_child_id][1] = type_
-            # If the type is defined, it cannot downgrade 
+           # If the type is defined, it cannot downgrade 
             elif child_type > type_:
+                self.symbol_table[var_child_id][1] = type_
+            
+             # if the type is defined and the type of child is greater or equal than the father
+            elif child_type < type_:
                 is_allowed = False
         
         return is_allowed

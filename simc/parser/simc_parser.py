@@ -78,8 +78,7 @@ def expression(
             op_type = type_to_prec[table.get_by_id(var_id)[1]]
             
             # Resolve pendenting infer types
-            if table.resolve_dependency(tokens, i, var_id) is False:
-                error("Cannot downgrade the type of variable on this expression", tokens[i].line_num)
+            table.resolve_dependency(tokens, i, var_id)
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":

@@ -42,15 +42,14 @@ def function_call_statement(tokens, i, table, func_ret_type):
     params, default_values = extract_func_typedata(metadata, table)
     num_formal_params = len(params)
     num_required_args = num_formal_params - len(default_values)
-
+    
     # Parse the arguments
     op_value, op_type, i, func_ret_type = expression(
         tokens,
         i + 1,
         table,
         "",
-        True,
-        True,
+        accept_empty_expression=True,
         expect_paren=True,
         func_ret_type=func_ret_type,
     )
@@ -72,12 +71,10 @@ def function_call_statement(tokens, i, table, func_ret_type):
             tokens[i].line_num,
         )
 
-
     # Fill the missing values in function call with default values
     op_value_list = fill_missing_args_with_defaults(
         op_value_list, default_values, num_actual_params, num_formal_params
     )
-
     # Assign datatype to formal parameters
     for j in range(len(params)):
         # If parameter list is empty
@@ -95,9 +92,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
         table.symbol_table[param_id][1] = dtype
 
         # Resolve pendenting infer types
-        if table.resolve_dependency(tokens, i, param_id) is False:
-            error("Cannot downgrade the type of variable on this expression", tokens[i].line_num)
-
+        table.resolve_dependency(tokens, i, param_id)
 
     use_module_tokens = False
 
