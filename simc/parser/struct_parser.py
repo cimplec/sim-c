@@ -32,6 +32,7 @@ def initializate_struct(tokens, i, table, instance_var_name, var_list):
         # Otherwise, Modify datatype of the identifier
         else:
             table.symbol_table[new_var_id][1] = type_
+            table.symbol_table[new_var_id][3] += '-' + var_id
 
 def struct_declaration_statement(tokens, i, table):
     """
