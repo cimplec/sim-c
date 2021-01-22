@@ -10,7 +10,7 @@ from .array_parser import array_initializer
 from .loop_parser import for_statement, while_statement
 from .conditional_parser import if_statement, switch_statement, case_statement
 from .variable_parser import var_statement, assign_statement
-from .struct_parser import struct_declaration_statement
+from .struct_parser import struct_declaration_statement, initializate_struct
 
 # Import parser constants
 from .parser_constants import OP_TOKENS, WORD_TO_OP
@@ -644,6 +644,10 @@ def parse(tokens, table):
 
             op_codes.append(var_opcode)
 
+             # Struct name is added to the insiders variables as  "<struct_name>---<variable_name>"
+            if scope_mapping == SCOPE_STRUCT:
+                table.symbol_table[table.get_by_symbol(struct_name)][3] += "-" + str(tokens[idx].val)
+
         # If token is of type id 
         elif tokens[i].type == "id":
 
@@ -674,7 +678,7 @@ def parse(tokens, table):
                     error("Struct cannot be called inside a struct scope", tokens[i].line_num)
                 
                 # Get the details of id at index i - expected to be name of struct
-                struct_name, type_, _, _ = table.get_by_id(tokens[i].val)
+                struct_name, type_, _, list_var = table.get_by_id(tokens[i].val)
 
                 # Check if the structure is declared or not
                 if type_ != "struct_var":
@@ -683,6 +687,9 @@ def parse(tokens, table):
                # If there is no error then get the name of the instance variable
                 instance_var_name, _, _, _ = table.get_by_id(tokens[i + 1].val)
   
+                # Init instance vars
+                initializate_struct(tokens, i, table, instance_var_name, list_var)
+                
                 # OpCode value will be <struct-name>---<instance-variable-name>
                 op_codes.append(OpCode("struct_instantiate", struct_name + "---" + instance_var_name))
 
@@ -756,8 +763,15 @@ def parse(tokens, table):
                 # loop through the subsequent tokens to find all instantiated objects (after structure body)
                 for next_id in range(i + 1, len(tokens)):
                     if tokens[next_id].type == "id":
-                        instance_names += table.get_by_id(tokens[next_id].val)[0] + ", "
+                        instance_name   = table.get_by_id(tokens[next_id].val)[0]
+                        instance_names += instance_name + ", "
 
+                        # Get the details of id at index i - expected to be name of struct
+                        _, type_, _, var_list = table.get_by_id(table.get_by_symbol(struct_name))
+
+                        # Init instance vars
+                        initializate_struct(tokens, i, table, instance_name, var_list)
+                        
                         # Skip over the id type token
                         i += 1
                     elif tokens[next_id].type == "comma":
