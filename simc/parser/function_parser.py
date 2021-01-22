@@ -42,15 +42,14 @@ def function_call_statement(tokens, i, table, func_ret_type):
     params, default_values = extract_func_typedata(metadata, table)
     num_formal_params = len(params)
     num_required_args = num_formal_params - len(default_values)
-
+    
     # Parse the arguments
     op_value, op_type, i, func_ret_type = expression(
         tokens,
         i + 1,
         table,
         "",
-        True,
-        True,
+        accept_empty_expression=True,
         expect_paren=True,
         func_ret_type=func_ret_type,
     )
@@ -76,7 +75,6 @@ def function_call_statement(tokens, i, table, func_ret_type):
     op_value_list = fill_missing_args_with_defaults(
         op_value_list, default_values, num_actual_params, num_formal_params
     )
-
     # Assign datatype to formal parameters
     for j in range(len(params)):
         # If parameter list is empty
@@ -84,13 +82,18 @@ def function_call_statement(tokens, i, table, func_ret_type):
             continue
 
         # Fetch the datatype of corresponding actual parameter from symbol table
-        _, dtype, _ = table.get_by_id(
+        _, dtype, _, _ = table.get_by_id(
             table.get_by_symbol(op_value_list[j].replace(")", ""))
         )
 
+        param_id = table.get_by_symbol(params[j])
+
         # Set the datatype of the formal parameter
-        table.symbol_table[table.get_by_symbol(params[j])][1] = dtype
-    
+        table.symbol_table[param_id][1] = dtype
+
+        # Resolve pendenting infer types
+        table.resolve_dependency(tokens, i, param_id)
+
     use_module_tokens = False
 
     # If it an imported function the type of the function will be a list containing tokens from module's lexing results
@@ -115,6 +118,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
         #  Map datatype to appropriate datatype in C
         prec_to_type = {
+            -1: "declared",
             0: "char*",
             1: "char*",
             2: "char",
@@ -156,7 +160,7 @@ def extract_func_typedata(typedata, table):
 
     default_values = []
     for seg in func_typedata_split[1:]:
-        default_value, _, _ = table.get_by_id(int(seg))
+        default_value, _, _, _ = table.get_by_id(int(seg))
         default_values.append(default_value)
 
     return parameters, default_values
@@ -217,7 +221,7 @@ def function_definition_statement(tokens, i, table, func_ret_type):
     func_idx = tokens[i].val
 
     # Get function name
-    func_name, _, _ = table.get_by_id(func_idx)
+    func_name, _, _, _ = table.get_by_id(func_idx)
 
     # Check if ( follows id in function
     check_if(
@@ -380,7 +384,7 @@ def function_parameter(tokens, i, table, default_val_required):
         return None, i
 
     # Get the parameter from symbol table id stored in token
-    parameter, _, _ = table.get_by_id(tokens[i].val)
+    parameter, _, _, _ = table.get_by_id(tokens[i].val)
     i += 1
 
     default_val = None

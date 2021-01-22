@@ -456,7 +456,7 @@ class LexicalAnalyzer:
                         self.is_id_module_name = not self.is_id_module_name
 
                         # Get name of module from symbol table
-                        module_name, _, _ = self.symbol_table.get_by_id(
+                        module_name, _, _, _ = self.symbol_table.get_by_id(
                             self.tokens[-1].val
                         )
 

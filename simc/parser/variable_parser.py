@@ -91,6 +91,7 @@ def var_statement(tokens, i, table, func_ret_type):
 
     # Map datatype to appropriate datatype in C
     prec_to_type = {
+        -1: "declared",
         0: "string",
         1: "char*",
         2: "char",
@@ -112,7 +113,7 @@ def var_statement(tokens, i, table, func_ret_type):
         # If the next token after [ is a number
         if tokens[i + 2].type == "number":
             # Fetch information from symbol table
-            value, type_, _ = table.get_by_id(tokens[i + 2].val)
+            value, type_, _, _ = table.get_by_id(tokens[i + 2].val)
 
             if type_ == "int":
                 size_of_array = value
@@ -172,7 +173,7 @@ def var_statement(tokens, i, table, func_ret_type):
             error("Invalid Syntax for declaration", tokens[i].line_num)
         else:
             # Get the value from symbol table by id
-            value, type_, _ = table.get_by_id(tokens[id_idx].val)
+            value, type_, _, _ = table.get_by_id(tokens[id_idx].val)
 
             # If already declared then throw error
             if type_ in [
@@ -196,7 +197,6 @@ def var_statement(tokens, i, table, func_ret_type):
                 error("Size of array needs to be known if assignment is not done while declaration", tokens[i].line_num)
             else:
                 table.symbol_table[tokens[id_idx].val][2] = size_of_array
-
             return (
                 OpCode("array_no_assign", value + "---" + str(size_of_array)),
                 i,
@@ -253,7 +253,7 @@ def var_statement(tokens, i, table, func_ret_type):
     # If it is of pointer or variable type but has no value yet
     else:
         # Get the value from symbol table by id
-        value, type, _ = table.get_by_id(tokens[i].val)
+        value, type, _, _ = table.get_by_id(tokens[i].val)
 
         # If already declared then throw error
         if type in [
@@ -303,6 +303,18 @@ def assign_statement(tokens, i, table, func_ret_type):
     from .simc_parser import expression
     from .array_parser import array_initializer
     
+    # Map datatype to appropriate datatype in C
+    prec_to_type = {
+        -1: "declared",
+        0: "string",
+        1: "char*",
+        2: "char",
+        3: "int",
+        4: "float",
+        5: "double",
+        6: "bool",
+    }
+    
     # Check if the identifier is a pointer
     is_ptr = False
     # count depth of pointer
@@ -316,7 +328,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    var_name, type_, _ = table.get_by_id(tokens[i - 1].val)
+    var_name, type_, _, _ = table.get_by_id(tokens[i - 1].val)
 
     if type_ == "var":
         error("Variable %s used before declaration" % var_name, tokens[i - 1].line_num)
@@ -327,11 +339,14 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Store the index of identifier
     id_idx = i - 1
 
+    # Store the id of variable in Symbol Table
+    var_id = tokens[id_idx].val
+
     # Check if is a array indexing case
     if tokens[i].type == "left_bracket":
         if(tokens[i + 1].type == "number"):
             # Fetch information from symbol table
-            value, type_, _ = table.get_by_id(tokens[i + 1].val)
+            value, type_, _, _ = table.get_by_id(tokens[i + 1].val)
 
             if type_ == "int":
                 if int(value) >= int(table.symbol_table[tokens[id_idx].val][2]):
@@ -396,7 +411,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     is_arr = False
 
     # Check if assignment is an array initializer or a simple expression type
-    if tokens[i+1].type == "left_brace":
+    if tokens[i + 1].type == "left_brace":
         is_arr = True
         if type_ != "arr_declared":
             error("Cannot assign an initializer list to a variable", tokens[i].line_num)
@@ -410,6 +425,10 @@ def assign_statement(tokens, i, table, func_ret_type):
             size_of_array,
             "Required expression after assignment operator",
         )
+
+        # Modify datatype of the identifier
+        table.symbol_table[var_id][1] = prec_to_type[op_type]
+
     else:
         if type_ == "arr_declared" and tokens[id_idx + 1].type != "left_bracket":
             error("Array assignment requires initializer list, cannot assign expression", tokens[i].line_num)
@@ -423,29 +442,19 @@ def assign_statement(tokens, i, table, func_ret_type):
             expect_paren=False,
             func_ret_type=func_ret_type,
         )
-        
-    #  Map datatype to appropriate datatype in C
-    prec_to_type = {
-        0: "string",
-        1: "string",
-        2: "char",
-        3: "int",
-        4: "float",
-        5: "double",
-        6: "bool",
-    }
-
+    
     op_value = converted_type + "---" + op_value
 
-    # Modify datatype of the identifier
-    table.symbol_table[tokens[id_idx].val][1] = prec_to_type[op_type]
-
+    if table.symbol_table[var_id][1] in ["var", "declared"]:
+        # Modify datatype of the identifier
+        table.symbol_table[var_id][1] = prec_to_type[op_type]
+        
     # Check if a pointer is being assigned
     if is_ptr:
         return (
             OpCode(
                 "ptr_only_assign",
-                table.symbol_table[tokens[id_idx].val][0] + op_value_idx
+                table.symbol_table[var_id][0] + op_value_idx
                 + "---"
                 + op_value
                 + "---"
@@ -456,6 +465,9 @@ def assign_statement(tokens, i, table, func_ret_type):
             func_ret_type,
         )
 
+    # Resolve pendenting infer types
+    table.resolve_dependency(tokens, i, var_id)
+
     # If it is an array then generate array_only_assign
     if is_arr:
         # Add (<type> [<size>]) to op_value
@@ -463,7 +475,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         return (
             OpCode(
                 "array_only_assign", 
-                table.symbol_table[tokens[id_idx].val][0] + "---" + op_value, ""
+                table.symbol_table[var_id][0] + "---" + op_value, ""
             ),
             i,
             func_ret_type,
@@ -472,8 +484,9 @@ def assign_statement(tokens, i, table, func_ret_type):
     # Return the opcode and i (the token after assign statement)
     return (
         OpCode(
-            "assign", table.symbol_table[tokens[id_idx].val][0] + op_value_idx + "---" + op_value, ""
+            "assign", var_name + op_value_idx + "---" + op_value, ""
         ),
         i,
         func_ret_type,
     )
+

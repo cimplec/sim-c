@@ -121,7 +121,7 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
             get_data_type = {
@@ -163,7 +163,7 @@ def compile(opcodes, c_filename, table):
             val = opcode.val.split("---")
 
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
             get_data_type = {
@@ -195,7 +195,7 @@ def compile(opcodes, c_filename, table):
             val = opcode.val.split("---")
 
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
@@ -203,7 +203,7 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += (
@@ -213,7 +213,7 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += (
@@ -238,7 +238,7 @@ def compile(opcodes, c_filename, table):
         elif opcode.type == "ptr_no_assign":
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             if opcode.dtype == "string":
@@ -293,7 +293,7 @@ def compile(opcodes, c_filename, table):
             params = val[1].split("&&&") if len(val[1]) > 0 else []
 
             # Get the return type of the function
-            _, dtype, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             dtype = dtype if dtype != "var" else "void"
 
             # Append the function return type and name to code
@@ -304,7 +304,7 @@ def compile(opcodes, c_filename, table):
             for i in range(len(params)):
                 if len(params[i]) > 0:
                     has_param = True
-                    _, dtype, _ = table.get_by_id(table.get_by_symbol(params[i]))
+                    _, dtype, _, _ = table.get_by_id(table.get_by_symbol(params[i]))
                     dtype = dtype if dtype != "var" else "not_known"
                     dtype = "char*" if dtype == "string" else dtype
                     code += dtype + " " + params[i] + ", "
