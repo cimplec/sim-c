@@ -121,6 +121,8 @@ class SymbolTable:
 
             # If the type is not defined
             if child_type is "declared":
+                if type_ == "string":
+                    type_ = "char*"
                 self.symbol_table[var_child_id][1] = type_
                 is_allowed = self.resolve_dependency(tokens, i, var_child_id)
 

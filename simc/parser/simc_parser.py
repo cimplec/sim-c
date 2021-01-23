@@ -650,7 +650,6 @@ def parse(tokens, table):
 
         # If token is of type id 
         elif tokens[i].type == "id":
-
             # If '(' follows id then it is function calling 
             if tokens[i + 1].type == "left_paren":
                 fun_opcode, i, func_ret_type = function_call_statement(
@@ -684,7 +683,7 @@ def parse(tokens, table):
                 if type_ != "struct_var":
                     error(f"Structure {struct_name} not declared", tokens[i].line_num)
 
-               # If there is no error then get the name of the instance variable
+                # If there is no error then get the name of the instance variable
                 instance_var_name, _, _, _ = table.get_by_id(tokens[i + 1].val)
   
                 # Init instance vars

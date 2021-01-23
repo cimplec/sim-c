@@ -16,7 +16,7 @@ def initializate_struct(tokens, i, table, instance_var_name, var_list):
     """    
     # Initializate the child variable of struct
     var_ids = var_list.split('-')[1:]
-
+    
     # Load var and copy to struct initilization 
     for var_id in var_ids:
 
