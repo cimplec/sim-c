@@ -687,7 +687,7 @@ class LexicalAnalyzer:
             elif self.source_code[self.current_source_index] == ",":
                 self.tokens.append(Token("comma", "", self.line_num))
                 self.__update_source_index()
-
+                
             # Identifying not_equal token
             elif (
                 self.source_code[self.current_source_index] == "!"

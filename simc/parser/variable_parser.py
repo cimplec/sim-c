@@ -341,7 +341,7 @@ def assign_statement(tokens, i, table, func_ret_type):
 
     # Store the id of variable in Symbol Table
     var_id = tokens[id_idx].val
-
+    
     # Check if is a array indexing case
     if tokens[i].type == "left_bracket":
         if(tokens[i + 1].type == "number"):

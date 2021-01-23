@@ -2,6 +2,38 @@ from ..global_helpers import error, check_if
 
 from ..op_code import OpCode
 
+
+def initializate_struct(tokens, i, table, instance_var_name, var_list):
+    """
+        Initialization of a struction when the variable instantiate is type of a declared struct
+        Params
+        ======
+        tokens      (list) = List of tokens
+        i           (int)  = Current index in token
+        table               (SymbolTable) = Symbol Table constructed holding information about identifiers and constans
+        instance_var_name   (String)      = Name of the instance of the struct
+        var_list            (String)      = List of if variable declared inside struct
+    """    
+    # Initializate the child variable of struct
+    var_ids = var_list.split('-')[1:]
+    
+    # Load var and copy to struct initilization 
+    for var_id in var_ids:
+
+        # Find the child variable of struct 
+        var_name, type_, metatype_, _ = table.get_by_id(int(var_id))
+        new_var_name = instance_var_name + "." + var_name
+
+        # Check if variable already exist
+        new_var_id = table.get_by_symbol(new_var_name)
+        # If it not exist, then create a new
+        if new_var_id is -1:
+            table.entry(instance_var_name + "." + var_name, type_, metatype_, '')
+        # Otherwise, Modify datatype of the identifier
+        else:
+            table.symbol_table[new_var_id][1] = type_
+            table.symbol_table[new_var_id][3] += '-' + var_id
+
 def struct_declaration_statement(tokens, i, table):
     """
     Parse structure declaration statement
