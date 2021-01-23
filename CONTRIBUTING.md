@@ -11,6 +11,8 @@
 	- <strong>Docstrings</strong>: Docstrings are special comments in python which helps one to understand what a function or class does, the parameters passed, and the data returned from that function. We tend to follow a similar syntax for javascript too, we expect everyone to adhere to the format in your code. To get a better idea of the format of docstrings, please refer to the codebase.
 	- <strong>Comments</strong>: The comments should be meaningful and one should be able to understand what the line(s) of code mean from the comments. Do not add unecessary comments in each line, leave out comments from code which is self-explanatory. 
 	- <strong>Variables</strong>: Variable names used in your code should explain what the variable is. Some unacceptable variable names are:- a, b, hello, world, etc.  While creating variable name with multiple words in it, the words should be separated by underscore (_) e.g:- player_initial_energy and should not be written in camel case e.g- playerInitialEnergy.
+	- <strong>Run tests</strong>: Run the tests using simC's test-suite and report the number of tests passing, if this is missing then the PR will be closed immediately.
+	- <strong>Follow PR template</strong>: Fill all the details in PR template as it helps us understand the PR better, the PR will be closed if any field is found empty.
 - After successful submission of PR, it will be subjected to automated testing and if the code fails any of the tests you will be given a time period of 3 days to fix the issue, else your PR will be closed.
 
 ## New Issue (New feature or bug)
