@@ -1,7 +1,7 @@
 # sim-C
 
 <p align="center">
-  <img src="./images/logo.png" height="200">
+  <img src="https://raw.githubusercontent.com/cimplec/sim-c/master/images/logo.png" height="200">
 </p>
 
 [![GitHub](https://img.shields.io/github/license/cimplec/sim-c)](https://github.com/cimplec/sim-c/blob/master/LICENSE)  ![GitHub stars](https://img.shields.io/github/stars/cimplec/sim-c?style=plastic)  ![GitHub contributors](https://img.shields.io/github/contributors/cimplec/sim-c)  ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)  ![GitHub last commit](https://img.shields.io/github/last-commit/cimplec/sim-c)  ![GitHub issues](https://img.shields.io/github/issues/cimplec/sim-c?color=darkgreen)  ![GitHub closed issues](https://img.shields.io/github/issues-closed/cimplec/sim-c?color=red)  ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/cimplec/sim-c?color=darkred)
@@ -13,7 +13,7 @@
 ## Pipeline
 
 <p align="center">
-  <img src="./images/simc-pipeline.png">
+  <img src="https://raw.githubusercontent.com/cimplec/sim-c/master/images/simc-pipeline.png">
 </p>
   
 ## New Developers
