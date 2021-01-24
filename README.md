@@ -32,8 +32,9 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 
 ## OSS Programs
 
-1) KWoC (Kharagpur Winter of Code) 2020
-2) SWoC (Script Winter of Code) 2021
+1) Hacktoberfest 2020
+2) KWoC (Kharagpur Winter of Code) 2020
+3) SWoC (Script Winter of Code) 2021
 
 ## Contributor blogs
 
