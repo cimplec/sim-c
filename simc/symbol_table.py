@@ -16,7 +16,7 @@ class SymbolTable:
         table_dict = self.symbol_table
 
         # Maximum length when all strings in the lists are compared
-        max_length = max( [ len(i)  for dict_list in table_dict.values() for i in dict_list ] )
+        max_length = max( [ len(i)  for dict_list in table_dict.values()  for i in dict_list ] )
 
         table_string = ""
 
@@ -29,7 +29,7 @@ class SymbolTable:
 
             # Without this line, as the number of elements in symbol table exceeds some power of 10,
             # there will be some distortion in table rows. For example, between row 99 and 100.
-            line += " " * ( spaces_after_integer   - len(str(i)) )
+            line += " " * ( spaces_after_integer - len(str(i)) )
 
             dict_list = table_dict[ i ]
 
