@@ -10,6 +10,43 @@ class SymbolTable:
 
         self.id = 1
         self.symbol_table = {}
+    
+    def __str__( self ):
+
+        table_dict = self.symbol_table
+
+        # Maximum length when all strings in the lists are compared
+        max_length = max( [ len(i)  for dict_list in table_dict.values() for i in dict_list ] )
+
+        table_string = ""
+
+        # To solve spacing issue for when lines exceed some power of 10 (like from line 9 to 10, 99 to 100 etc. )
+        spaces_after_integer = len(str(len(table_dict)))
+
+        for i in range( 1, len( table_dict )+1 ):
+            
+            line = "| " + str(i) + "  "
+
+            # Without this line, as the number of elements in symbol table exceeds some power of 10,
+            # there will be some distortion in table rows. For example, between row 99 and 100.
+            line += " " * ( spaces_after_integer   - len(str(i)) )
+
+            dict_list = table_dict[ i ]
+
+            for j in range( len(dict_list) ):
+                
+                line += dict_list[ j ]
+                if j < len( dict_list ) - 2:
+                    
+                    line += " " * (max_length - len(dict_list[j]) + 2 )
+
+            len_horizontal_bar = len( line )
+            table_string += line + " |\n"
+
+        horizontal_bar = "|" + "-" * ( len_horizontal_bar ) + "|\n"
+        table_string = horizontal_bar + table_string + horizontal_bar
+        
+        return table_string 
 
     def entry(self, value, type, typedata, dependency=''):
         """
@@ -120,7 +157,7 @@ class SymbolTable:
             child_type = self.symbol_table[var_child_id][1]
 
             # If the type is not defined
-            if child_type is "declared":
+            if child_type == "declared":
                 if type_ == "string":
                     type_ = "char*"
                 self.symbol_table[var_child_id][1] = type_
