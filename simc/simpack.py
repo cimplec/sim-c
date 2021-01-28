@@ -1,4 +1,4 @@
-# simpack (stands for simC Packages) is the official package manager for simC
+# simpack (short for simC Packages) is the official package manager for simC
 
 # Import libraries
 import requests

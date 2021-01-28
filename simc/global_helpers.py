@@ -30,7 +30,7 @@ def error(msg, line_num):
     Params
     ======
     msg      (string) = The message to be shown as error message
-    line_num (int)         = Line number
+    line_num (int)    = Line number
     """
 
     # Prints the error to screen in red color and then exits tokenizer

@@ -12,6 +12,13 @@ class SymbolTable:
         self.symbol_table = {}
     
     def __str__( self ):
+        """
+        String representation of SymbolTable
+
+        Returns
+        =======
+        string: The string representation of SymbolTable object - used for pretty printing the table
+        """
 
         table_dict = self.symbol_table
 
@@ -69,9 +76,10 @@ class SymbolTable:
 
         Params
         ======
-        value    (string) = Value to be stored in symbol table (identifier/constant)
-        type     (string) = Datatype of symbol
-        typedata (string) = Type of data (constant/variable)
+        value      (string) = Value to be stored in symbol table (identifier/constant)
+        type       (string) = Datatype of symbol
+        typedata   (string) = Type of data (constant/variable)
+        dependency (string) = List of token ids of dependent variables
 
         Returns
         =======
@@ -92,7 +100,7 @@ class SymbolTable:
 
         Returns
         =======
-        list: [value, type, typedata], typedata = constant/variable
+        list: Table entry
         """
 
         return self.symbol_table.get(id, [None, None, None, None])
@@ -118,33 +126,37 @@ class SymbolTable:
 
     def add_dependency(self, var_father_id, var_child_id):
         """
-        Add dependency adds a relation of dependecy beetween two variables.
-        It's used when the variable is assigned to other varible before it is type had been defined. 
-        When the type of the varible is discovered, use the function resolve_dependency to update the child variables.
-        ======
+        Adds a relation of dependecy beetween two variables
+
+        It is used when the variable is assigned to other varible before it is type had been defined 
+        When the type of the varible is discovered, use the function resolve_dependency to update the child variables
+
         Params
         ======
-        table           (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-        var_father_id   (int)         = ID of varible father in SymbolTable
-        var_father_id   (int)         = ID of varibl child in SymbolTable
-    
+        var_father_id (int) = ID of parent identifier in SymbolTable
+        var_child_id  (int) = ID of child identifier in SymbolTable
         """
+
         # Add the variable to list in the expression:: "<-ID>"
         self.symbol_table[var_father_id][3] += '-' + str(var_child_id)
 
 
     def resolve_dependency(self, tokens, i, var_id):
         """
-        Resolve Dependency
+        Resolves the dependency relation between variables
 
-        This is a recursive function, it is used when you discover the type of a varible which had been 
-        assign to another one, then the type of the assigned one dependes on this.
+        This is a recursive function, it is used when the parser discovers the type of a varible which has been 
+        assign to another one, then the type of the assigned one dependes on this
+
         Params
         ======
-        tokens      (list) = List of tokens
-        i           (int)  = Current index in token
-        table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-        var_id      (int)  = ID in Symbol table where the function will look at for child dependencies
+        tokens (list) = List of tokens
+        i      (int)  = Current index in token
+        var_id (int)  = ID in Symbol table where the function will look at for child dependencies
+
+        Returns
+        =======
+        bool: Whether it is possible to resolve the dependency or not
         """
         # Extract the type of variable and the list of variable which dependies on it
         _, type_, _, list_dependency = self.symbol_table[var_id]
@@ -182,7 +194,7 @@ class SymbolTable:
             elif child_type > type_:
                 self.symbol_table[var_child_id][1] = type_
             
-             # if the type is defined and the type of child is greater or equal than the father
+            # If the type is defined and the type of child is greater or equal than the father
             elif child_type < type_:
                 is_allowed = False
         

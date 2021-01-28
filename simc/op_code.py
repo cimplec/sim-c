@@ -9,9 +9,9 @@ class OpCode:
 
         Params
         ======
-        opcode           (string) = Type of opcode as string
-        val              (string) = Value stored at opcode
-        dtype (Optional) (string) = Datatype of opcode
+        opcode (string) = Type of opcode as string
+        val    (string) = Value stored at opcode
+        dtype  (string) = Datatype of opcode
         """
 
         self.type = opcode

@@ -107,7 +107,9 @@ class LexicalAnalyzer:
 
     def update_filename(self, source_filename):
         """
-        Update sim-C source file path, used during lexical analysis of module sources
+        Update sim-C source file path
+        
+        Used during lexical analysis of module sources
         """
 
         self.source_filename = source_filename
@@ -474,13 +476,15 @@ class LexicalAnalyzer:
                                 + " not found, install it before using",
                                 self.line_num,
                             )
-
+                # Identify BEGIN_C token
                 elif self.tokens[-1].type == "BEGIN_C":
                     self.raw_c_begin = True
                     continue
+                # Identify END_C token
                 elif self.tokens[-1].type == "END_C":
                     self.raw_c_begin = False
                     continue
+                # Identify import token
                 elif self.tokens[-1].type == "import":
                     self.is_id_module_name = True
 

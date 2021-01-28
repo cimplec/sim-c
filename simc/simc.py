@@ -20,9 +20,12 @@ from .compiler import compile
 
 def run():
     filename = ""
+
+    # Check if filepath is provided or not
     if len(sys.argv) >= 2:
         filename = sys.argv[1]
 
+        # Check if extension of file is correct or not
         if "." not in filename or filename.split(".")[-1] != "simc":
             error("Incorrect file extension", -1)
     else:
@@ -34,11 +37,11 @@ def run():
     # Create symbol table
     table = SymbolTable()
 
-    # Get source code tokens from lexical_analyzer
+    # Get tokens and list of modules from source code 
     lexical_analyzer = LexicalAnalyzer(filename, table)
     tokens, module_source_paths = lexical_analyzer.lexical_analyze()
 
-    # Get module tokens from lexical_analyzer
+    # Get tokens for modules
     all_module_tokens = {}
     if len(module_source_paths) > 0:
         for module_source_path in module_source_paths:
@@ -59,11 +62,11 @@ def run():
             for token in module_tokens:
                 print(token)
 
-    # Option to check symbol table after parsing
+    # Option to check symbol table after lexical analysis
     if len(sys.argv) > 2 and sys.argv[2] == "table_after_lexing":
-        print( table )
+        print(table)
 
-    # Parse the modules first as these function definitions will be important during calls
+    # Parse the modules first as these function definitions will be important during source parsing
     all_module_opcodes = {}
 
     for module_name, module_tokens in all_module_tokens.items():
@@ -78,7 +81,7 @@ def run():
         all_module_opcodes_pruned[module_name] = []
         i = 0
 
-        # Loops thorugh all the opcodes of specific module and checks for functions which weren't called from source code
+        # Loops through all the opcodes of specific module and checks for functions which weren't called from source code
         while i < len(module_opcodes):
             if module_opcodes[i].type == "func_decl":
                 func_name = module_opcodes[i].val.split("---")[0].strip()
