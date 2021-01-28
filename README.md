@@ -8,7 +8,7 @@
 
 ## What is sim-C?
 
-<p align="justify">Often people have trouble programming in C (especially beginners) due to its low level syntax and unavailability of stable third party libraries. We present sim-C a high-level front end for C which creates a dynamically typed syntax for C. User can write code in this high level syntax and then compile it to optimized C code. sim-C does not process the code and simply translates it to C thus, there is no possibility of the code running slowly. So, with sim-C users can write code faster using the high level syntax and at the same time be able to harness the power and speed of a C program. Let us make C cool again.</p>
+<p align="justify">Often people have trouble programming in C (especially beginners) due to its low level syntax and unavailability of stable third party libraries. We present sim-C a high-level front end for C which creates a dynamically typed syntax for C. Users can write code in this high level syntax and then compile it to optimized C code. sim-C does not process the code and simply translates it to C thus, there is no possibility of the code running slowly. So, with sim-C users can write code faster using the high level syntax and at the same time be able to harness the power and speed of a C program.</p>
 
 ## Pipeline
 
@@ -25,10 +25,6 @@
 
 <p align="justify">New developers can join simC New Devs slack channel where they can get help from core developers on their issues, link to the slack channel - <a href="https://join.slack.com/t/sim-cnewdevs/shared_invite/zt-ky44bntx-WHiw41q1nam4AmktMggsCg">simC New Devs Slack</a></p>
 
-## License
-
-sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICENSE)
-
 ## The Team
 
 - [Siddhartha Dhar Choudhury](https://github.com/frankhart2018)
@@ -43,4 +39,8 @@ sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](./LICEN
 
 ## Contributor blogs
 
-Follow this [link](./BLOGS.md) to read blogs written by contributors after completing various OSS programs. 
+Follow this [link](https://github.com/cimplec/sim-c/blob/master/BLOGS.md) to read blogs written by contributors after completing various OSS programs. 
+
+## License
+
+sim-C is licensed under GNU General Public License (GPL) v3.0. [LICENSE](https://github.com/cimplec/sim-c/blob/master/LICENSE)
