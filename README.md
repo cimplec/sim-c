@@ -16,6 +16,11 @@
   <img src="https://raw.githubusercontent.com/cimplec/sim-c/master/images/simc-pipeline.png">
 </p>
   
+## Important links
+
+1. <a href="https://cimplec.github.io/docs">Official documentation</a>
+2. <a href="https://github.com/cimplec/sim-c/wiki/">simC Wiki</a>
+
 ## New Developers
 
 <p align="justify">New developers can join simC New Devs slack channel where they can get help from core developers on their issues, link to the slack channel - <a href="https://join.slack.com/t/sim-cnewdevs/shared_invite/zt-ky44bntx-WHiw41q1nam4AmktMggsCg">simC New Devs Slack</a></p>
