@@ -6,25 +6,19 @@ from ..op_code import OpCode
 def if_statement(tokens, i, table, func_ret_type):
     """
     Parse if statement
+
     Params
     ======
-    tokens      (list) = List of tokens
-    i           (int)  = Current index in token
-    table       (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+    tokens        (list)        = List of tokens
+    i             (int)         = Current index in token
+    table         (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+    func_ret_type (dict)        = Dict of functions whose return type could not be resolved immediately
+
     Returns
     =======
     OpCode, int: The opcode for the assign code and the index after parsing if statement
-    Grammar
-    =======
-    if_statement -> if(condition) { body }
-    condition       -> expr
-    expr            -> string | number | id | operator
-    string          -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
-    quote           -> "
-    number          -> [0-9]+
-    id              -> [a-zA-Z_]?[a-zA-Z0-9_]*
-    operator        -> + | - | * | /
     """
+
     from .simc_parser import expression, skip_all_nextlines
 
     # Check if ( follows if statement
@@ -79,6 +73,21 @@ def if_statement(tokens, i, table, func_ret_type):
 
 
 def switch_statement(tokens, i, table, func_ret_type):
+    """
+    Parse switch statement
+
+    Params
+    ======
+    tokens        (list)        = List of tokens
+    i             (int)         = Current index in token
+    table         (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+    func_ret_type (dict)        = Dict of functions whose return type could not be resolved immediately
+
+    Returns
+    =======
+    OpCode, int: The opcode for the assign code and the index after parsing switch statement
+    """
+
     from .simc_parser import expression, skip_all_nextlines
 
     # Check if ( is present after switch keyword
@@ -121,6 +130,21 @@ def switch_statement(tokens, i, table, func_ret_type):
 
 
 def case_statement(tokens, i, table, func_ret_type):
+    """
+    Parse case statement
+
+    Params
+    ======
+    tokens        (list)        = List of tokens
+    i             (int)         = Current index in token
+    table         (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+    func_ret_type (dict)        = Dict of functions whose return type could not be resolved immediately
+
+    Returns
+    =======
+    OpCode, int: The opcode for the assign code and the index after parsing case statement
+    """
+
     from .simc_parser import expression
 
     # Expected expression after case keyword

@@ -6,26 +6,17 @@ from ..op_code import OpCode
 def function_call_statement(tokens, i, table, func_ret_type):
     """
     Parse function calling statement
+
     Params
     ======
     tokens        (list)        = List of tokens
     i             (int)         = Current index in token
     table         (SymbolTable) = Symbol table constructed holding information about identifiers and constants
     func_ret_type (dict)        = If return type of function is not figured yet
+
     Returns
     =======
     OpCode, int, dict: The opcode for the assign code, index after parsing function calling statement and function return type
-    Grammar
-    =======
-    function_call_statement   -> id([actual_params,]*)
-    actual_params             -> expr
-    body                      -> statement
-    expr                      -> string | number | id | operator
-    string                    -> quote [a-zA-Z0-9`~!@#$%^&*()_-+={[]}:;,.?/|\]+ quote
-    quote                     -> "
-    number                    -> [0-9]+
-    id                        -> [a-zA-Z_]?[a-zA-Z0-9_]*
-    operator                  -> + | - | * | /
     """
 
     from .simc_parser import expression
@@ -141,10 +132,12 @@ def function_call_statement(tokens, i, table, func_ret_type):
 def extract_func_typedata(typedata, table):
     """
     Extract typedata of function
+
     Params
     ======
     typedata    (string)        = Typedata of function in format "function---param1---param2---...&&&default_val1&&&...
     table       (SymbolTable)   = Symbol table
+    
     Returns
     =======
     parameters      (list)  = Parameter names

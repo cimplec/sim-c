@@ -5,14 +5,16 @@ from ..op_code import OpCode
 
 def array_initializer(tokens, i, table, size_of_array, msg):
     """
-    Parse array assigment
+    Parse array initializer list
+
     Params
     ======
-    tokens                  (list)        = List of tokens
-    i                       (string/list) = Current index in list of tokens
-    table                   (SymbolTable) = Symbol table constructed holding information about identifiers and constants
-    num_field_expec         (number)      = Number of fileds expected to fill
-    msg                     (string)      = Error message to print in case some case fails
+    tokens          (list)        = List of tokens
+    i               (string/list) = Current index in list of tokens
+    table           (SymbolTable) = Symbol table constructed holding information about identifiers and constants
+    size_of_array   (number)      = Number of fileds expected to fill
+    msg             (string)      = Error message to print in case some case fails
+
     Returns
     =======
     string, string, int: The expression, datatype of the expression and the current index in source
