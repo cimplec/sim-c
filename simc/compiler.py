@@ -95,7 +95,7 @@ def compile(opcodes, c_filename, table):
 
     # Check if the function has returned or not
     has_returned = False
-    
+
     # Loop through all opcodes
     for opcode in opcodes:
         code = ""
@@ -206,9 +206,7 @@ def compile(opcodes, c_filename, table):
             _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
-            code += (
-                "\t" + opcode.dtype + " *" + str(val[0]) + ";\n"
-            )
+            code += "\t" + opcode.dtype + " *" + str(val[0]) + ";\n"
         elif opcode.type == "array_assign":
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
@@ -349,7 +347,14 @@ def compile(opcodes, c_filename, table):
             # Extract the identifier name of instance variable
             struct_name, instance_var_name = opcode.val.split("---")
 
-            code += "\t" + "struct " + struct_name.strip() + " " + instance_var_name.strip() + ";\n"
+            code += (
+                "\t"
+                + "struct "
+                + struct_name.strip()
+                + " "
+                + instance_var_name.strip()
+                + ";\n"
+            )
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
             code += "{\n"

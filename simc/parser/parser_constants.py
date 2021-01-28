@@ -31,7 +31,7 @@ OP_TOKENS = [
     "modulus_equal",
     "power_equal",
     "and",
-    "or",    
+    "or",
     "left_paren",
     "left_bracket",
     "exit",

@@ -5,22 +5,22 @@ from ..op_code import OpCode
 
 def initializate_struct(tokens, i, table, instance_var_name, var_list):
     """
-        Initialization of a struction when the variable instantiate is type of a declared struct
-        Params
-        ======
-        tokens      (list) = List of tokens
-        i           (int)  = Current index in token
-        table               (SymbolTable) = Symbol Table constructed holding information about identifiers and constans
-        instance_var_name   (String)      = Name of the instance of the struct
-        var_list            (String)      = List of if variable declared inside struct
-    """    
+    Initialization of a struction when the variable instantiate is type of a declared struct
+    Params
+    ======
+    tokens      (list) = List of tokens
+    i           (int)  = Current index in token
+    table               (SymbolTable) = Symbol Table constructed holding information about identifiers and constans
+    instance_var_name   (String)      = Name of the instance of the struct
+    var_list            (String)      = List of if variable declared inside struct
+    """
     # Initializate the child variable of struct
-    var_ids = var_list.split('-')[1:]
-    
-    # Load var and copy to struct initilization 
+    var_ids = var_list.split("-")[1:]
+
+    # Load var and copy to struct initilization
     for var_id in var_ids:
 
-        # Find the child variable of struct 
+        # Find the child variable of struct
         var_name, type_, metatype_, _ = table.get_by_id(int(var_id))
         new_var_name = instance_var_name + "." + var_name
 
@@ -28,11 +28,12 @@ def initializate_struct(tokens, i, table, instance_var_name, var_list):
         new_var_id = table.get_by_symbol(new_var_name)
         # If it not exist, then create a new
         if new_var_id is -1:
-            table.entry(instance_var_name + "." + var_name, type_, metatype_, '')
+            table.entry(instance_var_name + "." + var_name, type_, metatype_, "")
         # Otherwise, Modify datatype of the identifier
         else:
             table.symbol_table[new_var_id][1] = type_
-            table.symbol_table[new_var_id][3] += '-' + var_id
+            table.symbol_table[new_var_id][3] += "-" + var_id
+
 
 def struct_declaration_statement(tokens, i, table):
     """
@@ -51,13 +52,17 @@ def struct_declaration_statement(tokens, i, table):
     from .simc_parser import skip_all_nextlines
 
     # Check if identifier follows struct
-    check_if(got_type=tokens[i].type, should_be_types="id", 
-             error_msg="Expected structure name", line_num=tokens[i].line_num)
+    check_if(
+        got_type=tokens[i].type,
+        should_be_types="id",
+        error_msg="Expected structure name",
+        line_num=tokens[i].line_num,
+    )
 
     # Store the id of strcuture name in symbol table
     struct_idx = tokens[i].val
 
-    # Update type to hold struct_var instead of var 
+    # Update type to hold struct_var instead of var
     table.symbol_table[struct_idx][1] = "struct_var"
 
     # Get struct name

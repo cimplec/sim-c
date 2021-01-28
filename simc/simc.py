@@ -37,7 +37,7 @@ def run():
     # Create symbol table
     table = SymbolTable()
 
-    # Get tokens and list of modules from source code 
+    # Get tokens and list of modules from source code
     lexical_analyzer = LexicalAnalyzer(filename, table)
     tokens, module_source_paths = lexical_analyzer.lexical_analyze()
 
@@ -115,7 +115,7 @@ def run():
 
     # Option to check symbol table after parsing
     if len(sys.argv) > 2 and sys.argv[2] == "table_after_parsing":
-        print( table )
+        print(table)
 
     # Compile to C code
     compile(op_codes, c_filename, table)

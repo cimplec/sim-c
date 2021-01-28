@@ -92,8 +92,10 @@ def switch_statement(tokens, i, table, func_ret_type):
 
     # Check if ( is present after switch keyword
     check_if(
-        got_type=tokens[i].type, should_be_types="left_paren", 
-        error_msg="Expected ( after switch", line_num=tokens[i].line_num
+        got_type=tokens[i].type,
+        should_be_types="left_paren",
+        error_msg="Expected ( after switch",
+        line_num=tokens[i].line_num,
     )
 
     # Expected expression after ( in switch

@@ -49,7 +49,7 @@ def get_package():
     # If the simc file is already present in modules directory then the package is already installed
     if os.path.exists(module_path):
         print(requested_name + " is already installed!")
-    
+
     # Otherwise fetch the simc module from the corresponding link
     else:
         print("Fetching package " + requested_name + " from " + requested_link)
