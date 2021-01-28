@@ -23,7 +23,7 @@
 
 ## Start Contributing
 
-<p align="justify">Go through this <a href="https://drive.google.com/file/d/1fbWa6nC5kDfjT4XTe2WhL1DhBpjnL8bX/view?usp=sharing">document</a> to know about the components of sim-C compiler.</p>
+<p align="justify">Go through <a href="https://github.com/cimplec/sim-c/wiki/">simC's Wiki</a> to get an in-depth understanding of simC.</p>
 
 <p align="justify">Three files are important and if you are contributing to this project, you should have a rough idea of these files, the order is:-</p>
 
