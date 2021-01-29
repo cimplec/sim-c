@@ -379,11 +379,11 @@ class LexicalAnalyzer:
                 error("A keyword cannot be an identifier - %s" % value, self.line_num)
 
         # Check if identifier is in symbol self.symbol_table
-        id_ = self.symbol_table.get_by_symbol(value)
+        id_ = self.symbol_table.get_by_symbol(value, consider_scope=True, current_scope=self.__get_current_scope())
 
         # If identifier is not in symbol self.symbol_table then give a placeholder datatype var
         if id_ == -1:
-            id_ = self.symbol_table.entry(value, "var", "variable")
+            id_ = self.symbol_table.entry(value, "var", "variable", scope=self.__get_current_scope())
 
         # Return id token and current index in source code
         self.tokens.append(Token("id", id_, self.line_num, self.__get_current_scope()))

@@ -1,6 +1,7 @@
-# Import sys and os module
+# Import sys, os and pprint module
 import sys
 import os
+import pprint
 
 # Module to import global helpers
 from .global_helpers import error
@@ -20,6 +21,8 @@ from .compiler import compile
 
 def run():
     filename = ""
+
+    pretty_printer = pprint.PrettyPrinter(indent=4)
 
     # Check if filepath is provided or not
     if len(sys.argv) >= 2:
@@ -64,7 +67,8 @@ def run():
 
     # Option to check symbol table after lexical analysis
     if len(sys.argv) > 2 and sys.argv[2] == "table_after_lexing":
-        print(table)
+        # print(table)
+        pretty_printer.pprint(table.symbol_table)
 
     # # Parse the modules first as these function definitions will be important during source parsing
     # all_module_opcodes = {}

@@ -72,7 +72,7 @@ class SymbolTable:
 
         return symbol_table_string
 
-    def entry(self, value, type, typedata, dependency=""):
+    def entry(self, value, type, typedata, dependency="", scope=""):
         """
         Returns id in symbol table after making an entry
 
@@ -82,13 +82,14 @@ class SymbolTable:
         type       (string) = Datatype of symbol
         typedata   (string) = Type of data (constant/variable)
         dependency (string) = List of token ids of dependent variables
+        scope      (string) = Scope of entry
 
         Returns
         =======
         int: The id of the current entry in symbol table
         """
 
-        self.symbol_table[self.id] = [value, type, typedata, dependency]
+        self.symbol_table[self.id] = [value, type, typedata, dependency, scope]
         self.id += 1
         return self.id - 1
 
@@ -105,15 +106,17 @@ class SymbolTable:
         list: Table entry
         """
 
-        return self.symbol_table.get(id, [None, None, None, None])
+        return self.symbol_table.get(id, [None, None, None, None, None])
 
-    def get_by_symbol(self, value):
+    def get_by_symbol(self, value, consider_scope=False, current_scope=""):
         """
         Returns unique id of a given value
 
         Params
         ======
-        value (string) = Value to be searched in the symbol table
+        value          (string) = Value to be searched in the symbol table
+        consider_scope (bool)   = Should consider scope or not while getting by symbol
+        current_scope  (string) = If scope is to be considered then which scope is to be searched for
 
         Returns
         =======
@@ -123,7 +126,11 @@ class SymbolTable:
         id = -1
         for ids, value_list in self.symbol_table.items():
             if value_list[0] == value:
-                return ids
+                if not consider_scope:
+                    return ids
+                else:
+                    if value_list[-1] == current_scope:
+                        return ids
         return id
 
     def add_dependency(self, var_father_id, var_child_id):
