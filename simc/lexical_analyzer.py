@@ -180,6 +180,11 @@ class LexicalAnalyzer:
         self.top = -1
         self.balanced_brackets_stack = []
 
+        # Scope computation
+        # Scope will be local brace count - (hyphen) global left brace count
+        self.local_brace_count = 0
+        self.global_left_brace_count = 0
+
     def __is_keyword(self, value):
         """
         Checks if string is keyword or not
@@ -553,6 +558,9 @@ class LexicalAnalyzer:
                 self.tokens.append(Token("left_brace", "", self.line_num))
                 self.__update_source_index()
 
+                self.local_brace_count += 1
+                self.global_left_brace_count += 1
+
             # Identifying right brace token
             elif self.source_code[self.current_source_index] == "}":
                 # To check if braces are balanced:
@@ -570,6 +578,8 @@ class LexicalAnalyzer:
 
                 self.tokens.append(Token("right_brace", "", self.line_num))
                 self.__update_source_index()
+
+                self.local_brace_count -= 1
 
             # Identifying left bracket token
             elif self.source_code[self.current_source_index] == "[":
