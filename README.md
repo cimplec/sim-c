@@ -25,12 +25,6 @@
 
 <p align="justify">New developers can join simC New Devs slack channel where they can get help from core developers on their issues, link to the slack channel - <a href="https://join.slack.com/t/sim-cnewdevs/shared_invite/zt-ky44bntx-WHiw41q1nam4AmktMggsCg">simC New Devs Slack</a></p>
 
-## The Team
-
-- [Siddhartha Dhar Choudhury](https://github.com/frankhart2018)
-- [Dhairya Jain](https://github.com/dhairyaj)
-- [Mathias Fernandes Duarte Coelho](https://github.com/Math-O5)
-
 ## OSS Programs
 
 1) Hacktoberfest 2020
