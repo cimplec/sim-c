@@ -292,7 +292,7 @@ def compile(opcodes, c_filename, table):
             params = val[1].split("&&&") if len(val[1]) > 0 else []
 
             # Get the return type of the function
-            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             dtype = dtype if dtype != "var" else "void"
 
             # Append the function return type and name to code
@@ -303,7 +303,7 @@ def compile(opcodes, c_filename, table):
             for i in range(len(params)):
                 if len(params[i]) > 0:
                     has_param = True
-                    _, dtype, _, _ = table.get_by_id(table.get_by_symbol(params[i]))
+                    _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(params[i]))
                     dtype = dtype if dtype != "var" else "not_known"
                     dtype = "char*" if dtype == "string" else dtype
                     code += dtype + " " + params[i] + ", "

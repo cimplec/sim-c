@@ -33,6 +33,8 @@ def function_call_statement(tokens, i, table, func_ret_type):
     params, default_values = extract_func_typedata(metadata, table)
     num_formal_params = len(params)
     num_required_args = num_formal_params - len(default_values)
+
+    params_start_idx = i+1
     
     # Parse the arguments
     op_value, op_type, i, func_ret_type = expression(
@@ -44,6 +46,13 @@ def function_call_statement(tokens, i, table, func_ret_type):
         expect_paren=True,
         func_ret_type=func_ret_type,
     )
+
+    params_end_idx = i
+    actual_param_tokens = []
+
+    for i in range(params_start_idx, params_end_idx):
+        if tokens[i].type == "id":
+            actual_param_tokens.append(tokens[i])
 
     # op_value start in 1 because it should start with "params)" not "(params)"
     op_value = op_value[1:]
@@ -75,7 +84,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
         # Fetch the datatype of corresponding actual parameter from symbol table
         _, dtype, _, _, _ = table.get_by_id(
-            table.get_by_symbol(op_value_list[j].replace(")", ""))
+            actual_param_tokens[j].val
         )
 
         param_id = table.get_by_symbol(params[j])
