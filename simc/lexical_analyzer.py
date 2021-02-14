@@ -374,7 +374,8 @@ class LexicalAnalyzer:
         # Check if identifier is in symbol self.symbol_table
         id_ = self.symbol_table.get_by_symbol(value)
 
-        if id_ != -1 and len(self.symbol_table.symbol_table[id_][-1].split("-")) == 3:
+        id_info = self.symbol_table.symbol_table[id_][-1].split("-") if id_ != -1 else [""]
+        if id_ != -1 and len(id_info) == 3: 
             force_add_to_table = True
 
         # If identifier is not in symbol self.symbol_table then give a placeholder datatype var

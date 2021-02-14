@@ -1,20 +1,12 @@
 #include <stdio.h>
+#include "math.h"
 #include "geometry.h"
 
-struct Student 	{
-	int roll_no;
-	char* name;
-} ;
-
 int main() {
-	int roll_no = 1;
-	char* name = "Siddhartha";
-	struct Student s;
-	s.roll_no = roll_no;
-	s.name = name;
-	printf("%s", name);
-	printf("%s", s.name);
-	int result = square_area(3);
+	int num = 3;
+	int num_sq = power(3, 2);
+	int result = square_area(num_sq);
+	printf("%d", result);
 
 	return 0;
 }

@@ -108,7 +108,7 @@ class SymbolTable:
 
         return self.symbol_table.get(id, [None, None, None, None, None])
 
-    def get_by_symbol(self, value):
+    def get_by_symbol(self, value, id_greater_than=None):
         """
         Returns unique id of a given value
 
@@ -126,7 +126,13 @@ class SymbolTable:
         id = -1
         for ids, value_list in self.symbol_table.items():
             if value_list[0] == value:
-                return ids
+                if id_greater_than == None:
+                    return ids
+                else:
+                    if ids < id_greater_than:
+                        continue
+                    else:
+                        return ids
                 
         return id
 

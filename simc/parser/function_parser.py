@@ -26,6 +26,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
     # Get information about the function from symbol table
     func_info = table.get_by_id(tokens[i].val)
+    func_id = tokens[i].val
     func_name = func_info[0]
     metadata = func_info[2]
 
@@ -75,7 +76,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     op_value_list = fill_missing_args_with_defaults(
         op_value_list, default_values, num_actual_params, num_formal_params
     )
-    
+
     # Assign datatype to formal parameters
     for j in range(len(params)):
         # If parameter list is empty
@@ -87,7 +88,8 @@ def function_call_statement(tokens, i, table, func_ret_type):
             actual_param_tokens[j].val if (len(actual_param_tokens) > 0 and j < len(actual_param_tokens)) else table.get_by_symbol(op_value_list[j].replace(")", ""))
         )
 
-        param_id = table.get_by_symbol(params[j])
+        # The id of the formal parameter will always be greater than the function's identifier in symbol table
+        param_id = table.get_by_symbol(params[j], id_greater_than=func_id)
 
         # Set the datatype of the formal parameter
         table.symbol_table[param_id][1] = dtype

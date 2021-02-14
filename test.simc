@@ -1,6 +1,9 @@
+import math
 import geometry
 
 MAIN
-	var square_side = 3
-	var result = square_area(square_side)
+	var num = 3
+	var num_sq = power(3, 2)
+	var result = square_area(num_sq)
+	print(result)
 END_MAIN

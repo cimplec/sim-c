@@ -52,7 +52,7 @@ class ScopeResolver:
             if top_token.type == "id":
                 top_token_id = top_token.val
                 self.__symbol_table.symbol_table[top_token_id][-1] += "-" + str(final_line) + "-" + module_name
-                
+
         for id_ in id_usage_to_resolve:
             resolved_id = self.__symbol_table.resolve_scope_for_id(token=self.__tokens_list[id_], module_name=module_name)
             self.__tokens_list[id_].val = resolved_id if resolved_id != None else self.__tokens_list[id_].val
