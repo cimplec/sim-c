@@ -130,7 +130,7 @@ class SymbolTable:
                 
         return id
 
-    def resolve_scope_for_id(self, token):
+    def resolve_scope_for_id(self, token, module_name):
         min_distance = None
         min_id = None
 
@@ -139,7 +139,11 @@ class SymbolTable:
 
         for id_, value_list in self.symbol_table.items():
             if value_list[0] == token_symbol and "-" in value_list[-1]:
-                scope_start_line_num, scope_end_line_num = value_list[-1].split("-")
+                scope_start_line_num, scope_end_line_num, scope_module_name = value_list[-1].split("-")
+                
+                if scope_module_name != module_name:
+                    continue
+
                 distance_line_num = token_line_num - int(scope_start_line_num)
                 if distance_line_num < 0:
                     continue

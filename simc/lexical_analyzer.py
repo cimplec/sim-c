@@ -374,6 +374,9 @@ class LexicalAnalyzer:
         # Check if identifier is in symbol self.symbol_table
         id_ = self.symbol_table.get_by_symbol(value)
 
+        if id_ != -1 and len(self.symbol_table.symbol_table[id_][-1].split("-")) == 3:
+            force_add_to_table = True
+
         # If identifier is not in symbol self.symbol_table then give a placeholder datatype var
         if id_ == -1 or force_add_to_table:
             id_ = self.symbol_table.entry(value, "var", "variable", scope=str(self.line_num))
@@ -466,7 +469,7 @@ class LexicalAnalyzer:
                         self.is_id_module_name = not self.is_id_module_name
 
                         # Get name of module from symbol table
-                        module_name, _, _, _ = self.symbol_table.get_by_id(
+                        module_name, _, _, _, _= self.symbol_table.get_by_id(
                             self.tokens[-1].val
                         )
 

@@ -1,6 +1,6 @@
-fun sum(a, b)
-	return a + b
+import geometry
 
 MAIN
-	var value = sum(1, 2)
+	var square_side = 3
+	var result = square_area(square_side)
 END_MAIN

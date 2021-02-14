@@ -14,7 +14,7 @@ class ScopeResolver:
     def __pop_from_scope_stack(self):
         return self.__scope_stack.pop()
 
-    def resolve_scope(self):
+    def resolve_scope(self, module_name):
         final_line = 0
         id_usage_to_resolve = []
         function_started = False
@@ -39,7 +39,7 @@ class ScopeResolver:
                     
                     if top_token.type == "id":
                         top_token_id = top_token.val
-                        self.__symbol_table.symbol_table[top_token_id][-1] += "-" + str(token.line_num)
+                        self.__symbol_table.symbol_table[top_token_id][-1] += "-" + str(token.line_num) + "-" + module_name
                     elif top_token.type == "left_brace":
                         break
 
@@ -51,11 +51,15 @@ class ScopeResolver:
 
             if top_token.type == "id":
                 top_token_id = top_token.val
-                self.__symbol_table.symbol_table[top_token_id][-1] += "-" + str(final_line)
-
+                self.__symbol_table.symbol_table[top_token_id][-1] += "-" + str(final_line) + "-" + module_name
+                
         for id_ in id_usage_to_resolve:
-            resolved_id = self.__symbol_table.resolve_scope_for_id(token=self.__tokens_list[id_])
+            resolved_id = self.__symbol_table.resolve_scope_for_id(token=self.__tokens_list[id_], module_name=module_name)
             self.__tokens_list[id_].val = resolved_id if resolved_id != None else self.__tokens_list[id_].val
             
 
         return self.__tokens_list, self.__symbol_table
+
+    def swap_tokens_and_table(self, tokens_list, table):
+        self.__tokens_list = tokens_list
+        self.__symbol_table = table

@@ -1,12 +1,20 @@
+#include <stdio.h>
+#include "geometry.h"
 
-
-int sum(int a, int b) 	{
-
-	return a + b;
-}
+struct Student 	{
+	int roll_no;
+	char* name;
+} ;
 
 int main() {
-	int value = sum(1, 2);
+	int roll_no = 1;
+	char* name = "Siddhartha";
+	struct Student s;
+	s.roll_no = roll_no;
+	s.name = name;
+	printf("%s", name);
+	printf("%s", s.name);
+	int result = square_area(3);
 
 	return 0;
 }

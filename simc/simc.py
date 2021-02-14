@@ -47,7 +47,7 @@ def run():
     tokens, module_source_paths = lexical_analyzer.lexical_analyze()
 
     scope_resolver = ScopeResolver(tokens_list=tokens, symbol_table=table)
-    tokens, table = scope_resolver.resolve_scope()
+    tokens, table = scope_resolver.resolve_scope(module_name="main")
 
     # Get tokens for modules
     all_module_tokens = {}
@@ -57,6 +57,9 @@ def run():
 
             lexical_analyzer.update_filename(module_source_path)
             all_module_tokens[module_name], _ = lexical_analyzer.lexical_analyze()
+
+            scope_resolver.swap_tokens_and_table(tokens_list=all_module_tokens[module_name], table=table)
+            all_module_tokens[module_name], table = scope_resolver.resolve_scope(module_name=module_name)
 
     # Option to check out tokens
     if len(sys.argv) > 2 and sys.argv[2] == "token":
