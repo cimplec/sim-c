@@ -336,9 +336,11 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    var_name, type_, _, _, _ = table.get_by_id(tokens[i - 1].val)
+    var_name, type_, _, _, scope = table.get_by_id(tokens[i - 1].val)
 
-    if type_ == "var":
+    # If - is not in scope then it wasn't declared, otherwise its scope would have been resolved by now
+    # and it would have the form <start-line>-<end-line>-<module> as the scope
+    if type_ == "var" and "-" not in scope:
         error("Variable %s used before declaration" % var_name, tokens[i - 1].line_num)
 
     # Index of assignment in array

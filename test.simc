@@ -1,9 +1,0 @@
-import math
-import geometry
-
-MAIN
-	var num = 3
-	var num_sq = power(3, 2)
-	var result = square_area(num_sq)
-	print(result)
-END_MAIN
