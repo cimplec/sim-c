@@ -120,8 +120,9 @@ def compile(opcodes, c_filename, table):
 
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
+
             # Get the datatye of the variable
-            _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            dtype = opcode.dtype
 
             # Helper Dictionaries
             get_data_type = {
@@ -357,7 +358,7 @@ def compile(opcodes, c_filename, table):
             )
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
-            code += "{\n"
+            code += "\t{\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
             code += "}\n"

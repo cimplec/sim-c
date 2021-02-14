@@ -372,7 +372,7 @@ class LexicalAnalyzer:
                 error("A keyword cannot be an identifier - %s" % value, self.line_num)
 
         # Check if identifier is in symbol self.symbol_table
-        id_ = self.symbol_table.get_by_symbol(value, current_line_num=self.line_num)
+        id_ = self.symbol_table.get_by_symbol(value)
 
         # If identifier is not in symbol self.symbol_table then give a placeholder datatype var
         if id_ == -1 or force_add_to_table:

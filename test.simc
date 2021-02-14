@@ -1,0 +1,10 @@
+fun sum(a, b) {
+	return a + b
+}
+
+MAIN
+	var a = 1
+	var b = 2
+	var c = sum(a, b)
+	print(c)
+END_MAIN

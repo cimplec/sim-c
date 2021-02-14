@@ -47,7 +47,7 @@ def run():
     tokens, module_source_paths = lexical_analyzer.lexical_analyze()
 
     scope_resolver = ScopeResolver(tokens_list=tokens, symbol_table=table)
-    table = scope_resolver.resolve_scope()
+    tokens, table = scope_resolver.resolve_scope()
 
     # Get tokens for modules
     all_module_tokens = {}
@@ -75,66 +75,66 @@ def run():
         # print(table)
         pretty_printer.pprint(table.symbol_table)
 
-    # # Parse the modules first as these function definitions will be important during source parsing
-    # all_module_opcodes = {}
+    # Parse the modules first as these function definitions will be important during source parsing
+    all_module_opcodes = {}
 
-    # for module_name, module_tokens in all_module_tokens.items():
-    #     all_module_opcodes[module_name] = parse(module_tokens, table)
+    for module_name, module_tokens in all_module_tokens.items():
+        all_module_opcodes[module_name] = parse(module_tokens, table)
 
-    # # Get opcodes for source code from parser
-    # op_codes = parse(tokens, table)
+    # Get opcodes for source code from parser
+    op_codes = parse(tokens, table)
 
-    # # Remove opcodes of unused functions from modules
-    # all_module_opcodes_pruned = {}
-    # for module_name, module_opcodes in all_module_opcodes.items():
-    #     all_module_opcodes_pruned[module_name] = []
-    #     i = 0
+    # Remove opcodes of unused functions from modules
+    all_module_opcodes_pruned = {}
+    for module_name, module_opcodes in all_module_opcodes.items():
+        all_module_opcodes_pruned[module_name] = []
+        i = 0
 
-    #     # Loops through all the opcodes of specific module and checks for functions which weren't called from source code
-    #     while i < len(module_opcodes):
-    #         if module_opcodes[i].type == "func_decl":
-    #             func_name = module_opcodes[i].val.split("---")[0].strip()
-    #             func_symbol_table_val = table.symbol_table.get(
-    #                 table.get_by_symbol(func_name)
-    #             )
-    #             func_ret_type = func_symbol_table_val[1]
+        # Loops through all the opcodes of specific module and checks for functions which weren't called from source code
+        while i < len(module_opcodes):
+            if module_opcodes[i].type == "func_decl":
+                func_name = module_opcodes[i].val.split("---")[0].strip()
+                func_symbol_table_val = table.symbol_table.get(
+                    table.get_by_symbol(func_name)
+                )
+                func_ret_type = func_symbol_table_val[1]
 
-    #             # Skip all functions whose return type is not_known meaning they weren't called
-    #             if func_ret_type == "not_known" or type(func_ret_type) == list:
-    #                 beg_idx = i
-    #                 while module_opcodes[i].type != "scope_over":
-    #                     i += 1
-    #             else:
-    #                 all_module_opcodes_pruned[module_name].append(module_opcodes[i])
-    #         else:
-    #             all_module_opcodes_pruned[module_name].append(module_opcodes[i])
-    #         i += 1
+                # Skip all functions whose return type is not_known meaning they weren't called
+                if func_ret_type == "not_known" or type(func_ret_type) == list:
+                    beg_idx = i
+                    while module_opcodes[i].type != "scope_over":
+                        i += 1
+                else:
+                    all_module_opcodes_pruned[module_name].append(module_opcodes[i])
+            else:
+                all_module_opcodes_pruned[module_name].append(module_opcodes[i])
+            i += 1
 
-    # # Option to check out opcodes
-    # if len(sys.argv) > 2 and sys.argv[2] == "opcode":
-    #     # Print source code opcodes
-    #     for op_code in op_codes:
-    #         print(op_code)
+    # Option to check out opcodes
+    if len(sys.argv) > 2 and sys.argv[2] == "opcode":
+        # Print source code opcodes
+        for op_code in op_codes:
+            print(op_code)
 
-    #     # Print module opcodes
-    #     for module_name, module_opcodes in all_module_opcodes_pruned.items():
-    #         print("\n---OpCodes for module " + module_name + "---")
-    #         for op_code in module_opcodes:
-    #             print(op_code)
+        # Print module opcodes
+        for module_name, module_opcodes in all_module_opcodes_pruned.items():
+            print("\n---OpCodes for module " + module_name + "---")
+            for op_code in module_opcodes:
+                print(op_code)
 
-    # # Option to check symbol table after parsing
-    # if len(sys.argv) > 2 and sys.argv[2] == "table_after_parsing":
-    #     # print(table)
-    #     pretty_printer.pprint(table.symbol_table)
+    # Option to check symbol table after parsing
+    if len(sys.argv) > 2 and sys.argv[2] == "table_after_parsing":
+        # print(table)
+        pretty_printer.pprint(table.symbol_table)
 
-    # # Compile to C code
-    # compile(op_codes, c_filename, table)
+    # Compile to C code
+    compile(op_codes, c_filename, table)
 
-    # # Compile the module functions, this can be done in any order
-    # for module_name, module_opcodes in all_module_opcodes_pruned.items():
-    #     module_c_filename = module_name + ".h"
+    # Compile the module functions, this can be done in any order
+    for module_name, module_opcodes in all_module_opcodes_pruned.items():
+        module_c_filename = module_name + ".h"
 
-    #     compile(module_opcodes, module_c_filename, table)
+        compile(module_opcodes, module_c_filename, table)
 
-    # print("\033[92mC code generated at %s!" % c_filename, end="")
-    # print(" \033[m")
+    print("\033[92mC code generated at %s!" % c_filename, end="")
+    print(" \033[m")
