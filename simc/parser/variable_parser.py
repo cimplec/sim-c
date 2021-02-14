@@ -261,7 +261,7 @@ def var_statement(tokens, i, table, func_ret_type):
     # If it is of pointer or variable type but has no value yet
     else:
         # Get the value from symbol table by id
-        value, type, _, _ = table.get_by_id(tokens[i].val)
+        value, type, _, _, _ = table.get_by_id(tokens[i].val)
 
         # If already declared then throw error
         if type in [
@@ -336,7 +336,7 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    var_name, type_, _, _ = table.get_by_id(tokens[i - 1].val)
+    var_name, type_, _, _, _ = table.get_by_id(tokens[i - 1].val)
 
     if type_ == "var":
         error("Variable %s used before declaration" % var_name, tokens[i - 1].line_num)

@@ -176,7 +176,7 @@ def expression(
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table
-            value, type, typedata, _ = table.get_by_id(tokens[i].val)
+            value, type, typedata, _, _ = table.get_by_id(tokens[i].val)
             # Case to prevent Type Promotion:
             if block_type_promotion == True:
                 if previous_type != type and previous_type != "":

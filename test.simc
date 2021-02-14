@@ -1,0 +1,15 @@
+MAIN
+	var x = 3.14
+	{
+		var x = "hello"
+		{
+			var x = 1
+			{
+				print(x)
+			}
+			print(x)
+		}
+		print(x)
+	}
+	print(x)
+END_MAIN

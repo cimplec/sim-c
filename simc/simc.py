@@ -18,6 +18,8 @@ from .parser.simc_parser import parse
 # Module for using compiler
 from .compiler import compile
 
+from .scope_resolve import ScopeResolver
+
 
 def run():
     filename = ""
@@ -43,6 +45,9 @@ def run():
     # Get tokens and list of modules from source code
     lexical_analyzer = LexicalAnalyzer(filename, table)
     tokens, module_source_paths = lexical_analyzer.lexical_analyze()
+
+    scope_resolver = ScopeResolver(tokens_list=tokens, symbol_table=table)
+    table = scope_resolver.resolve_scope()
 
     # Get tokens for modules
     all_module_tokens = {}
@@ -119,7 +124,8 @@ def run():
 
     # # Option to check symbol table after parsing
     # if len(sys.argv) > 2 and sys.argv[2] == "table_after_parsing":
-    #     print(table)
+    #     # print(table)
+    #     pretty_printer.pprint(table.symbol_table)
 
     # # Compile to C code
     # compile(op_codes, c_filename, table)

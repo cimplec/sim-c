@@ -108,7 +108,7 @@ class SymbolTable:
 
         return self.symbol_table.get(id, [None, None, None, None, None])
 
-    def get_by_symbol(self, value, consider_scope=False, current_scope=""):
+    def get_by_symbol(self, value, current_line_num=None):
         """
         Returns unique id of a given value
 
@@ -124,13 +124,28 @@ class SymbolTable:
         """
 
         id = -1
+        symbol_contenders = []
+
         for ids, value_list in self.symbol_table.items():
             if value_list[0] == value:
-                if not consider_scope:
+                if current_line_num == None:
                     return ids
                 else:
-                    if value_list[-1] == current_scope:
-                        return ids
+                    symbol_contenders.append((ids, value_list))
+
+        min_difference_scope = None
+        contender_id = None
+
+        for symbol_contender in symbol_contenders:
+            symbol_scope_start = symbol_contender[1][-1]
+            difference_in_scope = current_line_num - int(symbol_scope_start)
+            if min_difference_scope == None or difference_in_scope < min_difference_scope:
+                min_difference_scope = difference_in_scope
+                contender_id = symbol_contender[0]
+                
+        if contender_id != None:
+            return contender_id
+
         return id
 
     def add_dependency(self, var_father_id, var_child_id):
@@ -167,7 +182,7 @@ class SymbolTable:
         bool: Whether it is possible to resolve the dependency or not
         """
         # Extract the type of variable and the list of variable which dependies on it
-        _, type_, _, list_dependency = self.symbol_table[var_id]
+        _, type_, _, list_dependency, _ = self.symbol_table[var_id]
 
         # Nothing to do
         if type_ == "var":
