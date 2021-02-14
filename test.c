@@ -1,15 +1,12 @@
 
 
-float sum(int a, float b) 	{
-	float c = a + b;
+int sum(int a, int b) 	{
 
 	return a + b;
 }
 
 int main() {
-	int a = 1;
-	float b = 3.14;
-	float c = sum(a, b);
+	int value = sum(1, 2);
 
 	return 0;
 }

@@ -1,10 +1,6 @@
-fun sum(a, b) {
-	var c = a + b
+fun sum(a, b)
 	return a + b
-}
 
 MAIN
-	var a = 1
-	var b = 3.14
-	var c = sum(a, b)
+	var value = sum(1, 2)
 END_MAIN

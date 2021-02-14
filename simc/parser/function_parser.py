@@ -75,7 +75,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     op_value_list = fill_missing_args_with_defaults(
         op_value_list, default_values, num_actual_params, num_formal_params
     )
-
+    
     # Assign datatype to formal parameters
     for j in range(len(params)):
         # If parameter list is empty
@@ -84,7 +84,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
         # Fetch the datatype of corresponding actual parameter from symbol table
         _, dtype, _, _, _ = table.get_by_id(
-            actual_param_tokens[j].val
+            actual_param_tokens[j].val if (len(actual_param_tokens) > 0 and j < len(actual_param_tokens)) else table.get_by_symbol(op_value_list[j].replace(")", ""))
         )
 
         param_id = table.get_by_symbol(params[j])
