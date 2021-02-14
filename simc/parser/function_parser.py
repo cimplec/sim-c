@@ -30,6 +30,9 @@ def function_call_statement(tokens, i, table, func_ret_type):
     func_name = func_info[0]
     metadata = func_info[2]
 
+    if metadata == "variable":
+        error(f"No definition found for function {func_name}", tokens[i].line_num)
+
     # Get all parameter ids (default and non-default) and the default values (if any)
     params, default_values = extract_func_typedata(metadata, table)
     num_formal_params = len(params)
