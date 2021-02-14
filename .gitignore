@@ -8,3 +8,4 @@ dist/*
 simc.spec
 .vscode
 simc.egg-info/*
+simc/modules/

@@ -67,15 +67,15 @@ def for_statement(tokens, i, table, func_ret_type):
     expression(tokens, i + 7, table, "Expected value for change", expect_paren=False)
 
     # Get required values
-    var_name, _, _, _ = table.get_by_id(tokens[i].val)
+    var_name, _, _, _, _ = table.get_by_id(tokens[i].val)
 
     # Set the value
     table.symbol_table[tokens[i].val][1] = "int"
 
-    starting_val, _, _, _ = table.get_by_id(tokens[i + 2].val)
-    ending_val, _, _, _ = table.get_by_id(tokens[i + 4].val)
+    starting_val, _, _, _, _ = table.get_by_id(tokens[i + 2].val)
+    ending_val, _, _, _, _ = table.get_by_id(tokens[i + 4].val)
     operator_type = word_to_op[tokens[i + 6].type]
-    change_val, _, _, _ = table.get_by_id(tokens[i + 7].val)
+    change_val, _, _, _, _ = table.get_by_id(tokens[i + 7].val)
 
     # To determine the > or < sign
     if starting_val > ending_val:

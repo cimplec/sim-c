@@ -82,14 +82,14 @@ def expression(
             i -= 1
         # Array indexing
         elif tokens[i].type == "id" and tokens[i + 1].type == "left_bracket":
-            array_name, array_dtype, array_size, _ = table.get_by_id(tokens[i].val)
+            array_name, array_dtype, array_size, _, _ = table.get_by_id(tokens[i].val)
             op_value += array_name
             op_value += "["
             arr_id_idx = i
             i += 2
 
             # Check if index is of integer type or not
-            _, type_, _, _ = table.get_by_id(tokens[i].val)
+            _, type_, _, _, _ = table.get_by_id(tokens[i].val)
             if tokens[i].type == "number" and type_ == "int":
                 index = table.get_by_id(tokens[i].val)[0]
 
@@ -101,7 +101,7 @@ def expression(
                         tokens[i].line_num,
                     )
             else:
-                arr_name, _, _, _ = table.get_by_id(tokens[arr_id_idx].val)
+                arr_name, _, _, _, _ = table.get_by_id(tokens[arr_id_idx].val)
                 error(
                     f"Index of array {arr_name} should be an integer",
                     tokens[i].line_num,
@@ -176,7 +176,7 @@ def expression(
         # If token is identifier or constant
         elif tokens[i].type in ["number", "string", "id", "bool"]:
             # Fetch information from symbol table
-            value, type, typedata, _ = table.get_by_id(tokens[i].val)
+            value, type, typedata, _, _ = table.get_by_id(tokens[i].val)
             # Case to prevent Type Promotion:
             if block_type_promotion == True:
                 if previous_type != type and previous_type != "":
@@ -215,7 +215,7 @@ def expression(
                         "bool": "%d",
                     }
                     for var in vars:
-                        _, type, _, _ = table.get_by_id(table.get_by_symbol(var))
+                        _, type, _, _, _ = table.get_by_id(table.get_by_symbol(var))
                         if type == "var":
                             error("Unknown variable %s" % var, tokens[i].line_num)
                         value = value.replace("{" + var + "}", type_to_fs[type])
@@ -261,10 +261,10 @@ def expression(
         else:
             if tokens[i].type == "power":
                 # Fetch information from symbol table for first operand
-                value_first, _, _, _ = table.get_by_id(tokens[i - 1].val)
+                value_first, _, _, _, _ = table.get_by_id(tokens[i - 1].val)
 
                 # Fetch information from symbol table for second operand (exponent)
-                value_second, _, _, _ = table.get_by_id(tokens[i + 1].val)
+                value_second, _, _, _, _ = table.get_by_id(tokens[i + 1].val)
 
                 # Remove the operand from before pow()
                 op_value = op_value[: -(len(value_first))]
@@ -425,7 +425,7 @@ def unary_statement(tokens, i, table, func_ret_type):
         )
 
         # Get the identifier name from symbol table
-        value, _, _, _ = table.get_by_id(tokens[i + 1].val)
+        value, _, _, _, _ = table.get_by_id(tokens[i + 1].val)
         op_value += str(value)
 
         return OpCode("unary", op_value), i + 2, func_ret_type
@@ -627,7 +627,7 @@ def parse(tokens, table):
             )
 
             # Get the name of the module
-            value, _, _, _ = table.get_by_id(tokens[i].val)
+            value, _, _, _, _ = table.get_by_id(tokens[i].val)
 
             # Generate opcode for the module
             op_codes.append(OpCode("import", value))
@@ -687,14 +687,14 @@ def parse(tokens, table):
                     )
 
                 # Get the details of id at index i - expected to be name of struct
-                struct_name, type_, _, list_var = table.get_by_id(tokens[i].val)
+                struct_name, type_, _, list_var, _ = table.get_by_id(tokens[i].val)
 
                 # Check if the structure is declared or not
                 if type_ != "struct_var":
                     error(f"Structure {struct_name} not declared", tokens[i].line_num)
 
                 # If there is no error then get the name of the instance variable
-                instance_var_name, _, _, _ = table.get_by_id(tokens[i + 1].val)
+                instance_var_name, _, _, _, _ = table.get_by_id(tokens[i + 1].val)
 
                 # Init instance vars
                 initializate_struct(tokens, i, table, instance_var_name, list_var)
@@ -791,7 +791,7 @@ def parse(tokens, table):
                         instance_names += instance_name + ", "
 
                         # Get the details of id at index i - expected to be name of struct
-                        _, type_, _, var_list = table.get_by_id(
+                        _, type_, _, var_list, _ = table.get_by_id(
                             table.get_by_symbol(struct_name)
                         )
 

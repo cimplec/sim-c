@@ -120,8 +120,11 @@ def compile(opcodes, c_filename, table):
 
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
+
             # Get the datatye of the variable
-            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            dtype = opcode.dtype
+            if dtype == "declared":
+                _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
             get_data_type = {
@@ -163,7 +166,7 @@ def compile(opcodes, c_filename, table):
             val = opcode.val.split("---")
 
             # Get the datatye of the variable
-            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
             get_data_type = {
@@ -195,7 +198,7 @@ def compile(opcodes, c_filename, table):
             val = opcode.val.split("---")
 
             # Get the datatye of the variable
-            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += "\t" + opcode.dtype + " " + str(opcode.val) + ";\n"
@@ -203,7 +206,7 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += "\t" + opcode.dtype + " *" + str(val[0]) + ";\n"
@@ -211,7 +214,7 @@ def compile(opcodes, c_filename, table):
             # val contains - <identifier>---<expression>, split that into a list
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             code += (
@@ -236,7 +239,7 @@ def compile(opcodes, c_filename, table):
         elif opcode.type == "ptr_no_assign":
             val = opcode.val.split("---")
             # Get the datatye of the variable
-            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             # Check if dtype could be inferred or not
             opcode.dtype = str(dtype) if dtype is not None else "not_known"
             if opcode.dtype == "string":
@@ -291,7 +294,7 @@ def compile(opcodes, c_filename, table):
             params = val[1].split("&&&") if len(val[1]) > 0 else []
 
             # Get the return type of the function
-            _, dtype, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
+            _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
             dtype = dtype if dtype != "var" else "void"
 
             # Append the function return type and name to code
@@ -302,7 +305,7 @@ def compile(opcodes, c_filename, table):
             for i in range(len(params)):
                 if len(params[i]) > 0:
                     has_param = True
-                    _, dtype, _, _ = table.get_by_id(table.get_by_symbol(params[i]))
+                    _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(params[i]))
                     dtype = dtype if dtype != "var" else "not_known"
                     dtype = "char*" if dtype == "string" else dtype
                     code += dtype + " " + params[i] + ", "
@@ -357,7 +360,7 @@ def compile(opcodes, c_filename, table):
             )
         # If opcode is of type scope_begin then generate open brace statement
         elif opcode.type == "scope_begin":
-            code += "{\n"
+            code += "\t{\n"
         # If opcode is of type scope_over then generate closing brace statement
         elif opcode.type == "scope_over":
             code += "}\n"

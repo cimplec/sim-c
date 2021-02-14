@@ -113,7 +113,7 @@ def var_statement(tokens, i, table, func_ret_type):
         # If the next token after [ is a number
         if tokens[i + 2].type == "number":
             # Fetch information from symbol table
-            value, type_, _, _ = table.get_by_id(tokens[i + 2].val)
+            value, type_, _, _, _ = table.get_by_id(tokens[i + 2].val)
 
             if type_ == "int":
                 size_of_array = value
@@ -178,7 +178,7 @@ def var_statement(tokens, i, table, func_ret_type):
             error("Invalid Syntax for declaration", tokens[i].line_num)
         else:
             # Get the value from symbol table by id
-            value, type_, _, _ = table.get_by_id(tokens[id_idx].val)
+            value, type_, _, _, _ = table.get_by_id(tokens[id_idx].val)
 
             # If already declared then throw error
             if type_ in [
@@ -261,7 +261,7 @@ def var_statement(tokens, i, table, func_ret_type):
     # If it is of pointer or variable type but has no value yet
     else:
         # Get the value from symbol table by id
-        value, type, _, _ = table.get_by_id(tokens[i].val)
+        value, type, _, _, _ = table.get_by_id(tokens[i].val)
 
         # If already declared then throw error
         if type in [
@@ -336,9 +336,11 @@ def assign_statement(tokens, i, table, func_ret_type):
         is_ptr = True
 
     # Check if variable is declared or not
-    var_name, type_, _, _ = table.get_by_id(tokens[i - 1].val)
+    var_name, type_, _, _, scope = table.get_by_id(tokens[i - 1].val)
 
-    if type_ == "var":
+    # If - is not in scope then it wasn't declared, otherwise its scope would have been resolved by now
+    # and it would have the form <start-line>-<end-line>-<module> as the scope
+    if type_ == "var" and "-" not in scope:
         error("Variable %s used before declaration" % var_name, tokens[i - 1].line_num)
 
     # Index of assignment in array
@@ -354,7 +356,7 @@ def assign_statement(tokens, i, table, func_ret_type):
     if tokens[i].type == "left_bracket":
         if tokens[i + 1].type == "number":
             # Fetch information from symbol table
-            value, type_, _, _ = table.get_by_id(tokens[i + 1].val)
+            value, type_, _, _, _ = table.get_by_id(tokens[i + 1].val)
 
             if type_ == "int":
                 if int(value) >= int(table.symbol_table[tokens[id_idx].val][2]):

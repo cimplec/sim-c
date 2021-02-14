@@ -180,6 +180,11 @@ class LexicalAnalyzer:
         self.top = -1
         self.balanced_brackets_stack = []
 
+        # Scope computation
+        # Scope will be local brace count - (hyphen) global var keyword count
+        self.local_brace_count = 0
+        self.global_left_brace_count = 0
+
     def __is_keyword(self, value):
         """
         Checks if string is keyword or not
@@ -308,7 +313,7 @@ class LexicalAnalyzer:
         # Return string token and current index in source code
         self.tokens.append(Token("string", id_, self.line_num))
 
-    def __keyword_identifier(self):
+    def __keyword_identifier(self, force_add_to_table=False):
         """
         Process keywords and identifiers in source code
         """
@@ -369,9 +374,13 @@ class LexicalAnalyzer:
         # Check if identifier is in symbol self.symbol_table
         id_ = self.symbol_table.get_by_symbol(value)
 
+        id_info = self.symbol_table.symbol_table[id_][-1].split("-") if id_ != -1 else [""]
+        if id_ != -1 and len(id_info) == 3: 
+            force_add_to_table = True
+
         # If identifier is not in symbol self.symbol_table then give a placeholder datatype var
-        if id_ == -1:
-            id_ = self.symbol_table.entry(value, "var", "variable")
+        if id_ == -1 or force_add_to_table:
+            id_ = self.symbol_table.entry(value, "var", "variable", scope=str(self.line_num))
 
         # Return id token and current index in source code
         self.tokens.append(Token("id", id_, self.line_num))
@@ -447,7 +456,10 @@ class LexicalAnalyzer:
 
             # If alphabet or number appears then it might be either a keyword or an identifier
             elif is_alnum(self.source_code[self.current_source_index]):
-                self.__keyword_identifier()
+                force_add_to_table = False
+                if len(self.tokens) > 0 and self.tokens[-1].type == "var":
+                    force_add_to_table = True
+                self.__keyword_identifier(force_add_to_table=force_add_to_table)
 
                 # If token is an id it might be name of a module
                 if self.tokens[-1].type == "id":
@@ -458,7 +470,7 @@ class LexicalAnalyzer:
                         self.is_id_module_name = not self.is_id_module_name
 
                         # Get name of module from symbol table
-                        module_name, _, _, _ = self.symbol_table.get_by_id(
+                        module_name, _, _, _, _= self.symbol_table.get_by_id(
                             self.tokens[-1].val
                         )
 
@@ -550,6 +562,9 @@ class LexicalAnalyzer:
                 self.top += 1
                 self.balanced_brackets_stack.append("{")
 
+                self.local_brace_count += 1
+                self.global_left_brace_count += 1
+
                 self.tokens.append(Token("left_brace", "", self.line_num))
                 self.__update_source_index()
 
@@ -567,6 +582,8 @@ class LexicalAnalyzer:
                 else:
                     self.top -= 1
                     self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
+
+                self.local_brace_count -= 1
 
                 self.tokens.append(Token("right_brace", "", self.line_num))
                 self.__update_source_index()

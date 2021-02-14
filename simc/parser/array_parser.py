@@ -93,7 +93,7 @@ def array_initializer(tokens, i, table, size_of_array, msg):
         # If token is identifier or constant
         if tokens[i].type in ["number", "string", "id"]:
             # Fetch information from symbol table
-            value, type_, typedata, _ = table.get_by_id(tokens[i].val)
+            value, type_, typedata, _, _ = table.get_by_id(tokens[i].val)
 
             if type_ == "var":
                 error("Variable %s used before declaration" % value, tokens[i].line_num)

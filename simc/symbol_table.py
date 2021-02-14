@@ -72,7 +72,7 @@ class SymbolTable:
 
         return symbol_table_string
 
-    def entry(self, value, type, typedata, dependency=""):
+    def entry(self, value, type, typedata, dependency="", scope=""):
         """
         Returns id in symbol table after making an entry
 
@@ -82,13 +82,14 @@ class SymbolTable:
         type       (string) = Datatype of symbol
         typedata   (string) = Type of data (constant/variable)
         dependency (string) = List of token ids of dependent variables
+        scope      (string) = Scope of entry
 
         Returns
         =======
         int: The id of the current entry in symbol table
         """
 
-        self.symbol_table[self.id] = [value, type, typedata, dependency]
+        self.symbol_table[self.id] = [value, type, typedata, dependency, scope]
         self.id += 1
         return self.id - 1
 
@@ -105,15 +106,17 @@ class SymbolTable:
         list: Table entry
         """
 
-        return self.symbol_table.get(id, [None, None, None, None])
+        return self.symbol_table.get(id, [None, None, None, None, None])
 
-    def get_by_symbol(self, value):
+    def get_by_symbol(self, value, id_greater_than=None):
         """
         Returns unique id of a given value
 
         Params
         ======
-        value (string) = Value to be searched in the symbol table
+        value          (string) = Value to be searched in the symbol table
+        consider_scope (bool)   = Should consider scope or not while getting by symbol
+        current_scope  (string) = If scope is to be considered then which scope is to be searched for
 
         Returns
         =======
@@ -123,8 +126,46 @@ class SymbolTable:
         id = -1
         for ids, value_list in self.symbol_table.items():
             if value_list[0] == value:
-                return ids
+                if id_greater_than == None:
+                    return ids
+                else:
+                    if ids < id_greater_than:
+                        continue
+                    else:
+                        return ids
+
         return id
+
+    def resolve_scope_for_id(self, token, module_name):
+        min_distance = None
+        min_id = None
+
+        token_line_num = token.line_num
+        token_symbol = self.get_by_id(token.val)[0]
+
+        for id_, value_list in self.symbol_table.items():
+            if value_list[0] == token_symbol and "-" in value_list[-1]:
+                (
+                    scope_start_line_num,
+                    scope_end_line_num,
+                    scope_module_name,
+                ) = value_list[-1].split("-")
+
+                if scope_module_name != module_name:
+                    continue
+
+                distance_line_num = token_line_num - int(scope_start_line_num)
+                if distance_line_num < 0:
+                    continue
+
+                if min_distance == None or (
+                    distance_line_num < min_distance
+                    and token_line_num < int(scope_end_line_num)
+                ):
+                    min_distance = distance_line_num
+                    min_id = id_
+
+        return min_id
 
     def add_dependency(self, var_father_id, var_child_id):
         """
@@ -160,7 +201,7 @@ class SymbolTable:
         bool: Whether it is possible to resolve the dependency or not
         """
         # Extract the type of variable and the list of variable which dependies on it
-        _, type_, _, list_dependency = self.symbol_table[var_id]
+        _, type_, _, list_dependency, _ = self.symbol_table[var_id]
 
         # Nothing to do
         if type_ == "var":

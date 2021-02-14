@@ -1,6 +1,7 @@
-# Import sys and os module
+# Import sys, os and pprint module
 import sys
 import os
+import pprint
 
 # Module to import global helpers
 from .global_helpers import error
@@ -17,9 +18,13 @@ from .parser.simc_parser import parse
 # Module for using compiler
 from .compiler import compile
 
+from .scope_resolve import ScopeResolver
+
 
 def run():
     filename = ""
+
+    pretty_printer = pprint.PrettyPrinter(indent=4)
 
     # Check if filepath is provided or not
     if len(sys.argv) >= 2:
@@ -41,6 +46,9 @@ def run():
     lexical_analyzer = LexicalAnalyzer(filename, table)
     tokens, module_source_paths = lexical_analyzer.lexical_analyze()
 
+    scope_resolver = ScopeResolver(tokens_list=tokens, symbol_table=table)
+    tokens, table = scope_resolver.resolve_scope(module_name="main")
+
     # Get tokens for modules
     all_module_tokens = {}
     if len(module_source_paths) > 0:
@@ -49,6 +57,13 @@ def run():
 
             lexical_analyzer.update_filename(module_source_path)
             all_module_tokens[module_name], _ = lexical_analyzer.lexical_analyze()
+
+            scope_resolver.swap_tokens_and_table(
+                tokens_list=all_module_tokens[module_name], table=table
+            )
+            all_module_tokens[module_name], table = scope_resolver.resolve_scope(
+                module_name=module_name
+            )
 
     # Option to check out tokens
     if len(sys.argv) > 2 and sys.argv[2] == "token":
@@ -64,7 +79,8 @@ def run():
 
     # Option to check symbol table after lexical analysis
     if len(sys.argv) > 2 and sys.argv[2] == "table_after_lexing":
-        print(table)
+        # print(table)
+        pretty_printer.pprint(table.symbol_table)
 
     # Parse the modules first as these function definitions will be important during source parsing
     all_module_opcodes = {}
@@ -115,7 +131,8 @@ def run():
 
     # Option to check symbol table after parsing
     if len(sys.argv) > 2 and sys.argv[2] == "table_after_parsing":
-        print(table)
+        # print(table)
+        pretty_printer.pprint(table.symbol_table)
 
     # Compile to C code
     compile(op_codes, c_filename, table)
