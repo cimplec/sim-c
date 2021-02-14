@@ -1,25 +1,15 @@
-#include <stdio.h>
 
-int sum(int a, int b) 	{
+
+float sum(int a, float b) 	{
+	float c = a + b;
 
 	return a + b;
 }
 
 int main() {
 	int a = 1;
-	int b = 2;
-	int c = sum(a, b);
-	{
-	float a = 3.14;
-	float b = 5.6;
-	float c = a + b;
-	{
-	char* c = "hello";
-	printf("%s", c);
-	}
-	printf("%f", c);
-	}
-	printf("%d", c);
+	float b = 3.14;
+	float c = sum(a, b);
 
 	return 0;
 }

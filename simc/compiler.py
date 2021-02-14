@@ -123,6 +123,8 @@ def compile(opcodes, c_filename, table):
 
             # Get the datatye of the variable
             dtype = opcode.dtype
+            if dtype == "declared":
+                 _, dtype, _, _, _ = table.get_by_id(table.get_by_symbol(val[0]))
 
             # Helper Dictionaries
             get_data_type = {
