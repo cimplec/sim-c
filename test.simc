@@ -1,4 +1,0 @@
-MAIN
-    var a[2] = {1, 2}
-    var b = int(3.14) + 2
-END_MAIN
