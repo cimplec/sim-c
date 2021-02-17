@@ -3,7 +3,7 @@ from ..global_helpers import error, check_if
 from ..op_code import OpCode
 
 
-def array_initializer(tokens, i, table, size_of_array, msg):
+def array_initializer(tokens, i, table, size_of_array, msg, func_ret_type):
     """
     Parse array initializer list
 
@@ -106,7 +106,7 @@ def array_initializer(tokens, i, table, size_of_array, msg):
 
             error_message = "Array Initializer parsed incorrectly"
             op_value_temp, op_type, i_temp, func_ret_type = expression(
-                tokens, i, table, error_message, block_type_promotion=True
+                tokens, i, table, error_message, block_type_promotion=True, func_ret_type=func_ret_type
             )
             op_value += op_value_temp
 

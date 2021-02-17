@@ -149,6 +149,7 @@ def var_statement(tokens, i, table, func_ret_type):
                 table,
                 size_of_array,
                 "Required expression after assignment operator",
+                func_ret_type=func_ret_type
             )
             i += 1
 
@@ -172,7 +173,7 @@ def var_statement(tokens, i, table, func_ret_type):
                     prec_to_type[op_type],
                 ),
                 i,
-                op_type,
+                func_ret_type,
             )
         elif i + 1 < len(tokens) and tokens[i + 1].type in invalid_tokens:
             error("Invalid Syntax for declaration", tokens[i].line_num)
@@ -441,6 +442,7 @@ def assign_statement(tokens, i, table, func_ret_type):
             table,
             size_of_array,
             "Required expression after assignment operator",
+            func_ret_type=func_ret_type,
         )
 
         # Modify datatype of the identifier
