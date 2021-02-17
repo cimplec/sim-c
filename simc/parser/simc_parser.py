@@ -383,7 +383,7 @@ def print_statement(tokens, i, table, func_ret_type, num_opcodes):
     op_value = prec_to_type[op_type] + op_value[1:-1] if op_type != -1 else None
 
     if op_value == None:
-        func_ret_type[f'print-{beg_idx}'] = [num_opcodes, beg_idx, end_idx]
+        func_ret_type[f"print-{beg_idx}"] = [num_opcodes, beg_idx, end_idx]
 
     # Check if print statement has closing )
     check_if(

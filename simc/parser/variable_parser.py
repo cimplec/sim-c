@@ -149,7 +149,7 @@ def var_statement(tokens, i, table, func_ret_type):
                 table,
                 size_of_array,
                 "Required expression after assignment operator",
-                func_ret_type=func_ret_type
+                func_ret_type=func_ret_type,
             )
             i += 1
 

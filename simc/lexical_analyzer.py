@@ -108,7 +108,7 @@ class LexicalAnalyzer:
     def update_filename(self, source_filename):
         """
         Update sim-C source file path
-        
+
         Used during lexical analysis of module sources
         """
 
@@ -331,9 +331,12 @@ class LexicalAnalyzer:
 
         # Check if next character is (, then it can possibly be explicit typecasting
         allow_c_keyword = False
-        if self.source_code[self.current_source_index] == "(" and value in allowed_dtypes_for_casting:
+        if (
+            self.source_code[self.current_source_index] == "("
+            and value in allowed_dtypes_for_casting
+        ):
             allow_c_keyword = True
-        
+
         # For generating bool or math constant type tokens
         types = namedtuple("types", ["data_type", "token_type"])
         const_with_types = {
@@ -374,13 +377,17 @@ class LexicalAnalyzer:
         # Check if identifier is in symbol self.symbol_table
         id_ = self.symbol_table.get_by_symbol(value)
 
-        id_info = self.symbol_table.symbol_table[id_][-1].split("-") if id_ != -1 else [""]
-        if id_ != -1 and len(id_info) == 3: 
+        id_info = (
+            self.symbol_table.symbol_table[id_][-1].split("-") if id_ != -1 else [""]
+        )
+        if id_ != -1 and len(id_info) == 3:
             force_add_to_table = True
 
         # If identifier is not in symbol self.symbol_table then give a placeholder datatype var
         if id_ == -1 or force_add_to_table:
-            id_ = self.symbol_table.entry(value, "var", "variable", scope=str(self.line_num))
+            id_ = self.symbol_table.entry(
+                value, "var", "variable", scope=str(self.line_num)
+            )
 
         # Return id token and current index in source code
         self.tokens.append(Token("id", id_, self.line_num))
@@ -470,7 +477,7 @@ class LexicalAnalyzer:
                         self.is_id_module_name = not self.is_id_module_name
 
                         # Get name of module from symbol table
-                        module_name, _, _, _, _= self.symbol_table.get_by_id(
+                        module_name, _, _, _, _ = self.symbol_table.get_by_id(
                             self.tokens[-1].val
                         )
 
@@ -611,7 +618,7 @@ class LexicalAnalyzer:
                 else:
                     self.top -= 1
                     self.balanced_brackets_stack = self.balanced_brackets_stack[:-1]
-                
+
                 self.tokens.append(Token("right_bracket", "", self.line_num))
                 self.__update_source_index()
 
@@ -708,7 +715,7 @@ class LexicalAnalyzer:
             elif self.source_code[self.current_source_index] == ",":
                 self.tokens.append(Token("comma", "", self.line_num))
                 self.__update_source_index()
-                
+
             # Identifying not_equal token
             elif (
                 self.source_code[self.current_source_index] == "!"
