@@ -38,8 +38,8 @@ def function_call_statement(tokens, i, table, func_ret_type):
     num_formal_params = len(params)
     num_required_args = num_formal_params - len(default_values)
 
-    params_start_idx = i+1
-    
+    params_start_idx = i + 1
+
     # Parse the arguments
     op_value, op_type, i, func_ret_type = expression(
         tokens,
@@ -88,7 +88,9 @@ def function_call_statement(tokens, i, table, func_ret_type):
 
         # Fetch the datatype of corresponding actual parameter from symbol table
         _, dtype, _, _, _ = table.get_by_id(
-            actual_param_tokens[j].val if (len(actual_param_tokens) > 0 and j < len(actual_param_tokens)) else table.get_by_symbol(op_value_list[j].replace(")", ""))
+            actual_param_tokens[j].val
+            if (len(actual_param_tokens) > 0 and j < len(actual_param_tokens))
+            else table.get_by_symbol(op_value_list[j].replace(")", ""))
         )
 
         # The id of the formal parameter will always be greater than the function's identifier in symbol table
@@ -105,22 +107,28 @@ def function_call_statement(tokens, i, table, func_ret_type):
     # If it an imported function the type of the function will be a list containing tokens from module's lexing results
     # Push all the function names and the corresponding position from where to parse
     if func_info != -1 and type(func_info[1][2]) == list:
-        func_ret_type = {func_name: func_info[1][1]}
+        func_ret_type[func_name] = func_info[1][1]
         use_module_tokens = True
 
-    # Handles delayed inference of return types, this can occur in two situations 
+    # Handles delayed inference of return types, this can occur in two situations
     # 1 - When the function is part of third party module, 2 - When the function's parameter are contained in return expression
     if func_name in func_ret_type.keys():
         # Case 1
         if use_module_tokens:
             # Parse the tokens which will help in deciding on the return type
             _, op_type, _, _ = expression(
-                func_info[1][2], func_ret_type[func_name], table, ""
+                func_info[1][2],
+                func_ret_type[func_name],
+                table,
+                "",
+                func_ret_type=func_ret_type,
             )
 
         # Case 2
         else:
-            _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "")
+            _, op_type, _, _ = expression(
+                tokens, func_ret_type[func_name], table, "", func_ret_type=func_ret_type
+            )
 
         #  Map datatype to appropriate datatype in C
         prec_to_type = {
@@ -152,7 +160,7 @@ def extract_func_typedata(typedata, table):
     ======
     typedata    (string)        = Typedata of function in format "function---param1---param2---...&&&default_val1&&&...
     table       (SymbolTable)   = Symbol table
-    
+
     Returns
     =======
     parameters      (list)  = Parameter names
@@ -222,8 +230,12 @@ def function_definition_statement(tokens, i, table, func_ret_type):
     from .simc_parser import skip_all_nextlines
 
     # Check if identifier follows fun
-    check_if(got_type=tokens[i].type, should_be_types="id", 
-             error_msg="Expected function name", line_num=tokens[i].line_num)
+    check_if(
+        got_type=tokens[i].type,
+        should_be_types="id",
+        error_msg="Expected function name",
+        line_num=tokens[i].line_num,
+    )
 
     # Store the id of function name in symbol table
     func_idx = tokens[i].val
@@ -285,7 +297,9 @@ def function_definition_statement(tokens, i, table, func_ret_type):
 
     # Add the identifier types to function's typedata
     parameter_names = [parameter[0] for parameter in parameters]
-    default_values = [str(parameter[1]) for parameter in parameters if parameter[1] is not None]
+    default_values = [
+        str(parameter[1]) for parameter in parameters if parameter[1] is not None
+    ]
 
     func_typedata = "function"
     if parameter_names:

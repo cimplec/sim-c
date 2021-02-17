@@ -325,7 +325,7 @@ def expression(
     return op_value, op_type, i, func_ret_type
 
 
-def print_statement(tokens, i, table, func_ret_type):
+def print_statement(tokens, i, table, func_ret_type, num_opcodes):
     """
     Parse print statement
     Params
@@ -357,6 +357,8 @@ def print_statement(tokens, i, table, func_ret_type):
         line_num=tokens[i].line_num,
     )
 
+    beg_idx = i
+
     # Check if expression follows ( in print statement
     op_value, op_type, i, func_ret_type = expression(
         tokens,
@@ -365,6 +367,8 @@ def print_statement(tokens, i, table, func_ret_type):
         "Expected expression inside print statement",
         func_ret_type=func_ret_type,
     )
+
+    end_idx = i
 
     # Map datatype to appropriate format specifiers
     prec_to_type = {
@@ -376,7 +380,10 @@ def print_statement(tokens, i, table, func_ret_type):
         5: '"%lf", ',
         6: '"%d", ',
     }
-    op_value = prec_to_type[op_type] + op_value[1:-1]
+    op_value = prec_to_type[op_type] + op_value[1:-1] if op_type != -1 else None
+
+    if op_value == None:
+        func_ret_type[f"print-{beg_idx}"] = [num_opcodes, beg_idx, end_idx]
 
     # Check if print statement has closing )
     check_if(
@@ -599,7 +606,7 @@ def parse(tokens, table):
                 error("Print cannot be called from struct scope", tokens[i].line_num)
 
             print_opcode, i, func_ret_type = print_statement(
-                tokens, i + 1, table, func_ret_type
+                tokens, i + 1, table, func_ret_type, len(op_codes)
             )
 
             # End of one line function scope
@@ -1193,6 +1200,14 @@ def parse(tokens, table):
     # Errors that may occur after parsing loop
     if main_fn_count == 1:
         error("No matching END_MAIN for MAIN", tokens[i - 1].line_num + 1)
+
+    # Parse all prints which could not be parsed due to unknown types
+    for name, print_info in func_ret_type.items():
+        if "print" in name:
+            print_opcode, i, func_ret_type = print_statement(
+                tokens, print_info[1], table, func_ret_type, -1
+            )
+            op_codes[print_info[0]] = print_opcode
 
     # Return opcodes
     return op_codes
