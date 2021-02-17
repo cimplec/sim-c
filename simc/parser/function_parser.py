@@ -105,7 +105,7 @@ def function_call_statement(tokens, i, table, func_ret_type):
     # If it an imported function the type of the function will be a list containing tokens from module's lexing results
     # Push all the function names and the corresponding position from where to parse
     if func_info != -1 and type(func_info[1][2]) == list:
-        func_ret_type = {func_name: func_info[1][1]}
+        func_ret_type[func_name] = func_info[1][1]
         use_module_tokens = True
 
     # Handles delayed inference of return types, this can occur in two situations 
@@ -115,12 +115,12 @@ def function_call_statement(tokens, i, table, func_ret_type):
         if use_module_tokens:
             # Parse the tokens which will help in deciding on the return type
             _, op_type, _, _ = expression(
-                func_info[1][2], func_ret_type[func_name], table, ""
+                func_info[1][2], func_ret_type[func_name], table, "", func_ret_type=func_ret_type
             )
 
         # Case 2
         else:
-            _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "")
+            _, op_type, _, _ = expression(tokens, func_ret_type[func_name], table, "", func_ret_type=func_ret_type)
 
         #  Map datatype to appropriate datatype in C
         prec_to_type = {
