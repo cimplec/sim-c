@@ -32,7 +32,7 @@ def check_include(opcodes):
             includes.append("#include <stdbool.h>")
 
         # If the opcode is a statement of type input, then it requires stdio.h to be included
-        if len(opcode.val.split("---")) >= 3:
+        if len(opcode.val.split("---")) >= 3 and len(opcode.val.split('---')[-1]) == 1:
             includes.append("#include <stdio.h>")
 
         if any(math in opcode.val for math in math_func_const):
