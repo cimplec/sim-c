@@ -1,3 +1,0 @@
-MAIN
-    var hello[2] = {1, 2}
-END_MAIN
