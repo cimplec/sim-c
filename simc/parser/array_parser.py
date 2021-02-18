@@ -115,6 +115,12 @@ def array_initializer(tokens, i, table, size_of_array, msg, func_ret_type):
             )
             op_value += op_value_temp
 
+            # If after splitting by comma there are more than one empty field then throw error
+            # One is allowed since there can be one comma at the end like - {1, 2, }
+            split_by_comma = op_value_temp.split(",")
+            if split_by_comma.count('') > 1:
+                error("Too many commas at the end of initializer list", line_num=tokens[i].line_num)
+
             # If the size of the array is defined, and if the number of tokens parsed is not equal to
             # what it should be, then display error
             if (
