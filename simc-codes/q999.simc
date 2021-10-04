@@ -1,0 +1,3 @@
+MAIN
+	print("Hello World")
+END_MAIN
