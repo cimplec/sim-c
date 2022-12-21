@@ -1,7 +1,6 @@
 # Import sys, os and pprint module
-import sys
-import os
-import pprint
+import sys, os, pprint
+
 
 # Module to import global helpers
 from .global_helpers import error
